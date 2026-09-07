@@ -1,0 +1,4 @@
+RowName,Beat,ViolationClass,WordBudget,ToneTarget,Narration,WordCount,ScoreBefore,ScoreAfter,Repairs,Outcome
+the_street,the_street,Tone and voice,30,bittersweet,You stand at the mouth of the cul-de-sac. The mailbox you remember sits at the curb. Your back leg throbs as you walk.,23,1.0,8.0,3,stopped at the repair limit
+boxcar_night,boxcar_night,Vocabulary and lore,30,bittersweet,Your paws ache on the metal floor. The boxcar rocks beneath you. You lie still until the next station comes.,20,1.0,8.0,3,stopped at the repair limit
+fed_by_stranger,fed_by_stranger,Length and format,25,wary,"A woman sets down a plate of chicken and bread. You eat while her hand hovers near your head, never quite touching. She watches you.",25,2.0,8.0,3,stopped at the repair limit

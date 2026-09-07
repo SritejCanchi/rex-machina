@@ -1,0 +1,114 @@
+{
+ "game": "Rex Machina",
+ "target": "game.js, the capstone build served at index.html",
+ "agent": "qa/adversary.js",
+ "run_at": "2026-09-07T20:14:22.562Z",
+ "strategy": [
+  "GDD 3 exploit 4 approach ratchet",
+  "GDD 3 exploit 2 the leash",
+  "GDD 3 exploit 5 window aliasing",
+  "GDD 3 exploit 3 no fail state",
+  "read line versus measured observable",
+  "randomised invariant fuzz",
+  "boundary probing",
+  "per-encounter winnability and loseability",
+  "journey to fight handoff"
+ ],
+ "checks_run": 1521,
+ "findings_count": 3,
+ "findings": [
+  {
+   "id": "RM-001",
+   "found_at": "2026-09-07T20:14:22.474Z",
+   "location": "Act 3 / read selection (speakRead) x DT_NemesisReads.json",
+   "error_type": "content_logic_mismatch",
+   "severity": "high",
+   "summary": "The robot cited a direction the dog never favoured. The line reads \"Target favored left nine of twenty recorded moves.\" while the dominant direction was right at 100 percent.",
+   "game_context": {
+    "round": 9,
+    "dog": [
+     9,
+     0
+    ],
+    "rex": [
+     9,
+     4
+    ],
+    "stamina": 8,
+    "charge": 46,
+    "approach": 0.455,
+    "register": "confident",
+    "phase": "phase_fence_gap",
+    "moves": [
+     "right",
+     "right",
+     "right",
+     "right",
+     "right",
+     "right"
+    ]
+   },
+   "repro": "move right nine times from the start tile",
+   "gdd_reference": "GDD 4, the read reports what the Nemesis measured"
+  },
+  {
+   "id": "RM-002",
+   "found_at": "2026-09-07T20:14:22.561Z",
+   "location": "Act 3 / stamina (mv, checkEnd)",
+   "error_type": "state_underflow",
+   "severity": "medium",
+   "summary": "Stamina went below zero before the round ended, reaching -1, in 142 of 300 runs. The HUD can show a negative number.",
+   "game_context": {
+    "round": 11,
+    "dog": [
+     1,
+     1
+    ],
+    "rex": [
+     1,
+     1
+    ],
+    "stamina": 0,
+    "charge": 41,
+    "approach": 0.182,
+    "register": "confident",
+    "phase": "phase_yard",
+    "moves": [
+     "wait",
+     "up",
+     "wait",
+     "wait",
+     "down",
+     "right"
+    ]
+   },
+   "repro": "random legal inputs until the adjacency drain overshoots"
+  },
+  {
+   "id": "RM-003",
+   "found_at": "2026-09-07T20:14:22.561Z",
+   "location": "Act 3 / movement (mv)",
+   "error_type": "soft_lock_risk",
+   "severity": "low",
+   "summary": "Pressing into a wall is a complete no-op: no round, no stamina, and the robot does not move. A player who does not realise a move was rejected sees a frozen game and no feedback.",
+   "game_context": {
+    "round": 0,
+    "dog": [
+     0,
+     0
+    ],
+    "rex": [
+     5,
+     5
+    ],
+    "stamina": 17,
+    "charge": 100,
+    "approach": 0,
+    "register": "clinical",
+    "phase": "phase_yard",
+    "moves": []
+   },
+   "repro": "hold the up arrow at the top edge; nothing on screen changes"
+  }
+ ]
+}

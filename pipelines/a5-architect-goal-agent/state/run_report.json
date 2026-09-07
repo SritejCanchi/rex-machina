@@ -1,0 +1,828 @@
+{
+ "provider": "live",
+ "features": 28,
+ "gaps": [
+  {
+   "key": "dog_position",
+   "name": "Dog tile tracking",
+   "status": "absent",
+   "evidence": "no reference anywhere in 7 modules",
+   "score": 0.91,
+   "breakdown": {
+    "dependency": 1.0,
+    "blocking": 1.0,
+    "priority": 1.0,
+    "state": 0.4
+   },
+   "gdd_section": "4",
+   "blocks": [
+    "dog_movement",
+    "predicted_tile",
+    "intercept_move"
+   ],
+   "requires": []
+  },
+  {
+   "key": "dog_movement",
+   "name": "Dog recent moves (sliding window)",
+   "status": "absent",
+   "evidence": "no reference anywhere in 7 modules",
+   "score": 0.31,
+   "breakdown": {
+    "dependency": 0.0,
+    "blocking": 0.0,
+    "priority": 1.0,
+    "state": 0.4
+   },
+   "gdd_section": "4",
+   "blocks": [
+    "movement_decay",
+    "read_generation"
+   ],
+   "requires": [
+    "dog_position"
+   ]
+  },
+  {
+   "key": "movement_decay",
+   "name": "Direction frequency decay",
+   "status": "implemented",
+   "evidence": "rex/dog.py:39 def dir_freq_20",
+   "score": null,
+   "breakdown": {},
+   "gdd_section": "4",
+   "blocks": [
+    "read_generation"
+   ],
+   "requires": [
+    "dog_movement"
+   ]
+  },
+  {
+   "key": "dog_observable_state",
+   "name": "Dog observable attributes",
+   "status": "absent",
+   "evidence": "no reference anywhere in 7 modules",
+   "score": 0.485,
+   "breakdown": {
+    "dependency": 1.0,
+    "blocking": 0.0,
+    "priority": 0.5,
+    "state": 0.4
+   },
+   "gdd_section": "4",
+   "blocks": [
+    "condition_tracking"
+   ],
+   "requires": []
+  },
+  {
+   "key": "condition_tracking",
+   "name": "Dog condition state machine",
+   "status": "implemented",
+   "evidence": "rex/dog.py:21 attr condition",
+   "score": null,
+   "breakdown": {},
+   "gdd_section": "4",
+   "blocks": [
+    "dog_observable_state"
+   ],
+   "requires": [
+    "dog_observable_state",
+    "day_counter"
+   ]
+  },
+  {
+   "key": "day_counter",
+   "name": "Days traveled counter",
+   "status": "absent",
+   "evidence": "no reference anywhere in 7 modules",
+   "score": 0.71,
+   "breakdown": {
+    "dependency": 1.0,
+    "blocking": 0.333,
+    "priority": 1.0,
+    "state": 0.4
+   },
+   "gdd_section": "4",
+   "blocks": [
+    "condition_tracking",
+    "journey_tracking",
+    "stamina_drain"
+   ],
+   "requires": []
+  },
+  {
+   "key": "stamina_system",
+   "name": "Dog stamina / approach meter",
+   "status": "implemented",
+   "evidence": "rex/nemesis.py:96 def self_charge_pct",
+   "score": null,
+   "breakdown": {},
+   "gdd_section": "3, 4",
+   "blocks": [
+    "loss_condition",
+    "phase_gating"
+   ],
+   "requires": [
+    "day_counter"
+   ]
+  },
+  {
+   "key": "stamina_drain",
+   "name": "Stamina drain mechanics",
+   "status": "implemented",
+   "evidence": "rex/dog.py:67 def drain",
+   "score": null,
+   "breakdown": {},
+   "gdd_section": "3",
+   "blocks": [],
+   "requires": [
+    "stamina_system"
+   ]
+  },
+  {
+   "key": "loss_condition",
+   "name": "Loss state (stamina empty)",
+   "status": "absent",
+   "evidence": "no reference anywhere in 7 modules",
+   "score": 0.31,
+   "breakdown": {
+    "dependency": 0.0,
+    "blocking": 0.0,
+    "priority": 1.0,
+    "state": 0.4
+   },
+   "gdd_section": "3",
+   "blocks": [],
+   "requires": [
+    "stamina_system"
+   ]
+  },
+  {
+   "key": "phase_system",
+   "name": "Three-phase arena progression",
+   "status": "implemented",
+   "evidence": "rex/arena.py:18 class Phase",
+   "score": null,
+   "breakdown": {},
+   "gdd_section": "2, 3",
+   "blocks": [
+    "checkpoint_system",
+    "arena_layout"
+   ],
+   "requires": [
+    "stamina_system"
+   ]
+  },
+  {
+   "key": "arena_layout",
+   "name": "Arena exits and cover tiles",
+   "status": "implemented",
+   "evidence": "play.py:41 attr exits",
+   "score": null,
+   "breakdown": {},
+   "gdd_section": "4",
+   "blocks": [
+    "predicted_tile"
+   ],
+   "requires": [
+    "phase_system"
+   ]
+  },
+  {
+   "key": "checkpoint_system",
+   "name": "Phase gate checkpoints",
+   "status": "absent",
+   "evidence": "no reference anywhere in 7 modules",
+   "score": 0.2475,
+   "breakdown": {
+    "dependency": 0.0,
+    "blocking": 0.0,
+    "priority": 0.75,
+    "state": 0.4
+   },
+   "gdd_section": "3",
+   "blocks": [],
+   "requires": [
+    "phase_system"
+   ]
+  },
+  {
+   "key": "predicted_tile",
+   "name": "Dog tile prediction",
+   "status": "absent",
+   "evidence": "no reference anywhere in 7 modules",
+   "score": 0.41,
+   "breakdown": {
+    "dependency": 0.0,
+    "blocking": 0.333,
+    "priority": 1.0,
+    "state": 0.4
+   },
+   "gdd_section": "4",
+   "blocks": [
+    "intercept_move",
+    "read_generation"
+   ],
+   "requires": [
+    "dog_position",
+    "dog_movement",
+    "arena_layout"
+   ]
+  },
+  {
+   "key": "intercept_move",
+   "name": "Nemesis intercept decision",
+   "status": "absent",
+   "evidence": "no reference anywhere in 7 modules",
+   "score": 0.41,
+   "breakdown": {
+    "dependency": 0.0,
+    "blocking": 0.333,
+    "priority": 1.0,
+    "state": 0.4
+   },
+   "gdd_section": "4",
+   "blocks": [
+    "robot_movement"
+   ],
+   "requires": [
+    "predicted_tile"
+   ]
+  },
+  {
+   "key": "robot_movement",
+   "name": "Robot dog pathfinding and movement",
+   "status": "mentioned",
+   "evidence": "play.py:18 comment only: robot of the GDD, KID is the objective tile.",
+   "score": 0.355,
+   "breakdown": {
+    "dependency": 0.0,
+    "blocking": 0.0,
+    "priority": 1.0,
+    "state": 0.7
+   },
+   "gdd_section": "5",
+   "blocks": [],
+   "requires": [
+    "intercept_move"
+   ]
+  },
+  {
+   "key": "distance_validity_check",
+   "name": "Engine-side distance validation",
+   "status": "implemented",
+   "evidence": "rex/loop.py:61 def _check_gate",
+   "score": null,
+   "breakdown": {},
+   "gdd_section": "5, 6",
+   "blocks": [
+    "robot_movement"
+   ],
+   "requires": [
+    "intercept_move"
+   ]
+  },
+  {
+   "key": "tell_animation",
+   "name": "600ms tell animation (latency design)",
+   "status": "mentioned",
+   "evidence": "play.py:27 comment only: The robot's register is a player-facing tell (GDD 3), so it ",
+   "score": 0.2925,
+   "breakdown": {
+    "dependency": 0.0,
+    "blocking": 0.0,
+    "priority": 0.75,
+    "state": 0.7
+   },
+   "gdd_section": "6",
+   "blocks": [],
+   "requires": [
+    "robot_movement"
+   ]
+  },
+  {
+   "key": "read_generation",
+   "name": "Nemesis read (taunt + plan)",
+   "status": "implemented",
+   "evidence": "rex/nemesis.py:85 def read",
+   "score": null,
+   "breakdown": {},
+   "gdd_section": "4",
+   "blocks": [
+    "read_ui_rule"
+   ],
+   "requires": [
+    "predicted_tile",
+    "movement_decay"
+   ]
+  },
+  {
+   "key": "read_ui_rule",
+   "name": "Read deduplication (UI suppression)",
+   "status": "mentioned",
+   "evidence": "play.py:28 comment only: the HUD rather than only inside a read line that suppression",
+   "score": 0.23,
+   "breakdown": {
+    "dependency": 0.0,
+    "blocking": 0.0,
+    "priority": 0.5,
+    "state": 0.7
+   },
+   "gdd_section": "4",
+   "blocks": [],
+   "requires": [
+    "read_generation"
+   ]
+  },
+  {
+   "key": "round_counter",
+   "name": "Round tracking (15 rounds total)",
+   "status": "implemented",
+   "evidence": "rex/loop.py:31 def play_round",
+   "score": null,
+   "breakdown": {},
+   "gdd_section": "2, 9",
+   "blocks": [
+    "phase_system",
+    "fires_per_round"
+   ],
+   "requires": []
+  },
+  {
+   "key": "fires_per_round",
+   "name": "Nemesis fires once per round",
+   "status": "absent",
+   "evidence": "no reference anywhere in 7 modules",
+   "score": 0.2475,
+   "breakdown": {
+    "dependency": 0.0,
+    "blocking": 0.0,
+    "priority": 0.75,
+    "state": 0.4
+   },
+   "gdd_section": "4",
+   "blocks": [],
+   "requires": [
+    "round_counter"
+   ]
+  },
+  {
+   "key": "journey_tracking",
+   "name": "Journey memory ledger",
+   "status": "absent",
+   "evidence": "no reference anywhere in 7 modules",
+   "score": 0.3475,
+   "breakdown": {
+    "dependency": 0.0,
+    "blocking": 0.333,
+    "priority": 0.75,
+    "state": 0.4
+   },
+   "gdd_section": "4",
+   "blocks": [
+    "narration_system"
+   ],
+   "requires": [
+    "day_counter"
+   ]
+  },
+  {
+   "key": "story_bible",
+   "name": "Story Bible (RAG surface)",
+   "status": "absent",
+   "evidence": "no reference anywhere in 7 modules",
+   "score": 0.6475,
+   "breakdown": {
+    "dependency": 1.0,
+    "blocking": 0.333,
+    "priority": 0.75,
+    "state": 0.4
+   },
+   "gdd_section": "4",
+   "blocks": [
+    "narration_system"
+   ],
+   "requires": []
+  },
+  {
+   "key": "narration_system",
+   "name": "Chronicler narration engine",
+   "status": "absent",
+   "evidence": "no reference anywhere in 7 modules",
+   "score": 0.2475,
+   "breakdown": {
+    "dependency": 0.0,
+    "blocking": 0.0,
+    "priority": 0.75,
+    "state": 0.4
+   },
+   "gdd_section": "4",
+   "blocks": [],
+   "requires": [
+    "journey_tracking",
+    "story_bible",
+    "tone_system"
+   ]
+  },
+  {
+   "key": "tone_system",
+   "name": "Tone and callback tracking",
+   "status": "implemented",
+   "evidence": "rex/arena.py:33 attr callback",
+   "score": null,
+   "breakdown": {},
+   "gdd_section": "4",
+   "blocks": [
+    "narration_system"
+   ],
+   "requires": [
+    "day_counter"
+   ]
+  },
+  {
+   "key": "nemesis_agent",
+   "name": "Nemesis LLM agent (BRAIN)",
+   "status": "implemented",
+   "evidence": "rex/nemesis.py:31 class Nemesis",
+   "score": null,
+   "breakdown": {},
+   "gdd_section": "4, 5",
+   "blocks": [],
+   "requires": [
+    "predicted_tile",
+    "movement_decay",
+    "read_generation"
+   ]
+  },
+  {
+   "key": "graceful_degradation",
+   "name": "Fallback behaviors (latency/API failure)",
+   "status": "absent",
+   "evidence": "no reference anywhere in 7 modules",
+   "score": 0.2475,
+   "breakdown": {
+    "dependency": 0.0,
+    "blocking": 0.0,
+    "priority": 0.75,
+    "state": 0.4
+   },
+   "gdd_section": "6",
+   "blocks": [],
+   "requires": [
+    "nemesis_agent"
+   ]
+  },
+  {
+   "key": "ending_sequence",
+   "name": "Ending with eye flicker reveal",
+   "status": "absent",
+   "evidence": "no reference anywhere in 7 modules",
+   "score": 0.2475,
+   "breakdown": {
+    "dependency": 0.0,
+    "blocking": 0.0,
+    "priority": 0.75,
+    "state": 0.4
+   },
+   "gdd_section": "3",
+   "blocks": [],
+   "requires": [
+    "loss_condition"
+   ]
+  }
+ ],
+ "ranked": [
+  {
+   "key": "dog_position",
+   "name": "Dog tile tracking",
+   "status": "absent",
+   "evidence": "no reference anywhere in 7 modules",
+   "score": 0.91,
+   "breakdown": {
+    "dependency": 1.0,
+    "blocking": 1.0,
+    "priority": 1.0,
+    "state": 0.4
+   },
+   "gdd_section": "4",
+   "blocks": [
+    "dog_movement",
+    "predicted_tile",
+    "intercept_move"
+   ],
+   "requires": []
+  },
+  {
+   "key": "day_counter",
+   "name": "Days traveled counter",
+   "status": "absent",
+   "evidence": "no reference anywhere in 7 modules",
+   "score": 0.71,
+   "breakdown": {
+    "dependency": 1.0,
+    "blocking": 0.333,
+    "priority": 1.0,
+    "state": 0.4
+   },
+   "gdd_section": "4",
+   "blocks": [
+    "condition_tracking",
+    "journey_tracking",
+    "stamina_drain"
+   ],
+   "requires": []
+  },
+  {
+   "key": "story_bible",
+   "name": "Story Bible (RAG surface)",
+   "status": "absent",
+   "evidence": "no reference anywhere in 7 modules",
+   "score": 0.6475,
+   "breakdown": {
+    "dependency": 1.0,
+    "blocking": 0.333,
+    "priority": 0.75,
+    "state": 0.4
+   },
+   "gdd_section": "4",
+   "blocks": [
+    "narration_system"
+   ],
+   "requires": []
+  },
+  {
+   "key": "dog_observable_state",
+   "name": "Dog observable attributes",
+   "status": "absent",
+   "evidence": "no reference anywhere in 7 modules",
+   "score": 0.485,
+   "breakdown": {
+    "dependency": 1.0,
+    "blocking": 0.0,
+    "priority": 0.5,
+    "state": 0.4
+   },
+   "gdd_section": "4",
+   "blocks": [
+    "condition_tracking"
+   ],
+   "requires": []
+  },
+  {
+   "key": "intercept_move",
+   "name": "Nemesis intercept decision",
+   "status": "absent",
+   "evidence": "no reference anywhere in 7 modules",
+   "score": 0.41,
+   "breakdown": {
+    "dependency": 0.0,
+    "blocking": 0.333,
+    "priority": 1.0,
+    "state": 0.4
+   },
+   "gdd_section": "4",
+   "blocks": [
+    "robot_movement"
+   ],
+   "requires": [
+    "predicted_tile"
+   ]
+  },
+  {
+   "key": "predicted_tile",
+   "name": "Dog tile prediction",
+   "status": "absent",
+   "evidence": "no reference anywhere in 7 modules",
+   "score": 0.41,
+   "breakdown": {
+    "dependency": 0.0,
+    "blocking": 0.333,
+    "priority": 1.0,
+    "state": 0.4
+   },
+   "gdd_section": "4",
+   "blocks": [
+    "intercept_move",
+    "read_generation"
+   ],
+   "requires": [
+    "dog_position",
+    "dog_movement",
+    "arena_layout"
+   ]
+  },
+  {
+   "key": "robot_movement",
+   "name": "Robot dog pathfinding and movement",
+   "status": "mentioned",
+   "evidence": "play.py:18 comment only: robot of the GDD, KID is the objective tile.",
+   "score": 0.355,
+   "breakdown": {
+    "dependency": 0.0,
+    "blocking": 0.0,
+    "priority": 1.0,
+    "state": 0.7
+   },
+   "gdd_section": "5",
+   "blocks": [],
+   "requires": [
+    "intercept_move"
+   ]
+  },
+  {
+   "key": "journey_tracking",
+   "name": "Journey memory ledger",
+   "status": "absent",
+   "evidence": "no reference anywhere in 7 modules",
+   "score": 0.3475,
+   "breakdown": {
+    "dependency": 0.0,
+    "blocking": 0.333,
+    "priority": 0.75,
+    "state": 0.4
+   },
+   "gdd_section": "4",
+   "blocks": [
+    "narration_system"
+   ],
+   "requires": [
+    "day_counter"
+   ]
+  },
+  {
+   "key": "dog_movement",
+   "name": "Dog recent moves (sliding window)",
+   "status": "absent",
+   "evidence": "no reference anywhere in 7 modules",
+   "score": 0.31,
+   "breakdown": {
+    "dependency": 0.0,
+    "blocking": 0.0,
+    "priority": 1.0,
+    "state": 0.4
+   },
+   "gdd_section": "4",
+   "blocks": [
+    "movement_decay",
+    "read_generation"
+   ],
+   "requires": [
+    "dog_position"
+   ]
+  },
+  {
+   "key": "loss_condition",
+   "name": "Loss state (stamina empty)",
+   "status": "absent",
+   "evidence": "no reference anywhere in 7 modules",
+   "score": 0.31,
+   "breakdown": {
+    "dependency": 0.0,
+    "blocking": 0.0,
+    "priority": 1.0,
+    "state": 0.4
+   },
+   "gdd_section": "3",
+   "blocks": [],
+   "requires": [
+    "stamina_system"
+   ]
+  },
+  {
+   "key": "tell_animation",
+   "name": "600ms tell animation (latency design)",
+   "status": "mentioned",
+   "evidence": "play.py:27 comment only: The robot's register is a player-facing tell (GDD 3), so it ",
+   "score": 0.2925,
+   "breakdown": {
+    "dependency": 0.0,
+    "blocking": 0.0,
+    "priority": 0.75,
+    "state": 0.7
+   },
+   "gdd_section": "6",
+   "blocks": [],
+   "requires": [
+    "robot_movement"
+   ]
+  },
+  {
+   "key": "checkpoint_system",
+   "name": "Phase gate checkpoints",
+   "status": "absent",
+   "evidence": "no reference anywhere in 7 modules",
+   "score": 0.2475,
+   "breakdown": {
+    "dependency": 0.0,
+    "blocking": 0.0,
+    "priority": 0.75,
+    "state": 0.4
+   },
+   "gdd_section": "3",
+   "blocks": [],
+   "requires": [
+    "phase_system"
+   ]
+  },
+  {
+   "key": "ending_sequence",
+   "name": "Ending with eye flicker reveal",
+   "status": "absent",
+   "evidence": "no reference anywhere in 7 modules",
+   "score": 0.2475,
+   "breakdown": {
+    "dependency": 0.0,
+    "blocking": 0.0,
+    "priority": 0.75,
+    "state": 0.4
+   },
+   "gdd_section": "3",
+   "blocks": [],
+   "requires": [
+    "loss_condition"
+   ]
+  },
+  {
+   "key": "fires_per_round",
+   "name": "Nemesis fires once per round",
+   "status": "absent",
+   "evidence": "no reference anywhere in 7 modules",
+   "score": 0.2475,
+   "breakdown": {
+    "dependency": 0.0,
+    "blocking": 0.0,
+    "priority": 0.75,
+    "state": 0.4
+   },
+   "gdd_section": "4",
+   "blocks": [],
+   "requires": [
+    "round_counter"
+   ]
+  },
+  {
+   "key": "graceful_degradation",
+   "name": "Fallback behaviors (latency/API failure)",
+   "status": "absent",
+   "evidence": "no reference anywhere in 7 modules",
+   "score": 0.2475,
+   "breakdown": {
+    "dependency": 0.0,
+    "blocking": 0.0,
+    "priority": 0.75,
+    "state": 0.4
+   },
+   "gdd_section": "6",
+   "blocks": [],
+   "requires": [
+    "nemesis_agent"
+   ]
+  },
+  {
+   "key": "narration_system",
+   "name": "Chronicler narration engine",
+   "status": "absent",
+   "evidence": "no reference anywhere in 7 modules",
+   "score": 0.2475,
+   "breakdown": {
+    "dependency": 0.0,
+    "blocking": 0.0,
+    "priority": 0.75,
+    "state": 0.4
+   },
+   "gdd_section": "4",
+   "blocks": [],
+   "requires": [
+    "journey_tracking",
+    "story_bible",
+    "tone_system"
+   ]
+  },
+  {
+   "key": "read_ui_rule",
+   "name": "Read deduplication (UI suppression)",
+   "status": "mentioned",
+   "evidence": "play.py:28 comment only: the HUD rather than only inside a read line that suppression",
+   "score": 0.23,
+   "breakdown": {
+    "dependency": 0.0,
+    "blocking": 0.0,
+    "priority": 0.5,
+    "state": 0.7
+   },
+   "gdd_section": "4",
+   "blocks": [],
+   "requires": [
+    "read_generation"
+   ]
+  }
+ ],
+ "selected": "dog_position",
+ "verified": true,
+ "files": [
+  "rex/nemesis.py"
+ ],
+ "report": "import: pass\ntests: pass"
+}

@@ -1,0 +1,12 @@
+{
+  "role": "repair.nemesis_read.1",
+  "model": null,
+  "prompt_sha256_16": "db2613256f5f8e2a",
+  "prompt_chars": 9036,
+  "response": "[\n  {\n    \"ReadID\": \"NR_sealing_direction_conf_01\",\n    \"ReadCategory\": \"sealing_direction\",\n    \"ChargeBand\": \"confident\",\n    \"Line\": \"You broke left nine times in twenty.\",\n    \"WordCount\": 7,\n    \"ObservableCited\": \"dir_freq_20\",\n    \"TriggerCondition\": \"one compass direction dominates dir_freq_20\"\n  },\n  {\n    \"ReadID\": \"NR_cover_habit_conf_01\",\n    \"ReadCategory\": \"cover_habit\",\n    \"ChargeBand\": \"confident\",\n    \"Line\": \"You ended three of four moves behind cover.\",\n    \"WordCount\": 8,\n    \"ObservableCited\": \"cover_tiles\",\n    \"TriggerCondition\": \"the dog has ended three of the last five rounds on a cover tile\"\n  },\n  {\n    \"ReadID\": \"NR_periodicity_called_conf_01\",\n    \"ReadCategory\": \"periodicity_called\",\n    \"ChargeBand\": \"confident\",\n    \"Line\": \"You looped a pattern.\",\n    \"WordCount\": 4,\n    \"ObservableCited\": \"periodicity\",\n    \"TriggerCondition\": \"periodicity > 0.65\"\n  }\n]",
+  "input_tokens": null,
+  "output_tokens": null,
+  "recorded_by": "claude-opus-5 (subagent, given only the prompt file)",
+  "recorded_at_utc": "2026-08-05T23:46:17Z",
+  "note": "Produced by a subagent handed this prompt file and nothing else. It could not see the gate, the specs or the fallback table. No live Haiku 4.5 call."
+}

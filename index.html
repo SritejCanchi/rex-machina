@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Rex Machina</title>
+<style>
+  :root{
+    --bg:#0d0f11; --panel:#14181c; --line:#232a31; --ink:#dfe5ea;
+    --dim:#8b97a2; --hot:#e0a34a; --cold:#6fa8c7; --bad:#c9564b; --good:#7fb069;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+       font:15px/1.55 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+       display:flex;justify-content:center;padding:16px}
+  #app{width:100%;max-width:760px}
+  h1{font-size:19px;letter-spacing:.14em;margin:0 0 2px;font-weight:600}
+  .sub{color:var(--dim);font-size:12px;margin-bottom:14px}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:6px;
+         padding:14px 16px;margin-bottom:12px}
+  .hud{display:flex;flex-wrap:wrap;gap:8px 20px;font-size:13px;color:var(--dim)}
+  .hud b{color:var(--ink);font-weight:600}
+  .bar{height:4px;background:#20262c;border-radius:2px;margin-top:5px;overflow:hidden}
+  .bar i{display:block;height:100%;background:var(--cold)}
+  #say{min-height:66px}
+  #say p{margin:0 0 8px}
+  #say p:last-child{margin-bottom:0}
+  .rex{color:var(--hot)}
+  .sys{color:var(--dim);font-size:13px}
+  .win{color:var(--good)} .lose{color:var(--bad)}
+  table.grid{border-collapse:collapse;margin:2px auto}
+  table.grid td{width:30px;height:30px;text-align:center;vertical-align:middle;
+                font-size:12px;color:#39424b;border:1px solid #191e23}
+  td.dog{color:var(--good);font-weight:700}
+  td.rexT{color:var(--bad);font-weight:700}
+  td.kid{color:var(--hot);font-weight:700}
+  td.cover{color:#4a545e} td.exit{color:#3d4a55}
+  .btns{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+  button{background:#1b2126;color:var(--ink);border:1px solid var(--line);
+         border-radius:5px;padding:9px 15px;font:inherit;font-size:13px;cursor:pointer}
+  button:hover:not(:disabled){border-color:#3a4650;background:#222a30}
+  button:disabled{opacity:.35;cursor:default}
+  button.key{min-width:46px}
+  .pad{display:grid;grid-template-columns:repeat(3,46px);gap:6px;margin-top:12px}
+  .pad button:nth-child(1){grid-column:2}
+  .prov{color:#5b666f;font-size:11px;margin-top:14px;text-align:center}
+  .prov code{color:#6d7a84}
+</style>
+</head>
+<body>
+<div id="app">
+  <h1>REX MACHINA</h1>
+  <div class="sub">A shelter dog walks home. Nine days, then the thing they replaced her with.</div>
+  <div class="panel" id="hudBox"><div class="hud" id="hud"></div></div>
+  <div class="panel" id="say"></div>
+  <div class="panel" id="stage"></div>
+  <div class="prov" id="prov"></div>
+</div>
+<script src="game.js"></script>
+</body>
+</html>

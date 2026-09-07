@@ -1,0 +1,12 @@
+{
+  "role": "repair.nemesis_read.0",
+  "model": null,
+  "prompt_sha256_16": "0645aa876b906652",
+  "prompt_chars": 8617,
+  "response": "[\n  {\n    \"ReadID\": \"nemesis_read_cover_habit_clinical\",\n    \"ReadCategory\": \"cover_habit\",\n    \"ChargeBand\": \"clinical\",\n    \"Line\": \"Target ended three of four rounds on cover.\",\n    \"WordCount\": 8,\n    \"ObservableCited\": \"cover_tiles\",\n    \"TriggerCondition\": \"the dog has ended three of the last four rounds on a cover tile\"\n  },\n  {\n    \"ReadID\": \"nemesis_read_periodicity_called_clinical\",\n    \"ReadCategory\": \"periodicity_called\",\n    \"ChargeBand\": \"clinical\",\n    \"Line\": \"Movement repeated on cycle.\",\n    \"WordCount\": 4,\n    \"ObservableCited\": \"periodicity\",\n    \"TriggerCondition\": \"periodicity > 0.65\"\n  },\n  {\n    \"ReadID\": \"nemesis_read_charge_strain_clinical\",\n    \"ReadCategory\": \"charge_strain\",\n    \"ChargeBand\": \"clinical\",\n    \"Line\": \"Charge above sixty percent. Efficiency margin narrowed.\",\n    \"WordCount\": 7,\n    \"ObservableCited\": \"self_charge_pct\",\n    \"TriggerCondition\": \"self_charge_pct crossed below a band boundary this round\"\n  }\n]",
+  "input_tokens": null,
+  "output_tokens": null,
+  "recorded_by": "claude-opus-5 (subagent, given only the prompt file)",
+  "recorded_at_utc": "2026-08-05T23:46:17Z",
+  "note": "Produced by a subagent handed this prompt file and nothing else. It could not see the gate, the specs or the fallback table. No live Haiku 4.5 call."
+}

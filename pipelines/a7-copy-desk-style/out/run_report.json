@@ -1,0 +1,47 @@
+{
+ "provider": "replay",
+ "cases": 3,
+ "lifted": 3,
+ "accepted_but_countably_wrong": 0,
+ "rows": [
+  {
+   "RowName": "the_street",
+   "Beat": "the_street",
+   "ViolationClass": "Tone and voice",
+   "WordBudget": 30,
+   "ToneTarget": "bittersweet",
+   "Narration": "You stand at the mouth of the cul-de-sac. The mailbox you remember sits at the curb. Your back leg throbs as you walk.",
+   "WordCount": 23,
+   "ScoreBefore": 1.0,
+   "ScoreAfter": 8.0,
+   "Repairs": 3,
+   "Outcome": "stopped at the repair limit"
+  },
+  {
+   "RowName": "boxcar_night",
+   "Beat": "boxcar_night",
+   "ViolationClass": "Vocabulary and lore",
+   "WordBudget": 30,
+   "ToneTarget": "bittersweet",
+   "Narration": "Your paws ache on the metal floor. The boxcar rocks beneath you. You lie still until the next station comes.",
+   "WordCount": 20,
+   "ScoreBefore": 1.0,
+   "ScoreAfter": 8.0,
+   "Repairs": 3,
+   "Outcome": "stopped at the repair limit"
+  },
+  {
+   "RowName": "fed_by_stranger",
+   "Beat": "fed_by_stranger",
+   "ViolationClass": "Length and format",
+   "WordBudget": 25,
+   "ToneTarget": "wary",
+   "Narration": "A woman sets down a plate of chicken and bread. You eat while her hand hovers near your head, never quite touching. She watches you.",
+   "WordCount": 25,
+   "ScoreBefore": 2.0,
+   "ScoreAfter": 8.0,
+   "Repairs": 3,
+   "Outcome": "stopped at the repair limit"
+  }
+ ]
+}

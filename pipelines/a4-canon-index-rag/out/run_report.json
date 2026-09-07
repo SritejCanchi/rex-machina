@@ -1,0 +1,1617 @@
+{
+  "kb": {
+    "chunks": 39,
+    "vocabulary": 2471,
+    "by_kind": {
+      "prose": 21,
+      "code": 6,
+      "table_row": 12
+    },
+    "sources": [
+      "gdd_rex_machina"
+    ],
+    "mean_chunk_chars": 410.5
+  },
+  "usage": {
+    "provider": "replay",
+    "calls": 15,
+    "input_tokens": null,
+    "output_tokens": null,
+    "cost_usd": null
+  },
+  "reports": [
+    {
+      "content_type": "arena_phase",
+      "table": "DT_ArenaPhases",
+      "gap": "The only level being built first is described in six words.",
+      "query": "Act 3 boss arena phases 33% 66% approach gates yard fence gap train yard re-lays exits and cover tiles, compact UE5 arena NavMesh coarse tactical grid, at least two escape routes per phase, checkpoints at the gates, greybox",
+      "retrieved": [
+        {
+          "rank": 1,
+          "chunk": "gdd_rex_machina#006",
+          "score": 0.2573,
+          "kind": "prose",
+          "heading": "MY CAPSTONE \u2014 Source of Truth > 3. BOSS MECHANICS (v3 \u2014 post-exploit-fix)",
+          "overlap_terms": [
+            "yard",
+            "fence",
+            "gates",
+            "arena",
+            "yard_re",
+            "yard_fence"
+          ]
+        },
+        {
+          "rank": 2,
+          "chunk": "gdd_rex_machina#005",
+          "score": 0.2014,
+          "kind": "prose",
+          "heading": "MY CAPSTONE \u2014 Source of Truth > 2. STRUCTURE",
+          "overlap_terms": [
+            "act",
+            "arena",
+            "ue5_arena",
+            "tactical_grid",
+            "tactical",
+            "navmesh_coarse"
+          ]
+        },
+        {
+          "rank": 3,
+          "chunk": "gdd_rex_machina#032",
+          "score": 0.0783,
+          "kind": "code",
+          "heading": "MY CAPSTONE \u2014 Source of Truth > 5. AI DEV PIPELINE & ENGINE INTEGRATION (UE5)",
+          "overlap_terms": [
+            "ue5",
+            "66_approach",
+            "66",
+            "33_66",
+            "33",
+            "phase"
+          ]
+        },
+        {
+          "rank": 4,
+          "chunk": "gdd_rex_machina#027",
+          "score": 0.0631,
+          "kind": "code",
+          "heading": "MY CAPSTONE \u2014 Source of Truth > 4. THE DEV CREW (3 agents) > Agent 2 \u2014 CHRONICLER  *(narrative spine \u2014 rewritten in v3)*",
+          "overlap_terms": [
+            "beat_the_street",
+            "the_street",
+            "beat"
+          ]
+        },
+        {
+          "rank": 5,
+          "chunk": "gdd_rex_machina#034",
+          "score": 0.0609,
+          "kind": "prose",
+          "heading": "MY CAPSTONE \u2014 Source of Truth > 6. CONSTRAINTS (each explained)",
+          "overlap_terms": [
+            "per",
+            "routes_per",
+            "per_phase",
+            "routes",
+            "escape_routes",
+            "greybox"
+          ]
+        },
+        {
+          "rank": 6,
+          "chunk": "gdd_rex_machina#043",
+          "score": 0.0492,
+          "kind": "prose",
+          "heading": "MY CAPSTONE \u2014 Source of Truth > 9. OPEN DECISIONS",
+          "overlap_terms": [
+            "arena",
+            "greybox",
+            "arena_navmesh",
+            "navmesh",
+            "approach",
+            "ue5"
+          ]
+        },
+        {
+          "rank": 7,
+          "chunk": "gdd_rex_machina#011",
+          "score": 0.0485,
+          "kind": "code",
+          "heading": "MY CAPSTONE \u2014 Source of Truth > 4. THE DEV CREW (3 agents) > Agent 1 \u2014 NEMESIS  *(THE One Wow \u00b7 adversarial \u00b7 goal-oriented)*",
+          "overlap_terms": [
+            "cover_tiles",
+            "fence_gap",
+            "exits",
+            "phase"
+          ]
+        }
+      ],
+      "rows": [
+        {
+          "PhaseID": "phase_yard",
+          "PhaseIndex": 1,
+          "ApproachLow": 0.0,
+          "ApproachHigh": 0.33,
+          "ArenaName": "yard",
+          "GridSpan": "10x10",
+          "ExitTiles": [
+            [
+              0,
+              4
+            ],
+            [
+              9,
+              7
+            ]
+          ],
+          "CoverTiles": [
+            [
+              3,
+              5
+            ],
+            [
+              6,
+              2
+            ]
+          ],
+          "Light": "Late afternoon, low sun across the grass; the porch light is already on and throws one long rectangle over tiles 4-6 of the near row.",
+          "SoundBed": "Wind in a chain-link fence, a screen door knocking in its frame, the robot's servo whine held at a steady clinical pitch.",
+          "Props": [
+            "chain-link fence line",
+            "porch steps",
+            "coiled garden hose",
+            "tipped plastic wheelbarrow",
+            "greybox shed block"
+          ],
+          "GateOpenMoment": "The yard gate at the fence line unlatches and swings the moment the approach meter crosses 0.33; the checkpoint fires as the player steps through, keeping the meter and the four-move history.",
+          "PlayerSees": "Home ground turned into a ring. The robot dog stands between you and the house, head scanning for 600 ms every time you commit a step, and the porch light shows you exactly how much yard is left.",
+          "CallbackBeat": "the_street",
+          "NemesisPressure": "Charge above 60 percent. It intercepts on the straight read of your last four moves and reports in a flat clinical register; it never sprints, so its pauses are rare and its predictions are its only weapon.",
+          "Provenance": "generated"
+        },
+        {
+          "PhaseID": "phase_fence_gap",
+          "PhaseIndex": 2,
+          "ApproachLow": 0.33,
+          "ApproachHigh": 0.66,
+          "ArenaName": "fence gap",
+          "GridSpan": "10x10",
+          "ExitTiles": [
+            [
+              0,
+              6
+            ],
+            [
+              9,
+              2
+            ]
+          ],
+          "CoverTiles": [
+            [
+              3,
+              5
+            ],
+            [
+              5,
+              7
+            ]
+          ],
+          "Light": "no house light past the gate, one neighbour's lamp on a motion timer that keeps guessing wrong",
+          "SoundBed": "chain link ringing whenever either animal touches it",
+          "Props": [
+            "a chain link run between two yards",
+            "a gap dug under the bottom rail",
+            "a stack of paving slabs",
+            "a lamp pole with a dead sensor"
+          ],
+          "GateOpenMoment": "at 66% the far panel is already down and the ground turns to ballast",
+          "PlayerSees": "The same shape of gap that took the back leg, with the machine standing in it.",
+          "CallbackBeat": "limp_onset",
+          "NemesisPressure": "rising; it sprints once a phase and pays for it out of charge",
+          "Provenance": "authored_fallback"
+        },
+        {
+          "PhaseID": "phase_train_yard",
+          "PhaseIndex": 3,
+          "ApproachLow": 0.66,
+          "ApproachHigh": 1.0,
+          "ArenaName": "train yard",
+          "GridSpan": "10x10",
+          "ExitTiles": [
+            [
+              4,
+              0
+            ],
+            [
+              0,
+              9
+            ],
+            [
+              9,
+              9
+            ]
+          ],
+          "CoverTiles": [
+            [
+              2,
+              4
+            ],
+            [
+              7,
+              3
+            ],
+            [
+              5,
+              6
+            ]
+          ],
+          "Light": "sodium floods on tall poles, hard shadows that swing when nothing has moved",
+          "SoundBed": "an idling engine out of sight, couplings taking up slack one at a time",
+          "Props": [
+            "a line of stationary flatcars",
+            "a switch stand with its lamp lit",
+            "ballast gravel",
+            "one boxcar with the door standing open"
+          ],
+          "GateOpenMoment": "no gate; this phase ends the fight one way or the other",
+          "PlayerSees": "An open boxcar door, the same shape that saved the dog once, and this time the machine is in front of it.",
+          "CallbackBeat": "train_leap",
+          "NemesisPressure": "highest; charge is low, the reads are clipped, and it stops covering both exits",
+          "Provenance": "authored_fallback"
+        }
+      ],
+      "critic_findings": [
+        {
+          "row": "phase_fence_gap",
+          "rule": "A5",
+          "span": "\"CallbackBeat\": \"limp_onset\"",
+          "why": "No canon beat id named limp_onset exists; the canon beat list is shelter escape, alley chase, freight-train leap, the coast through the boxcar door, the family's street, and the only literal id shown is \"the_street\" \u2014 \"limping\" appears in canon only as a dog_observable gait field, not as a beat.",
+          "chunk": "gdd_rex_machina#005"
+        },
+        {
+          "row": "phase_fence_gap",
+          "rule": "lore",
+          "span": "the lit strip runs diagonally from tile [1,1] to tile [8,8] and is the only ground where the robot reads you cleanly",
+          "why": "Canon gives the Nemesis unconditional perception every round (\"you move \u2192 the Nemesis perceives your position + movement statistics\", and dog_tile is always present in its input), so a lighting-gated perception is a new mechanic that contradicts the boss loop.",
+          "chunk": "gdd_rex_machina#006"
+        },
+        {
+          "row": "phase_fence_gap",
+          "rule": "lore",
+          "span": "\"CoverTiles\": [[2,3],[5,7],[7,4]]",
+          "why": "Canon's phase-2 payload (phase:2, approach_meter 0.6, which lands in this row's 0.33\u20130.66 band) lists cover_tiles [[3,5],[5,7]], and this row keeps [5,7] and canon's exits [0,6],[9,2] but drops [3,5], which the previous row has instead reassigned to phase 1.",
+          "chunk": "gdd_rex_machina#011"
+        },
+        {
+          "row": "phase_train_yard",
+          "rule": "tone",
+          "span": "Four covers, three exits, and a robot that pauses longer than it used to between reads.",
+          "why": "This is the agent's tactical readout, not what the dog sees \u2014 canon puts the coarse tactical grid on the agent's side only, and the game's player-facing register is concrete sensory detail (\"The porch light is the same. So is the shape moving behind the window\"), not counted level entities.",
+          "chunk": "gdd_rex_machina#005"
+        },
+        {
+          "row": "phase_train_yard",
+          "rule": "tone",
+          "span": "the open boxcar door at [1,9] is the one bright rectangle on the board",
+          "why": "\"On the board\" names the agent-side grid abstraction inside a scene description, breaking the fiction that the grid is overlaid for the agent rather than seen by the dog.",
+          "chunk": "gdd_rex_machina#005"
+        }
+      ],
+      "gate_findings": [
+        {
+          "row": "phase_fence_gap",
+          "rule": "A5",
+          "detail": "CallbackBeat 'shelter_escape' is not a canon beat id",
+          "after": "repaired"
+        },
+        {
+          "row": "phase_train_yard",
+          "rule": "A6",
+          "detail": "banned word 'journey'",
+          "after": "repaired"
+        }
+      ],
+      "counts": {
+        "rows": 3,
+        "generated": 1,
+        "repaired": 0,
+        "authored_fallback": 2,
+        "critic_findings": 5,
+        "gate_findings": 2
+      },
+      "repairs": [
+        {
+          "row": "phase_fence_gap",
+          "before": {
+            "PhaseID": "phase_fence_gap",
+            "PhaseIndex": 2,
+            "ApproachLow": 0.33,
+            "ApproachHigh": 0.66,
+            "ArenaName": "fence gap",
+            "GridSpan": "10x10",
+            "ExitTiles": [
+              [
+                0,
+                6
+              ],
+              [
+                9,
+                2
+              ],
+              [
+                4,
+                9
+              ]
+            ],
+            "CoverTiles": [
+              [
+                2,
+                3
+              ],
+              [
+                5,
+                7
+              ],
+              [
+                7,
+                4
+              ]
+            ],
+            "Light": "Dusk. Half the grid sits in fence shadow bars; the lit strip runs diagonally from tile [1,1] to tile [8,8] and is the only ground where the robot reads you cleanly.",
+            "SoundBed": "Loose wire ticking against a post, gravel under your pads, servo whine climbing and dropping as the robot burns charge sprinting the lit strip.",
+            "Props": [
+              "torn chain-link with a dog-width gap",
+              "stacked wooden pallets",
+              "concrete drainage culvert",
+              "leaning fence post",
+              "greybox retaining wall"
+            ],
+            "GateOpenMoment": "The culvert mouth at [4,9] opens when the meter crosses 0.66; the checkpoint fires inside the pipe, so a loss here starts the next attempt with the fence still in the move history.",
+            "PlayerSees": "The gap you already failed once. Cover is close but the exits are far apart, and the robot's tell now comes with an ear twitch that says it is confident it knows which side you will take.",
+            "CallbackBeat": "limp_onset",
+            "NemesisPressure": "Charge 30 to 60 percent. It sprints to cut the lit strip, then has to stand and pause; the register turns confident. Its four-move window forgets your early jukes here, so a juke you spent in the yard is worth spending again."
+          },
+          "after": {
+            "PhaseID": "phase_fence_gap",
+            "PhaseIndex": 2,
+            "ApproachLow": 0.33,
+            "ApproachHigh": 0.66,
+            "ArenaName": "fence gap",
+            "GridSpan": "10x10",
+            "ExitTiles": [
+              [
+                0,
+                6
+              ],
+              [
+                9,
+                2
+              ],
+              [
+                4,
+                9
+              ]
+            ],
+            "CoverTiles": [
+              [
+                3,
+                5
+              ],
+              [
+                5,
+                7
+              ],
+              [
+                7,
+                4
+              ]
+            ],
+            "Light": "Dusk. Half the grid sits in fence shadow bars; the lit strip runs diagonally from tile [1,1] to tile [8,8].",
+            "SoundBed": "Loose wire ticking against a post, gravel under your pads, servo whine climbing and dropping as the robot burns charge sprinting the lit strip.",
+            "Props": [
+              "torn chain-link with a dog-width gap",
+              "stacked wooden pallets",
+              "concrete drainage culvert",
+              "leaning fence post",
+              "greybox retaining wall"
+            ],
+            "GateOpenMoment": "The culvert mouth at [4,9] opens when the meter crosses 0.66; the checkpoint fires inside the pipe, so a loss here starts the next attempt with the fence still in the move history.",
+            "PlayerSees": "The gap you already failed once. Cover is close but the exits are far apart, and the robot's tell now comes with an ear twitch that says it is confident it knows which side you will take.",
+            "CallbackBeat": "shelter_escape",
+            "NemesisPressure": "Charge 30 to 60 percent. It sprints to cut the lit strip, then has to stand and pause; the register turns confident. Its four-move window forgets your early jukes here, so a juke you spent in the yard is worth spending again."
+          }
+        },
+        {
+          "row": "phase_train_yard",
+          "before": {
+            "PhaseID": "phase_train_yard",
+            "PhaseIndex": 3,
+            "ApproachLow": 0.66,
+            "ApproachHigh": 1.0,
+            "ArenaName": "train yard",
+            "GridSpan": "10x10",
+            "ExitTiles": [
+              [
+                0,
+                5
+              ],
+              [
+                8,
+                0
+              ],
+              [
+                1,
+                9
+              ]
+            ],
+            "CoverTiles": [
+              [
+                3,
+                3
+              ],
+              [
+                4,
+                7
+              ],
+              [
+                6,
+                6
+              ],
+              [
+                7,
+                2
+              ]
+            ],
+            "Light": "Night under two sodium lamps on the signal gantry. Boxcar shadows cut the grid into lanes; the open boxcar door at [1,9] is the one bright rectangle on the board.",
+            "SoundBed": "Rail ties creaking, a distant coupling clank, the robot's servo whine gone thin and uneven as its charge drops.",
+            "Props": [
+              "freight boxcar with the door slid open",
+              "stacked rail ties",
+              "gravel ballast mound",
+              "signal post",
+              "greybox flatcar block"
+            ],
+            "GateOpenMoment": "No further gate. At meter 1.0 the approach closes and the fight ends; the last checkpoint remains the culvert, so a loss here replays the whole train yard with the meter and history intact.",
+            "PlayerSees": "The same boxcar door you leapt for on the journey, now the finish line. Four covers, three exits, and a robot that pauses longer than it used to between reads.",
+            "CallbackBeat": "train_leap",
+            "NemesisPressure": "Charge under 30 percent. The register goes strained. It cannot chase every lane, so it plays the statistics instead of the window and commits early; break the direction frequency it has been building all fight and the lanes open."
+          },
+          "after": {
+            "PhaseID": "phase_train_yard",
+            "PhaseIndex": 3,
+            "ApproachLow": 0.66,
+            "ApproachHigh": 1.0,
+            "ArenaName": "train yard",
+            "GridSpan": "10x10",
+            "ExitTiles": [
+              [
+                0,
+                5
+              ],
+              [
+                8,
+                0
+              ],
+              [
+                1,
+                9
+              ]
+            ],
+            "CoverTiles": [
+              [
+                3,
+                3
+              ],
+              [
+                4,
+                7
+              ],
+              [
+                6,
+                6
+              ],
+              [
+                7,
+                2
+              ]
+            ],
+            "Light": "Night under two sodium lamps on the signal gantry. Boxcar shadows cut the grid into lanes; the open boxcar door at [1,9] is the one bright rectangle in the yard.",
+            "SoundBed": "Rail ties creaking, a distant coupling clank, the robot's servo whine gone thin and uneven as its charge drops.",
+            "Props": [
+              "freight boxcar with the door slid open",
+              "stacked rail ties",
+              "gravel ballast mound",
+              "signal post",
+              "greybox flatcar block"
+            ],
+            "GateOpenMoment": "No further gate. At meter 1.0 the approach closes and the fight ends; the last checkpoint remains the culvert, so a loss here replays the whole train yard with the meter and history intact.",
+            "PlayerSees": "The same boxcar door you leapt for on the journey, now the finish line. Rail ties to crouch behind, dark lanes running out past the cars, and a robot that stands still a beat longer than it used to before it moves.",
+            "CallbackBeat": "train_leap",
+            "NemesisPressure": "Charge under 30 percent. The register goes strained. It cannot chase every lane, so it plays the statistics instead of the window and commits early; break the direction frequency it has been building all fight and the lanes open."
+          }
+        }
+      ]
+    },
+    {
+      "content_type": "journey_hazard",
+      "table": "DT_JourneyHazards",
+      "gap": "Acts 1 and 2 span nine days and the GDD names one hazard.",
+      "query": "Gauntlet journey hazard chase obstacle Act 1 Act 2 tile-step and telegraph grammar pursuer telegraphs but never adapts, window_turns outcome escaped, shelter escape alley chase freight train leap boxcar coast diner limp onset day stamps tutorial for Act 3",
+      "retrieved": [
+        {
+          "rank": 1,
+          "chunk": "gdd_rex_machina#005",
+          "score": 0.38,
+          "kind": "prose",
+          "heading": "MY CAPSTONE \u2014 Source of Truth > 2. STRUCTURE",
+          "overlap_terms": [
+            "act",
+            "tutorial_act",
+            "telegraph_grammar",
+            "shelter_escape",
+            "leap",
+            "freight_train"
+          ]
+        },
+        {
+          "rank": 2,
+          "chunk": "gdd_rex_machina#031",
+          "score": 0.3204,
+          "kind": "prose",
+          "heading": "MY CAPSTONE \u2014 Source of Truth > 4. THE DEV CREW (3 agents) > Agent 3 \u2014 GAUNTLET  *(journey hazards \u2014 now also the tutorial)*",
+          "overlap_terms": [
+            "act",
+            "chase",
+            "telegraph",
+            "window_turns_outcome",
+            "window_turns",
+            "obstacle"
+          ]
+        },
+        {
+          "rank": 3,
+          "chunk": "gdd_rex_machina#018",
+          "score": 0.1938,
+          "kind": "table_row",
+          "heading": "MY CAPSTONE \u2014 Source of Truth > 4. THE DEV CREW (3 agents) > Agent 2 \u2014 CHRONICLER  *(narrative spine \u2014 rewritten in v3)*",
+          "overlap_terms": [
+            "boxcar",
+            "gravel",
+            "train_leap",
+            "boxcar_door",
+            "door",
+            "open"
+          ]
+        },
+        {
+          "rank": 4,
+          "chunk": "gdd_rex_machina#016",
+          "score": 0.1485,
+          "kind": "table_row",
+          "heading": "MY CAPSTONE \u2014 Source of Truth > 4. THE DEV CREW (3 agents) > Agent 2 \u2014 CHRONICLER  *(narrative spine \u2014 rewritten in v3)*",
+          "overlap_terms": [
+            "pavement",
+            "shelter",
+            "open_pavement",
+            "yard",
+            "open"
+          ]
+        },
+        {
+          "rank": 5,
+          "chunk": "gdd_rex_machina#021",
+          "score": 0.1094,
+          "kind": "table_row",
+          "heading": "MY CAPSTONE \u2014 Source of Truth > 4. THE DEV CREW (3 agents) > Agent 2 \u2014 CHRONICLER  *(narrative spine \u2014 rewritten in v3)*",
+          "overlap_terms": [
+            "diner",
+            "diner_back",
+            "back",
+            "player"
+          ]
+        },
+        {
+          "rank": 6,
+          "chunk": "gdd_rex_machina#022",
+          "score": 0.1054,
+          "kind": "table_row",
+          "heading": "MY CAPSTONE \u2014 Source of Truth > 4. THE DEV CREW (3 agents) > Agent 2 \u2014 CHRONICLER  *(narrative spine \u2014 rewritten in v3)*",
+          "overlap_terms": [
+            "leg",
+            "back_leg",
+            "hazard",
+            "back",
+            "line"
+          ]
+        },
+        {
+          "rank": 7,
+          "chunk": "gdd_rex_machina#017",
+          "score": 0.0529,
+          "kind": "table_row",
+          "heading": "MY CAPSTONE \u2014 Source of Truth > 4. THE DEV CREW (3 agents) > Agent 2 \u2014 CHRONICLER  *(narrative spine \u2014 rewritten in v3)*",
+          "overlap_terms": [
+            "outcome_escaped",
+            "escaped",
+            "outcome",
+            "gauntlet"
+          ]
+        },
+        {
+          "rank": 8,
+          "chunk": "gdd_rex_machina#039",
+          "score": 0.0503,
+          "kind": "table_row",
+          "heading": "MY CAPSTONE \u2014 Source of Truth > 7. TOKEN BUDGET & PROJECTION (v3)",
+          "overlap_terms": [
+            "gauntlet_journey",
+            "gauntlet",
+            "journey"
+          ]
+        },
+        {
+          "rank": 9,
+          "chunk": "gdd_rex_machina#032",
+          "score": 0.0491,
+          "kind": "code",
+          "heading": "MY CAPSTONE \u2014 Source of Truth > 5. AI DEV PIPELINE & ENGINE INTEGRATION (UE5)",
+          "overlap_terms": [
+            "chase",
+            "telegraph",
+            "pursuer",
+            "outcome",
+            "gauntlet",
+            "journey"
+          ]
+        },
+        {
+          "rank": 10,
+          "chunk": "gdd_rex_machina#028",
+          "score": 0.0466,
+          "kind": "prose",
+          "heading": "MY CAPSTONE \u2014 Source of Truth > 4. THE DEV CREW (3 agents) > Agent 2 \u2014 CHRONICLER  *(narrative spine \u2014 rewritten in v3)*",
+          "overlap_terms": [
+            "stamps",
+            "day_stamps",
+            "day",
+            "journey"
+          ]
+        }
+      ],
+      "rows": [
+        {
+          "HazardID": "shelter_gate",
+          "Day": 0,
+          "Act": 1,
+          "Location": "shelter yard, the gate seam between kennel run and open pavement",
+          "PursuerType": "shelter handler with a catch pole, fixed loop along the fence",
+          "Telegraph": "catch pole swings left",
+          "WindowTurns": 4,
+          "TileSpan": "5x3",
+          "EscapeCondition": "step through the gate seam on the turn after the pole swings, and cross the threshold onto pavement",
+          "FailCondition": "stand on the gate tile while the pole reaches it; the handler walks you back to the run and the loop restarts unchanged",
+          "CausesCondition": false,
+          "Teaches": "telegraph reading",
+          "PlayerSees": "The yard gate stands open a dog's width, and a man with a catch pole walks the fence on the same slow loop he has walked all morning. The pole tips left before it comes down, every pass. You wait out his turn, slip the gap, and the pavement keeps going further than the yard ever did.",
+          "Provenance": "generated"
+        },
+        {
+          "HazardID": "alley_chase",
+          "Day": 1,
+          "Act": 1,
+          "Location": "service alley behind the row shops, dumpsters and stacked crates on both walls",
+          "PursuerType": "loose yard dog, same lunge pattern on every approach",
+          "Telegraph": "lunging right",
+          "WindowTurns": 3,
+          "TileSpan": "8x3",
+          "EscapeCondition": "step off the lunge tile while the lunge commits right, then clear two corners",
+          "FailCondition": "share a tile with the lunge; a shoulder goes into the wall and the chase resets one block back",
+          "CausesCondition": true,
+          "Teaches": "telegraph reading",
+          "PlayerSees": "Something big comes off the wall behind you and leans right before it lunges, the same lean each time. You step off the tile it is coming to, let it commit to the empty side, and take the corner while it is still turning. Something gave up two corners ago. You keep running anyway.",
+          "Provenance": "repaired"
+        },
+        {
+          "HazardID": "road_crossing",
+          "Day": 2,
+          "Act": 1,
+          "Location": "four-lane arterial, curb to curb, no median",
+          "PursuerType": "moving traffic, obstacle not pursuer, lanes on a fixed cycle",
+          "Telegraph": "near truck horn sounds",
+          "WindowTurns": 2,
+          "TileSpan": "4x6",
+          "EscapeCondition": "leave the curb on the beat after the horn and cross all four lanes in one unbroken line",
+          "FailCondition": "stop on a lane tile; horns and brakes push you back to the curb and the lane cycle repeats the same way",
+          "CausesCondition": false,
+          "Teaches": "window timing",
+          "PlayerSees": "Four lanes, headlights stacked both directions, and nothing out here is chasing you. You read the space between the near truck and the next set of lights, and you take it in one line without stopping in the middle, because the middle is where the road decides for you.",
+          "Provenance": "generated"
+        },
+        {
+          "HazardID": "train_leap",
+          "Day": 3,
+          "Act": 2,
+          "Location": "rail yard gravel shoulder alongside a rolling freight",
+          "PursuerType": "yard patrol dog on the ballast, straight-line runner, no cutting",
+          "Telegraph": "boxcar door swings wide",
+          "WindowTurns": 2,
+          "TileSpan": "10x2",
+          "EscapeCondition": "match the car's speed on the shoulder and jump inside the two-turn window the open door gives you",
+          "FailCondition": "jump short of the door lip; you land on gravel, roll, and the freight takes the opening away",
+          "CausesCondition": true,
+          "Teaches": "gap commitment",
+          "PlayerSees": "Gravel, a freight going faster than you are, and one boxcar door already yawning open. Behind you, paws on gravel. You pick the gap and you do not slow down for it, and the floor of the car comes up hard under your chest.",
+          "Provenance": "repaired"
+        },
+        {
+          "HazardID": "diner_yard",
+          "Day": 6,
+          "Act": 2,
+          "Location": "diner back lot, grease bins, chain fence on the far side, alley mouth behind",
+          "PursuerType": "kitchen hand at the screen door, same two-step out and back",
+          "Telegraph": "screen door bangs open",
+          "WindowTurns": 5,
+          "TileSpan": "6x5",
+          "EscapeCondition": "leave by the fence side while the door swings, or stay for the paper tray and leave by the fence side after",
+          "FailCondition": "back out through the alley mouth you came in by; you keep the food and lose the ground, and the yard runs the same two-step next time",
+          "CausesCondition": false,
+          "Teaches": "telegraph window timing",
+          "PlayerSees": "The back door bangs and a hand you don't know puts down a paper tray. You can be gone before it straightens up, or you can eat first and decide about the hand after. Either way the yard has two ways out, and only one of them is forward.",
+          "Provenance": "repaired"
+        },
+        {
+          "HazardID": "fence_line",
+          "Day": 7,
+          "Act": 2,
+          "Location": "chain link fence line at the lot edge, a scraped hollow under the wire",
+          "PursuerType": "loose dog off the lot, three-tile sweep it has run on every approach, never varied",
+          "Telegraph": "shoulder drops, digging left",
+          "WindowTurns": 3,
+          "TileSpan": "7x4",
+          "EscapeCondition": "reach the hollow and go under while the sweep is on its left tile, one clear tile of space between you",
+          "FailCondition": "take the hollow with the sweep adjacent; the wire and the teeth arrive together and the crossing costs you the rest of the day",
+          "CausesCondition": true,
+          "Teaches": "adjacency cost",
+          "PlayerSees": "Chain link, a scraped hollow under it, and the thing behind you close enough that you hear it set its feet. It drops the same shoulder it has dropped on every pass. You go under, the wire takes the back leg on the way through, and the back leg has opinions now. You tell it what you told the gate: not yet.",
+          "Provenance": "repaired"
+        }
+      ],
+      "critic_findings": [
+        {
+          "row": "alley_chase",
+          "rule": "H7",
+          "span": "cover use",
+          "why": "Canon defines the Act 3 boss fight only as tile-step-and-telegraph grammar on a coarse tactical grid with predicted_tile/intercept_move, so cover and the row's \"break line of sight behind a dumpster\" name a system Act 3 does not have.",
+          "chunk": "gdd_rex_machina#005"
+        },
+        {
+          "row": "train_leap",
+          "rule": "H1",
+          "span": "Through the open door, later, the coast.",
+          "why": "Canon places \"the coast seen through the open boxcar door\" after the freight-train leap, so this hazard's day-3 narration states a fact dated later than its own day.",
+          "chunk": "gdd_rex_machina#005"
+        },
+        {
+          "row": "diner_yard",
+          "rule": "H7",
+          "span": "exit choice",
+          "why": "Act 3 is a pursuit-evasion boss fight in a compact sealed arena run on the tile-step-and-telegraph grammar; choosing between two ways out of a yard is not a mechanic that exists there.",
+          "chunk": "gdd_rex_machina#005"
+        },
+        {
+          "row": "fence_line",
+          "rule": "H4",
+          "span": "three-tile sweep it has run since the shelter road, never varied",
+          "why": "The row claims one unvaried pursuer running the same pattern since the shelter road, but canon fixes that stretch's pursuer telegraph as \"lunging right\" while this one digs left, so the never-adapting pursuer is shown changing its pattern mid-journey.",
+          "chunk": "gdd_rex_machina#031"
+        },
+        {
+          "row": "fence_line",
+          "rule": "H4",
+          "span": "It drops the same shoulder it has dropped all week.",
+          "why": "Same contradiction stated in-fiction: it asserts a week of identical behavior from a pursuer whose canonical telegraph on this journey is the opposite-side lunge.",
+          "chunk": "gdd_rex_machina#031"
+        }
+      ],
+      "gate_findings": [],
+      "counts": {
+        "rows": 6,
+        "generated": 2,
+        "repaired": 4,
+        "authored_fallback": 0,
+        "critic_findings": 5,
+        "gate_findings": 0
+      },
+      "repairs": [
+        {
+          "row": "alley_chase",
+          "before": {
+            "HazardID": "alley_chase",
+            "Day": 1,
+            "Act": 1,
+            "Location": "service alley behind the row shops, dumpsters and stacked crates on both walls",
+            "PursuerType": "loose yard dog, same lunge pattern on every approach",
+            "Telegraph": "lunging right",
+            "WindowTurns": 3,
+            "TileSpan": "8x3",
+            "EscapeCondition": "break line of sight behind a dumpster while the lunge commits right, then clear two corners",
+            "FailCondition": "share a tile with the lunge; a shoulder goes into the wall and the chase resets one block back",
+            "CausesCondition": true,
+            "Teaches": "cover use",
+            "PlayerSees": "Something big comes off the wall behind you and leans right before it lunges, the same lean each time. You cut behind the dumpsters, let it commit to the empty side, and take the corner while it is still turning. Something gave up two corners ago. You keep running anyway."
+          },
+          "after": {
+            "HazardID": "alley_chase",
+            "Day": 1,
+            "Act": 1,
+            "Location": "service alley behind the row shops, dumpsters and stacked crates on both walls",
+            "PursuerType": "loose yard dog, same lunge pattern on every approach",
+            "Telegraph": "lunging right",
+            "WindowTurns": 3,
+            "TileSpan": "8x3",
+            "EscapeCondition": "step off the lunge tile while the lunge commits right, then clear two corners",
+            "FailCondition": "share a tile with the lunge; a shoulder goes into the wall and the chase resets one block back",
+            "CausesCondition": true,
+            "Teaches": "telegraph reading",
+            "PlayerSees": "Something big comes off the wall behind you and leans right before it lunges, the same lean each time. You step off the tile it is coming to, let it commit to the empty side, and take the corner while it is still turning. Something gave up two corners ago. You keep running anyway.",
+            "Provenance": "repaired"
+          }
+        },
+        {
+          "row": "train_leap",
+          "before": {
+            "HazardID": "train_leap",
+            "Day": 3,
+            "Act": 2,
+            "Location": "rail yard gravel shoulder alongside a rolling freight",
+            "PursuerType": "yard patrol dog on the ballast, straight-line runner, no cutting",
+            "Telegraph": "boxcar door swings wide",
+            "WindowTurns": 2,
+            "TileSpan": "10x2",
+            "EscapeCondition": "match the car's speed on the shoulder and jump inside the two-turn window the open door gives you",
+            "FailCondition": "jump short of the door lip; you land on gravel, roll, and the freight takes the opening away",
+            "CausesCondition": true,
+            "Teaches": "gap commitment",
+            "PlayerSees": "Gravel, a freight going faster than you are, and one boxcar door already yawning open. Behind you, paws on gravel. You pick the gap and you do not slow down for it, and the floor of the car comes up hard under your chest. Through the open door, later, the coast."
+          },
+          "after": {
+            "HazardID": "train_leap",
+            "Day": 3,
+            "Act": 2,
+            "Location": "rail yard gravel shoulder alongside a rolling freight",
+            "PursuerType": "yard patrol dog on the ballast, straight-line runner, no cutting",
+            "Telegraph": "boxcar door swings wide",
+            "WindowTurns": 2,
+            "TileSpan": "10x2",
+            "EscapeCondition": "match the car's speed on the shoulder and jump inside the two-turn window the open door gives you",
+            "FailCondition": "jump short of the door lip; you land on gravel, roll, and the freight takes the opening away",
+            "CausesCondition": true,
+            "Teaches": "gap commitment",
+            "PlayerSees": "Gravel, a freight going faster than you are, and one boxcar door already yawning open. Behind you, paws on gravel. You pick the gap and you do not slow down for it, and the floor of the car comes up hard under your chest.",
+            "Provenance": "repaired"
+          }
+        },
+        {
+          "row": "diner_yard",
+          "before": {
+            "HazardID": "diner_yard",
+            "Day": 6,
+            "Act": 2,
+            "Location": "diner back lot, grease bins, chain fence on the far side, alley mouth behind",
+            "PursuerType": "kitchen hand at the screen door, same two-step out and back",
+            "Telegraph": "screen door bangs open",
+            "WindowTurns": 5,
+            "TileSpan": "6x5",
+            "EscapeCondition": "leave by the fence side while the door swings, or stay for the paper tray and leave by the fence side after",
+            "FailCondition": "back out through the alley mouth you came in by; you keep the food and lose the ground, and the yard runs the same two-step next time",
+            "CausesCondition": false,
+            "Teaches": "exit choice",
+            "PlayerSees": "The back door bangs and a hand you don't know puts down a paper tray. You can be gone before it straightens up, or you can eat first and decide about the hand after. Either way the yard has two ways out, and only one of them is forward."
+          },
+          "after": {
+            "HazardID": "diner_yard",
+            "Day": 6,
+            "Act": 2,
+            "Location": "diner back lot, grease bins, chain fence on the far side, alley mouth behind",
+            "PursuerType": "kitchen hand at the screen door, same two-step out and back",
+            "Telegraph": "screen door bangs open",
+            "WindowTurns": 5,
+            "TileSpan": "6x5",
+            "EscapeCondition": "leave by the fence side while the door swings, or stay for the paper tray and leave by the fence side after",
+            "FailCondition": "back out through the alley mouth you came in by; you keep the food and lose the ground, and the yard runs the same two-step next time",
+            "CausesCondition": false,
+            "Teaches": "telegraph window timing",
+            "PlayerSees": "The back door bangs and a hand you don't know puts down a paper tray. You can be gone before it straightens up, or you can eat first and decide about the hand after. Either way the yard has two ways out, and only one of them is forward.",
+            "Provenance": "repaired"
+          }
+        },
+        {
+          "row": "fence_line",
+          "before": {
+            "HazardID": "fence_line",
+            "Day": 7,
+            "Act": 2,
+            "Location": "chain link fence line at the lot edge, a scraped hollow under the wire",
+            "PursuerType": "loose dog off the lot, three-tile sweep it has run since the shelter road, never varied",
+            "Telegraph": "shoulder drops, digging left",
+            "WindowTurns": 3,
+            "TileSpan": "7x4",
+            "EscapeCondition": "reach the hollow and go under while the sweep is on its left tile, one clear tile of space between you",
+            "FailCondition": "take the hollow with the sweep adjacent; the wire and the teeth arrive together and the crossing costs you the rest of the day",
+            "CausesCondition": true,
+            "Teaches": "adjacency cost",
+            "PlayerSees": "Chain link, a scraped hollow under it, and the thing behind you close enough that you hear it set its feet. It drops the same shoulder it has dropped all week. You go under, the wire takes the back leg on the way through, and the back leg has opinions now. You tell it what you told the gate: not yet."
+          },
+          "after": {
+            "HazardID": "fence_line",
+            "Day": 7,
+            "Act": 2,
+            "Location": "chain link fence line at the lot edge, a scraped hollow under the wire",
+            "PursuerType": "loose dog off the lot, three-tile sweep it has run on every approach, never varied",
+            "Telegraph": "shoulder drops, digging left",
+            "WindowTurns": 3,
+            "TileSpan": "7x4",
+            "EscapeCondition": "reach the hollow and go under while the sweep is on its left tile, one clear tile of space between you",
+            "FailCondition": "take the hollow with the sweep adjacent; the wire and the teeth arrive together and the crossing costs you the rest of the day",
+            "CausesCondition": true,
+            "Teaches": "adjacency cost",
+            "PlayerSees": "Chain link, a scraped hollow under it, and the thing behind you close enough that you hear it set its feet. It drops the same shoulder it has dropped on every pass. You go under, the wire takes the back leg on the way through, and the back leg has opinions now. You tell it what you told the gate: not yet.",
+            "Provenance": "repaired"
+          }
+        }
+      ]
+    },
+    {
+      "content_type": "nemesis_read",
+      "table": "DT_NemesisReads",
+      "gap": "The fight surfaces 8 to 10 read lines per playthrough and the GDD contains one.",
+      "query": "Nemesis boss read line: predicts the dog's next tile, reports the read it took off movement, read_category suppression, register shifts clinical confident strained as battery charge drains, past-tense diagnosis never intent, dir_freq_20 periodicity cover_tiles exits gait collar prior_attempt fence",
+      "retrieved": [
+        {
+          "rank": 1,
+          "chunk": "gdd_rex_machina#010",
+          "score": 0.1578,
+          "kind": "prose",
+          "heading": "MY CAPSTONE \u2014 Source of Truth > 4. THE DEV CREW (3 agents) > Agent 1 \u2014 NEMESIS  *(THE One Wow \u00b7 adversarial \u00b7 goal-oriented)*",
+          "overlap_terms": [
+            "read",
+            "strained_battery",
+            "predicts_dog",
+            "dog_next",
+            "strained",
+            "reports_read"
+          ]
+        },
+        {
+          "rank": 2,
+          "chunk": "gdd_rex_machina#006",
+          "score": 0.1542,
+          "kind": "prose",
+          "heading": "MY CAPSTONE \u2014 Source of Truth > 3. BOSS MECHANICS (v3 \u2014 post-exploit-fix)",
+          "overlap_terms": [
+            "fence",
+            "read",
+            "charge",
+            "shifts",
+            "register_shifts",
+            "register"
+          ]
+        },
+        {
+          "rank": 3,
+          "chunk": "gdd_rex_machina#008",
+          "score": 0.1103,
+          "kind": "prose",
+          "heading": "MY CAPSTONE \u2014 Source of Truth > 3. BOSS MECHANICS (v3 \u2014 post-exploit-fix) > The six exploits that were fixed (do not reintroduce)",
+          "overlap_terms": [
+            "read",
+            "tense_diagnosis",
+            "tense",
+            "read_line",
+            "past_tense",
+            "past"
+          ]
+        },
+        {
+          "rank": 4,
+          "chunk": "gdd_rex_machina#011",
+          "score": 0.0985,
+          "kind": "code",
+          "heading": "MY CAPSTONE \u2014 Source of Truth > 4. THE DEV CREW (3 agents) > Agent 1 \u2014 NEMESIS  *(THE One Wow \u00b7 adversarial \u00b7 goal-oriented)*",
+          "overlap_terms": [
+            "prior_attempt",
+            "gait",
+            "dir_freq_20",
+            "cover_tiles",
+            "periodicity",
+            "exits"
+          ]
+        },
+        {
+          "rank": 5,
+          "chunk": "gdd_rex_machina#004",
+          "score": 0.0911,
+          "kind": "prose",
+          "heading": "MY CAPSTONE \u2014 Source of Truth > 1. THE ONE WOW \u2014 \"The Nemesis\"",
+          "overlap_terms": [
+            "read",
+            "took_off",
+            "took",
+            "read_took",
+            "off",
+            "reports_read"
+          ]
+        },
+        {
+          "rank": 6,
+          "chunk": "gdd_rex_machina#013",
+          "score": 0.042,
+          "kind": "code",
+          "heading": "MY CAPSTONE \u2014 Source of Truth > 4. THE DEV CREW (3 agents) > Agent 1 \u2014 NEMESIS  *(THE One Wow \u00b7 adversarial \u00b7 goal-oriented)*",
+          "overlap_terms": [
+            "read",
+            "read_category",
+            "nemesis"
+          ]
+        },
+        {
+          "rank": 7,
+          "chunk": "gdd_rex_machina#021",
+          "score": 0.0392,
+          "kind": "table_row",
+          "heading": "MY CAPSTONE \u2014 Source of Truth > 4. THE DEV CREW (3 agents) > Agent 2 \u2014 CHRONICLER  *(narrative spine \u2014 rewritten in v3)*",
+          "overlap_terms": [
+            "after",
+            "first",
+            "words",
+            "line"
+          ]
+        }
+      ],
+      "rows": [
+        {
+          "ReadID": "nemesis_read_sealing_direction_clinical",
+          "ReadCategory": "sealing_direction",
+          "ChargeBand": "clinical",
+          "Line": "Target favored left nine of twenty recorded moves.",
+          "WordCount": 8,
+          "ObservableCited": "dir_freq_20",
+          "TriggerCondition": "one compass direction dominates dir_freq_20",
+          "Provenance": "generated"
+        },
+        {
+          "ReadID": "nemesis_read_cover_habit_clinical",
+          "ReadCategory": "cover_habit",
+          "ChargeBand": "clinical",
+          "Line": "Target ended three of four rounds on cover.",
+          "WordCount": 8,
+          "ObservableCited": "cover_tiles",
+          "TriggerCondition": "the dog has ended three of the last four rounds on a cover tile",
+          "Provenance": "repaired"
+        },
+        {
+          "ReadID": "nemesis_read_exit_fixation_clinical",
+          "ReadCategory": "exit_fixation",
+          "ChargeBand": "clinical",
+          "Line": "Two consecutive approaches targeted the same exit tile.",
+          "WordCount": 8,
+          "ObservableCited": "exits",
+          "TriggerCondition": "two consecutive runs at the same exit tile",
+          "Provenance": "generated"
+        },
+        {
+          "ReadID": "nemesis_read_periodicity_called_clinical",
+          "ReadCategory": "periodicity_called",
+          "ChargeBand": "clinical",
+          "Line": "Movement repeated on cycle.",
+          "WordCount": 4,
+          "ObservableCited": "periodicity",
+          "TriggerCondition": "periodicity > 0.65",
+          "Provenance": "repaired"
+        },
+        {
+          "ReadID": "nemesis_read_stall_detected_clinical",
+          "ReadCategory": "stall_detected",
+          "ChargeBand": "clinical",
+          "Line": "Two of the last four moves cancelled out.",
+          "WordCount": 8,
+          "ObservableCited": "dog_recent_moves",
+          "TriggerCondition": "two of the last four moves cancelled each other",
+          "Provenance": "generated"
+        },
+        {
+          "ReadID": "nemesis_read_gait_read_clinical",
+          "ReadCategory": "gait_read",
+          "ChargeBand": "clinical",
+          "Line": "Gait classification updated to limping this round.",
+          "WordCount": 7,
+          "ObservableCited": "dog_observable",
+          "TriggerCondition": "dog_observable.gait == limping",
+          "Provenance": "generated"
+        },
+        {
+          "ReadID": "nemesis_read_charge_strain_clinical",
+          "ReadCategory": "charge_strain",
+          "ChargeBand": "clinical",
+          "Line": "Charge above sixty percent. Efficiency margin narrowed.",
+          "WordCount": 7,
+          "ObservableCited": "self_charge_pct",
+          "TriggerCondition": "self_charge_pct crossed below a band boundary this round",
+          "Provenance": "repaired"
+        },
+        {
+          "ReadID": "prior_attempt__clinical",
+          "ReadCategory": "prior_attempt",
+          "ChargeBand": "clinical",
+          "Line": "The fence was tried last run. It failed.",
+          "WordCount": 8,
+          "ObservableCited": "prior_attempt",
+          "TriggerCondition": "first round after a checkpoint retry, prior_attempt is set",
+          "Provenance": "authored_fallback"
+        },
+        {
+          "ReadID": "NR_sealing_direction_conf_01",
+          "ReadCategory": "sealing_direction",
+          "ChargeBand": "confident",
+          "Line": "You broke left nine times in twenty.",
+          "WordCount": 7,
+          "ObservableCited": "dir_freq_20",
+          "TriggerCondition": "one compass direction dominates dir_freq_20",
+          "Provenance": "repaired"
+        },
+        {
+          "ReadID": "NR_cover_habit_conf_01",
+          "ReadCategory": "cover_habit",
+          "ChargeBand": "confident",
+          "Line": "You ended three of four moves behind cover.",
+          "WordCount": 8,
+          "ObservableCited": "cover_tiles",
+          "TriggerCondition": "the dog has ended three of the last five rounds on a cover tile",
+          "Provenance": "repaired"
+        },
+        {
+          "ReadID": "NR_exit_fixation_conf_01",
+          "ReadCategory": "exit_fixation",
+          "ChargeBand": "confident",
+          "Line": "You ran the same exit twice. I noticed.",
+          "WordCount": 8,
+          "ObservableCited": "exits",
+          "TriggerCondition": "two consecutive runs at the same exit tile",
+          "Provenance": "generated"
+        },
+        {
+          "ReadID": "NR_periodicity_called_conf_01",
+          "ReadCategory": "periodicity_called",
+          "ChargeBand": "confident",
+          "Line": "You looped a pattern.",
+          "WordCount": 4,
+          "ObservableCited": "periodicity",
+          "TriggerCondition": "periodicity > 0.65",
+          "Provenance": "repaired"
+        },
+        {
+          "ReadID": "NR_stall_detected_conf_01",
+          "ReadCategory": "stall_detected",
+          "ChargeBand": "confident",
+          "Line": "Two of your last four moves cancelled out.",
+          "WordCount": 8,
+          "ObservableCited": "dog_recent_moves",
+          "TriggerCondition": "two of the last four moves cancelled each other",
+          "Provenance": "generated"
+        },
+        {
+          "ReadID": "gait_read__confident",
+          "ReadCategory": "gait_read",
+          "ChargeBand": "confident",
+          "Line": "Your back leg lands short now.",
+          "WordCount": 6,
+          "ObservableCited": "dog_observable",
+          "TriggerCondition": "dog_observable.gait == limping",
+          "Provenance": "authored_fallback"
+        },
+        {
+          "ReadID": "NR_charge_strain_conf_01",
+          "ReadCategory": "charge_strain",
+          "ChargeBand": "confident",
+          "Line": "My charge dropped under sixty. You still ran.",
+          "WordCount": 8,
+          "ObservableCited": "self_charge_pct",
+          "TriggerCondition": "self_charge_pct crossed below a band boundary this round",
+          "Provenance": "generated"
+        },
+        {
+          "ReadID": "NR_prior_attempt_conf_01",
+          "ReadCategory": "prior_attempt",
+          "ChargeBand": "confident",
+          "Line": "You tried the fence gap already. It held.",
+          "WordCount": 8,
+          "ObservableCited": "prior_attempt",
+          "TriggerCondition": "first round after a checkpoint retry, prior_attempt is set",
+          "Provenance": "generated"
+        },
+        {
+          "ReadID": "read_sealing_direction_strained_01",
+          "ReadCategory": "sealing_direction",
+          "ChargeBand": "strained",
+          "Line": "Left dominated twenty moves.",
+          "WordCount": 4,
+          "ObservableCited": "dir_freq_20",
+          "TriggerCondition": "one compass direction dominates dir_freq_20",
+          "Provenance": "generated"
+        },
+        {
+          "ReadID": "read_cover_habit_strained_01",
+          "ReadCategory": "cover_habit",
+          "ChargeBand": "strained",
+          "Line": "Ended on cover.",
+          "WordCount": 3,
+          "ObservableCited": "cover_tiles",
+          "TriggerCondition": "the dog has ended three of the last five rounds on a cover tile",
+          "Provenance": "repaired"
+        },
+        {
+          "ReadID": "read_exit_fixation_strained_01",
+          "ReadCategory": "exit_fixation",
+          "ChargeBand": "strained",
+          "Line": "Ran that exit twice.",
+          "WordCount": 4,
+          "ObservableCited": "exits",
+          "TriggerCondition": "two consecutive runs at the same exit tile",
+          "Provenance": "generated"
+        },
+        {
+          "ReadID": "read_periodicity_called_strained_01",
+          "ReadCategory": "periodicity_called",
+          "ChargeBand": "strained",
+          "Line": "Repeating cycle scored high.",
+          "WordCount": 4,
+          "ObservableCited": "periodicity",
+          "TriggerCondition": "periodicity > 0.65",
+          "Provenance": "generated"
+        },
+        {
+          "ReadID": "read_stall_detected_strained_01",
+          "ReadCategory": "stall_detected",
+          "ChargeBand": "strained",
+          "Line": "Two moves cancelled each other.",
+          "WordCount": 5,
+          "ObservableCited": "dog_recent_moves",
+          "TriggerCondition": "two of the last four moves cancelled each other",
+          "Provenance": "generated"
+        },
+        {
+          "ReadID": "read_gait_read_strained_01",
+          "ReadCategory": "gait_read",
+          "ChargeBand": "strained",
+          "Line": "Gait limped.",
+          "WordCount": 2,
+          "ObservableCited": "dog_observable",
+          "TriggerCondition": "dog_observable.gait == limping",
+          "Provenance": "repaired"
+        },
+        {
+          "ReadID": "read_charge_strain_strained_01",
+          "ReadCategory": "charge_strain",
+          "ChargeBand": "strained",
+          "Line": "Charge dropped.",
+          "WordCount": 2,
+          "ObservableCited": "self_charge_pct",
+          "TriggerCondition": "self_charge_pct crossed below a band boundary this round",
+          "Provenance": "repaired"
+        },
+        {
+          "ReadID": "read_prior_attempt_strained_01",
+          "ReadCategory": "prior_attempt",
+          "ChargeBand": "strained",
+          "Line": "Fence gap failed before.",
+          "WordCount": 4,
+          "ObservableCited": "prior_attempt",
+          "TriggerCondition": "first round after a checkpoint retry, prior_attempt is set",
+          "Provenance": "generated"
+        }
+      ],
+      "critic_findings": [
+        {
+          "row": "cover_habit|clinical",
+          "rule": "N4",
+          "span": "three of five rounds",
+          "why": "The machine's memory is a 4-move sliding window and its only non-decaying statistics are direction frequency over 20 moves and a periodicity score, so a five-round record of which tiles the target ended on is knowledge it cannot hold.",
+          "chunk": "gdd_rex_machina#006"
+        },
+        {
+          "row": "periodicity_called|clinical",
+          "rule": "N5",
+          "span": "Periodicity registered above threshold",
+          "why": "The read names the internal engine-computed scalar and its cutoff instead of leading with the behavior, and the second clause already states the behavior, so the abstraction is both drift and redundant.",
+          "chunk": "gdd_rex_machina#004"
+        },
+        {
+          "row": "charge_strain|clinical",
+          "rule": "N6",
+          "span": "Charge crossed sixty percent.",
+          "why": "Sixty percent is the boundary between the clinical and confident bands, so a line reporting that charge has already crossed it cannot be delivered in the clinical register this row is tagged with.",
+          "chunk": "gdd_rex_machina#006"
+        },
+        {
+          "row": "sealing_direction|confident",
+          "rule": "N2",
+          "span": "Sealed.",
+          "why": "The diagnosis half is clean, but 'Sealed.' declares the left route closed for the move the player has not yet committed, which is the read-line oracle announcing the plan rather than past-tense diagnosis only.",
+          "chunk": "gdd_rex_machina#008"
+        },
+        {
+          "row": "cover_habit|confident",
+          "rule": "N4",
+          "span": "three of five rounds",
+          "why": "One move per round means five rounds of ending tiles is memory beyond the machine's 4-move sliding window, and the non-decaying statistics are only direction frequency and periodicity.",
+          "chunk": "gdd_rex_machina#006"
+        },
+        {
+          "row": "cover_habit|confident",
+          "rule": "N3",
+          "span": "You ended three of five rounds behind cover.",
+          "why": "The cited observable cover_tiles is a list of current cover positions and carries no record of where the dog ended prior rounds, so the line asserts more than the observable supports.",
+          "chunk": "gdd_rex_machina#011"
+        },
+        {
+          "row": "periodicity_called|confident",
+          "rule": "N3",
+          "span": "a five-beat pattern",
+          "why": "The cited observable is a single periodicity scalar (0.72) that reports how cyclic the movement is, not the cycle length, so the machine cannot name the period as five beats.",
+          "chunk": "gdd_rex_machina#011"
+        },
+        {
+          "row": "periodicity_called|confident",
+          "rule": "N4",
+          "span": "I counted it.",
+          "why": "Counting a five-beat loop requires move history longer than the 4-move sliding window the machine is canonically limited to.",
+          "chunk": "gdd_rex_machina#006"
+        },
+        {
+          "row": "cover_habit|strained",
+          "rule": "N4",
+          "span": "Ended on cover three times.",
+          "why": "Counting three cover-endings across the last five rounds exceeds what the machine retains: its move memory is a 4-move sliding window and the only non-decaying data are the engine scalars dir_freq_20 and periodicity, neither of which tracks cover-tile endings.",
+          "chunk": "gdd_rex_machina#006"
+        },
+        {
+          "row": "gait_read|strained",
+          "rule": "N4",
+          "span": "Speed dropped.",
+          "why": "Speed is not an observable the Nemesis receives \u2014 dog_observable carries only gait and collar \u2014 and canon fixed movement as equal speed with the 2-tile sprint belonging to the robot, so a drop in the dog's speed is an inference the machine cannot make from its input.",
+          "chunk": "gdd_rex_machina#011"
+        },
+        {
+          "row": "charge_strain|strained",
+          "rule": "N6",
+          "span": "Band crossed.",
+          "why": "The charge band is the register the read is spoken in (clinical/confident/strained), not content the robot announces; naming the band states the strain the player is supposed to hear in the voice.",
+          "chunk": "gdd_rex_machina#006"
+        }
+      ],
+      "gate_findings": [
+        {
+          "row": "prior_attempt|clinical",
+          "rule": "N3",
+          "detail": "line does not reference prior_attempt; expected one of ['tried', 'last', 'before', 'again', 'already', 'twice']",
+          "after": "generated"
+        },
+        {
+          "row": "gait_read|confident",
+          "rule": "N3",
+          "detail": "line does not reference dog_observable; expected one of ['gait', 'limp', 'limping', 'leg', 'collar', 'drag']",
+          "after": "generated"
+        }
+      ],
+      "counts": {
+        "rows": 24,
+        "generated": 13,
+        "repaired": 9,
+        "authored_fallback": 2,
+        "critic_findings": 11,
+        "gate_findings": 2
+      },
+      "repairs": [
+        {
+          "row": "cover_habit|clinical",
+          "before": {
+            "ReadID": "nemesis_read_cover_habit_clinical",
+            "ReadCategory": "cover_habit",
+            "ChargeBand": "clinical",
+            "Line": "Target ended three of five rounds on cover.",
+            "WordCount": 8,
+            "ObservableCited": "cover_tiles",
+            "TriggerCondition": "the dog has ended three of the last five rounds on a cover tile"
+          },
+          "after": {
+            "ReadID": "nemesis_read_cover_habit_clinical",
+            "ReadCategory": "cover_habit",
+            "ChargeBand": "clinical",
+            "Line": "Target ended three of four rounds on cover.",
+            "WordCount": 8,
+            "ObservableCited": "cover_tiles",
+            "TriggerCondition": "the dog has ended three of the last four rounds on a cover tile",
+            "Provenance": "repaired"
+          }
+        },
+        {
+          "row": "periodicity_called|clinical",
+          "before": {
+            "ReadID": "nemesis_read_periodicity_called_clinical",
+            "ReadCategory": "periodicity_called",
+            "ChargeBand": "clinical",
+            "Line": "Periodicity registered above threshold; movement repeated on cycle.",
+            "WordCount": 8,
+            "ObservableCited": "periodicity",
+            "TriggerCondition": "periodicity > 0.65"
+          },
+          "after": {
+            "ReadID": "nemesis_read_periodicity_called_clinical",
+            "ReadCategory": "periodicity_called",
+            "ChargeBand": "clinical",
+            "Line": "Movement repeated on cycle.",
+            "WordCount": 4,
+            "ObservableCited": "periodicity",
+            "TriggerCondition": "periodicity > 0.65",
+            "Provenance": "repaired"
+          }
+        },
+        {
+          "row": "charge_strain|clinical",
+          "before": {
+            "ReadID": "nemesis_read_charge_strain_clinical",
+            "ReadCategory": "charge_strain",
+            "ChargeBand": "clinical",
+            "Line": "Charge crossed sixty percent. Efficiency margin narrowed.",
+            "WordCount": 7,
+            "ObservableCited": "self_charge_pct",
+            "TriggerCondition": "self_charge_pct crossed below a band boundary this round"
+          },
+          "after": {
+            "ReadID": "nemesis_read_charge_strain_clinical",
+            "ReadCategory": "charge_strain",
+            "ChargeBand": "clinical",
+            "Line": "Charge above sixty percent. Efficiency margin narrowed.",
+            "WordCount": 7,
+            "ObservableCited": "self_charge_pct",
+            "TriggerCondition": "self_charge_pct crossed below a band boundary this round",
+            "Provenance": "repaired"
+          }
+        },
+        {
+          "row": "sealing_direction|confident",
+          "before": {
+            "ReadID": "NR_sealing_direction_conf_01",
+            "ReadCategory": "sealing_direction",
+            "ChargeBand": "confident",
+            "Line": "You broke left nine times in twenty. Sealed.",
+            "WordCount": 8,
+            "ObservableCited": "dir_freq_20",
+            "TriggerCondition": "one compass direction dominates dir_freq_20"
+          },
+          "after": {
+            "ReadID": "NR_sealing_direction_conf_01",
+            "ReadCategory": "sealing_direction",
+            "ChargeBand": "confident",
+            "Line": "You broke left nine times in twenty.",
+            "WordCount": 7,
+            "ObservableCited": "dir_freq_20",
+            "TriggerCondition": "one compass direction dominates dir_freq_20",
+            "Provenance": "repaired"
+          }
+        },
+        {
+          "row": "cover_habit|confident",
+          "before": {
+            "ReadID": "NR_cover_habit_conf_01",
+            "ReadCategory": "cover_habit",
+            "ChargeBand": "confident",
+            "Line": "You ended three of five rounds behind cover.",
+            "WordCount": 8,
+            "ObservableCited": "cover_tiles",
+            "TriggerCondition": "the dog has ended three of the last five rounds on a cover tile"
+          },
+          "after": {
+            "ReadID": "NR_cover_habit_conf_01",
+            "ReadCategory": "cover_habit",
+            "ChargeBand": "confident",
+            "Line": "You ended three of four moves behind cover.",
+            "WordCount": 8,
+            "ObservableCited": "cover_tiles",
+            "TriggerCondition": "the dog has ended three of the last five rounds on a cover tile",
+            "Provenance": "repaired"
+          }
+        },
+        {
+          "row": "periodicity_called|confident",
+          "before": {
+            "ReadID": "NR_periodicity_called_conf_01",
+            "ReadCategory": "periodicity_called",
+            "ChargeBand": "confident",
+            "Line": "You looped a five-beat pattern. I counted it.",
+            "WordCount": 8,
+            "ObservableCited": "periodicity",
+            "TriggerCondition": "periodicity > 0.65"
+          },
+          "after": {
+            "ReadID": "NR_periodicity_called_conf_01",
+            "ReadCategory": "periodicity_called",
+            "ChargeBand": "confident",
+            "Line": "You looped a pattern.",
+            "WordCount": 4,
+            "ObservableCited": "periodicity",
+            "TriggerCondition": "periodicity > 0.65",
+            "Provenance": "repaired"
+          }
+        },
+        {
+          "row": "cover_habit|strained",
+          "before": {
+            "ReadID": "read_cover_habit_strained_01",
+            "ReadCategory": "cover_habit",
+            "ChargeBand": "strained",
+            "Line": "Ended on cover three times.",
+            "WordCount": 5,
+            "ObservableCited": "cover_tiles",
+            "TriggerCondition": "the dog has ended three of the last five rounds on a cover tile"
+          },
+          "after": {
+            "ReadID": "read_cover_habit_strained_01",
+            "ReadCategory": "cover_habit",
+            "ChargeBand": "strained",
+            "Line": "Ended on cover.",
+            "WordCount": 3,
+            "ObservableCited": "cover_tiles",
+            "TriggerCondition": "the dog has ended three of the last five rounds on a cover tile",
+            "Provenance": "repaired"
+          }
+        },
+        {
+          "row": "gait_read|strained",
+          "before": {
+            "ReadID": "read_gait_read_strained_01",
+            "ReadCategory": "gait_read",
+            "ChargeBand": "strained",
+            "Line": "Gait limped. Speed dropped.",
+            "WordCount": 4,
+            "ObservableCited": "dog_observable",
+            "TriggerCondition": "dog_observable.gait == limping"
+          },
+          "after": {
+            "ReadID": "read_gait_read_strained_01",
+            "ReadCategory": "gait_read",
+            "ChargeBand": "strained",
+            "Line": "Gait limped.",
+            "WordCount": 2,
+            "ObservableCited": "dog_observable",
+            "TriggerCondition": "dog_observable.gait == limping",
+            "Provenance": "repaired"
+          }
+        },
+        {
+          "row": "charge_strain|strained",
+          "before": {
+            "ReadID": "read_charge_strain_strained_01",
+            "ReadCategory": "charge_strain",
+            "ChargeBand": "strained",
+            "Line": "Charge dropped. Band crossed.",
+            "WordCount": 4,
+            "ObservableCited": "self_charge_pct",
+            "TriggerCondition": "self_charge_pct crossed below a band boundary this round"
+          },
+          "after": {
+            "ReadID": "read_charge_strain_strained_01",
+            "ReadCategory": "charge_strain",
+            "ChargeBand": "strained",
+            "Line": "Charge dropped.",
+            "WordCount": 2,
+            "ObservableCited": "self_charge_pct",
+            "TriggerCondition": "self_charge_pct crossed below a band boundary this round",
+            "Provenance": "repaired"
+          }
+        }
+      ]
+    }
+  ]
+}

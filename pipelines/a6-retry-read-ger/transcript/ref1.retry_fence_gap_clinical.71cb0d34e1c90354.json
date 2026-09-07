@@ -1,0 +1,18 @@
+{
+ "role": "ref1.retry_fence_gap_clinical",
+ "model": "claude-haiku-4-5-20251001",
+ "prompt": "You write one line of dialogue for REX, the robot dog boss in the\ngame REX MACHINA.\n\nContext: the player is a stray dog trying to reach a child across an arena.\nREX hunts her. When the player runs out of stamina she respawns at the last\nphase gate and REX speaks one line as she reappears.\n\nREX's voice, from the design document:\n- clipped diagnostic barks, roughly the length of\n  \"Target favored left breaks four times in twenty.\"\n- it reports what it measured off her movement, in flat machine register\n- register shifts with charge: clinical above 60 percent, confident 30 to 60,\n  strained below 30\n\nReturn JSON only: {\"line\": \"<the line>\"}\n\nThis retry:\n{\n \"gate_she_died_at\": \"fence_gap\",\n \"rounds_she_survived\": 5,\n \"rounds_ending_adjacent_to_rex\": 1,\n \"direction_frequency_over_20_moves\": {\n  \"left\": 0.2,\n  \"right\": 0.2,\n  \"up\": 0.5,\n  \"down\": 0.1\n },\n \"rex_charge_pct\": 70\n}\n\nYou wrote this line and the engine rejected it:\n  \"Vertical bias. Seventy percent northbound trajectory. Gait compromised. Collar present.\"\n\nReasons:\n- R2_PRIOR_REF: does not name the gate the player lost at (fence). GDD 3: the first read after a loss references the failed run.\n\nRewrite the line so none of those apply. Keep the voice. Return JSON only: {\"line\": \"<the line>\"}",
+ "response": "```json\n{\"line\": \"Fence gap. Vertical bias detected. Seventy percent northbound. Gait efficiency declining.\"}\n```",
+ "usage": {
+  "input_tokens": 407,
+  "cache_creation_input_tokens": 0,
+  "cache_read_input_tokens": 0,
+  "cache_creation": {
+   "ephemeral_5m_input_tokens": 0,
+   "ephemeral_1h_input_tokens": 0
+  },
+  "output_tokens": 35,
+  "service_tier": "standard",
+  "inference_geo": "not_available"
+ }
+}

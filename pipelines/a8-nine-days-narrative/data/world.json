@@ -1,0 +1,133 @@
+{
+ "title": "REX MACHINA, the nine days",
+ "premise": "You are a shelter dog walking home to the family that gave you away. Nine days. No one narrates your thoughts. The world reacts to what you did, not to what you meant.",
+ "days": [
+  {
+   "day": 0,
+   "place": "shelter_yard",
+   "sees": "A chain-link run, a gate that does not latch properly, and a car pulling out of the lot."
+  },
+  {
+   "day": 1,
+   "place": "alley",
+   "sees": "Brick on both sides, a dumpster, and something with a leash coming up behind you."
+  },
+  {
+   "day": 2,
+   "place": "rail_yard",
+   "sees": "Gravel, a line of stopped freight, and a boxcar door standing open."
+  },
+  {
+   "day": 3,
+   "place": "boxcar",
+   "sees": "A floor that hums north. Slats of light moving across it."
+  },
+  {
+   "day": 4,
+   "place": "boxcar",
+   "sees": "The same floor, colder. Your back leg has started to matter."
+  },
+  {
+   "day": 5,
+   "place": "coast_road",
+   "sees": "Water on the left for an hour. Salt on everything."
+  },
+  {
+   "day": 6,
+   "place": "diner_back_door",
+   "sees": "A propped door, a smell of grease, and a hand setting something down."
+  },
+  {
+   "day": 7,
+   "place": "highway_verge",
+   "sees": "Grass, glass, and trucks that do not slow for anything."
+  },
+  {
+   "day": 8,
+   "place": "cul_de_sac",
+   "sees": "A street you know. A porch light already on."
+  }
+ ],
+ "known_facts": [
+  "left_behind",
+  "escaped_the_gate",
+  "escaped_alley",
+  "hid_from_the_leash",
+  "rode_the_boxcar",
+  "slept_cold",
+  "drank_from_a_puddle",
+  "saw_the_water",
+  "took_food_from_stranger",
+  "refused_the_hand",
+  "walked_the_verge",
+  "reached_the_street",
+  "was_seen_by_a_child",
+  "limped_first"
+ ],
+ "contradictions": [
+  [
+   "took_food_from_stranger",
+   "refused_the_hand"
+  ],
+  [
+   "hid_from_the_leash",
+   "escaped_alley"
+  ]
+ ],
+ "bible": [
+  "the dog has no name; the kid called her 'girl'",
+  "the family is a mother and Theo, 9",
+  "the robot is a REX-line unit, solar, warranty sticker on the flank",
+  "banned words: destiny, journey, heart, soul, forever"
+ ],
+ "denial_triggers": {
+  "took_food_from_stranger": [
+   "ate",
+   "eaten",
+   "eating",
+   "took the food",
+   "fed you",
+   "swallow",
+   "swallowed",
+   "licked the plate",
+   "finished the plate"
+  ],
+  "refused_the_hand": [
+   "refused",
+   "backed away",
+   "would not eat",
+   "did not eat",
+   "left it there"
+  ],
+  "hid_from_the_leash": [
+   "hid",
+   "hidden",
+   "kept still",
+   "did not run"
+  ],
+  "escaped_alley": [
+   "ran",
+   "bolted",
+   "outran",
+   "sprinted"
+  ]
+ },
+ "allowed_names": [
+  "Theo",
+  "REX"
+ ],
+ "canon_body": {
+  "hurt_part": "back leg",
+  "wrong_parts": [
+   "front leg",
+   "front paw",
+   "left front leg",
+   "right front leg",
+   "foreleg"
+  ]
+ },
+ "negation_pairs": {
+  "took_food_from_stranger": "refused_the_hand",
+  "escaped_alley": "hid_from_the_leash"
+ }
+}

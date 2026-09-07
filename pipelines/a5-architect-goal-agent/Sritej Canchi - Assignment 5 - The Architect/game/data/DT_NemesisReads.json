@@ -1,0 +1,242 @@
+[
+  {
+    "ReadID": "nemesis_read_sealing_direction_clinical",
+    "ReadCategory": "sealing_direction",
+    "ChargeBand": "clinical",
+    "Line": "Target favored left nine of twenty recorded moves.",
+    "WordCount": 8,
+    "ObservableCited": "dir_freq_20",
+    "TriggerCondition": "one compass direction dominates dir_freq_20",
+    "Provenance": "generated"
+  },
+  {
+    "ReadID": "nemesis_read_cover_habit_clinical",
+    "ReadCategory": "cover_habit",
+    "ChargeBand": "clinical",
+    "Line": "Target ended three of four rounds on cover.",
+    "WordCount": 8,
+    "ObservableCited": "cover_tiles",
+    "TriggerCondition": "the dog has ended three of the last four rounds on a cover tile",
+    "Provenance": "repaired"
+  },
+  {
+    "ReadID": "nemesis_read_exit_fixation_clinical",
+    "ReadCategory": "exit_fixation",
+    "ChargeBand": "clinical",
+    "Line": "Two consecutive approaches targeted the same exit tile.",
+    "WordCount": 8,
+    "ObservableCited": "exits",
+    "TriggerCondition": "two consecutive runs at the same exit tile",
+    "Provenance": "generated"
+  },
+  {
+    "ReadID": "nemesis_read_periodicity_called_clinical",
+    "ReadCategory": "periodicity_called",
+    "ChargeBand": "clinical",
+    "Line": "Movement repeated on cycle.",
+    "WordCount": 4,
+    "ObservableCited": "periodicity",
+    "TriggerCondition": "periodicity > 0.65",
+    "Provenance": "repaired"
+  },
+  {
+    "ReadID": "nemesis_read_stall_detected_clinical",
+    "ReadCategory": "stall_detected",
+    "ChargeBand": "clinical",
+    "Line": "Two of the last four moves cancelled out.",
+    "WordCount": 8,
+    "ObservableCited": "dog_recent_moves",
+    "TriggerCondition": "two of the last four moves cancelled each other",
+    "Provenance": "generated"
+  },
+  {
+    "ReadID": "nemesis_read_gait_read_clinical",
+    "ReadCategory": "gait_read",
+    "ChargeBand": "clinical",
+    "Line": "Gait classification updated to limping this round.",
+    "WordCount": 7,
+    "ObservableCited": "dog_observable",
+    "TriggerCondition": "dog_observable.gait == limping",
+    "Provenance": "generated"
+  },
+  {
+    "ReadID": "nemesis_read_charge_strain_clinical",
+    "ReadCategory": "charge_strain",
+    "ChargeBand": "clinical",
+    "Line": "Charge above sixty percent. Efficiency margin narrowed.",
+    "WordCount": 7,
+    "ObservableCited": "self_charge_pct",
+    "TriggerCondition": "self_charge_pct crossed below a band boundary this round",
+    "Provenance": "repaired"
+  },
+  {
+    "ReadID": "prior_attempt__clinical",
+    "ReadCategory": "prior_attempt",
+    "ChargeBand": "clinical",
+    "Line": "The fence was tried last run. It failed.",
+    "WordCount": 8,
+    "ObservableCited": "prior_attempt",
+    "TriggerCondition": "first round after a checkpoint retry, prior_attempt is set",
+    "Provenance": "authored_fallback"
+  },
+  {
+    "ReadID": "NR_sealing_direction_conf_01",
+    "ReadCategory": "sealing_direction",
+    "ChargeBand": "confident",
+    "Line": "You broke left nine times in twenty.",
+    "WordCount": 7,
+    "ObservableCited": "dir_freq_20",
+    "TriggerCondition": "one compass direction dominates dir_freq_20",
+    "Provenance": "repaired"
+  },
+  {
+    "ReadID": "NR_cover_habit_conf_01",
+    "ReadCategory": "cover_habit",
+    "ChargeBand": "confident",
+    "Line": "You ended three of four moves behind cover.",
+    "WordCount": 8,
+    "ObservableCited": "cover_tiles",
+    "TriggerCondition": "the dog has ended three of the last five rounds on a cover tile",
+    "Provenance": "repaired"
+  },
+  {
+    "ReadID": "NR_exit_fixation_conf_01",
+    "ReadCategory": "exit_fixation",
+    "ChargeBand": "confident",
+    "Line": "You ran the same exit twice. I noticed.",
+    "WordCount": 8,
+    "ObservableCited": "exits",
+    "TriggerCondition": "two consecutive runs at the same exit tile",
+    "Provenance": "generated"
+  },
+  {
+    "ReadID": "NR_periodicity_called_conf_01",
+    "ReadCategory": "periodicity_called",
+    "ChargeBand": "confident",
+    "Line": "You looped a pattern.",
+    "WordCount": 4,
+    "ObservableCited": "periodicity",
+    "TriggerCondition": "periodicity > 0.65",
+    "Provenance": "repaired"
+  },
+  {
+    "ReadID": "NR_stall_detected_conf_01",
+    "ReadCategory": "stall_detected",
+    "ChargeBand": "confident",
+    "Line": "Two of your last four moves cancelled out.",
+    "WordCount": 8,
+    "ObservableCited": "dog_recent_moves",
+    "TriggerCondition": "two of the last four moves cancelled each other",
+    "Provenance": "generated"
+  },
+  {
+    "ReadID": "gait_read__confident",
+    "ReadCategory": "gait_read",
+    "ChargeBand": "confident",
+    "Line": "Your back leg lands short now.",
+    "WordCount": 6,
+    "ObservableCited": "dog_observable",
+    "TriggerCondition": "dog_observable.gait == limping",
+    "Provenance": "authored_fallback"
+  },
+  {
+    "ReadID": "NR_charge_strain_conf_01",
+    "ReadCategory": "charge_strain",
+    "ChargeBand": "confident",
+    "Line": "My charge dropped under sixty. You still ran.",
+    "WordCount": 8,
+    "ObservableCited": "self_charge_pct",
+    "TriggerCondition": "self_charge_pct crossed below a band boundary this round",
+    "Provenance": "generated"
+  },
+  {
+    "ReadID": "NR_prior_attempt_conf_01",
+    "ReadCategory": "prior_attempt",
+    "ChargeBand": "confident",
+    "Line": "You tried the fence gap already. It held.",
+    "WordCount": 8,
+    "ObservableCited": "prior_attempt",
+    "TriggerCondition": "first round after a checkpoint retry, prior_attempt is set",
+    "Provenance": "generated"
+  },
+  {
+    "ReadID": "read_sealing_direction_strained_01",
+    "ReadCategory": "sealing_direction",
+    "ChargeBand": "strained",
+    "Line": "Left dominated twenty moves.",
+    "WordCount": 4,
+    "ObservableCited": "dir_freq_20",
+    "TriggerCondition": "one compass direction dominates dir_freq_20",
+    "Provenance": "generated"
+  },
+  {
+    "ReadID": "read_cover_habit_strained_01",
+    "ReadCategory": "cover_habit",
+    "ChargeBand": "strained",
+    "Line": "Ended on cover.",
+    "WordCount": 3,
+    "ObservableCited": "cover_tiles",
+    "TriggerCondition": "the dog has ended three of the last five rounds on a cover tile",
+    "Provenance": "repaired"
+  },
+  {
+    "ReadID": "read_exit_fixation_strained_01",
+    "ReadCategory": "exit_fixation",
+    "ChargeBand": "strained",
+    "Line": "Ran that exit twice.",
+    "WordCount": 4,
+    "ObservableCited": "exits",
+    "TriggerCondition": "two consecutive runs at the same exit tile",
+    "Provenance": "generated"
+  },
+  {
+    "ReadID": "read_periodicity_called_strained_01",
+    "ReadCategory": "periodicity_called",
+    "ChargeBand": "strained",
+    "Line": "Repeating cycle scored high.",
+    "WordCount": 4,
+    "ObservableCited": "periodicity",
+    "TriggerCondition": "periodicity > 0.65",
+    "Provenance": "generated"
+  },
+  {
+    "ReadID": "read_stall_detected_strained_01",
+    "ReadCategory": "stall_detected",
+    "ChargeBand": "strained",
+    "Line": "Two moves cancelled each other.",
+    "WordCount": 5,
+    "ObservableCited": "dog_recent_moves",
+    "TriggerCondition": "two of the last four moves cancelled each other",
+    "Provenance": "generated"
+  },
+  {
+    "ReadID": "read_gait_read_strained_01",
+    "ReadCategory": "gait_read",
+    "ChargeBand": "strained",
+    "Line": "Gait limped.",
+    "WordCount": 2,
+    "ObservableCited": "dog_observable",
+    "TriggerCondition": "dog_observable.gait == limping",
+    "Provenance": "repaired"
+  },
+  {
+    "ReadID": "read_charge_strain_strained_01",
+    "ReadCategory": "charge_strain",
+    "ChargeBand": "strained",
+    "Line": "Charge dropped.",
+    "WordCount": 2,
+    "ObservableCited": "self_charge_pct",
+    "TriggerCondition": "self_charge_pct crossed below a band boundary this round",
+    "Provenance": "repaired"
+  },
+  {
+    "ReadID": "read_prior_attempt_strained_01",
+    "ReadCategory": "prior_attempt",
+    "ChargeBand": "strained",
+    "Line": "Fence gap failed before.",
+    "WordCount": 4,
+    "ObservableCited": "prior_attempt",
+    "TriggerCondition": "first round after a checkpoint retry, prior_attempt is set",
+    "Provenance": "generated"
+  }
+]

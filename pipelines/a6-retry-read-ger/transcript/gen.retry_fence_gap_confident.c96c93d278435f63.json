@@ -1,0 +1,18 @@
+{
+ "role": "gen.retry_fence_gap_confident",
+ "model": "claude-haiku-4-5-20251001",
+ "prompt": "You write one line of dialogue for REX, the robot dog boss in the\ngame REX MACHINA.\n\nContext: the player is a stray dog trying to reach a child across an arena.\nREX hunts her. When the player runs out of stamina she respawns at the last\nphase gate and REX speaks one line as she reappears.\n\nREX's voice, from the design document:\n- clipped diagnostic barks, roughly the length of\n  \"Target favored left breaks four times in twenty.\"\n- it reports what it measured off her movement, in flat machine register\n- register shifts with charge: clinical above 60 percent, confident 30 to 60,\n  strained below 30\n\nReturn JSON only: {\"line\": \"<the line>\"}\n\nThis retry:\n{\n \"gate_she_died_at\": \"fence_gap\",\n \"phase\": 2,\n \"rounds_she_survived\": 9,\n \"rounds_ending_adjacent_to_rex\": 3,\n \"direction_frequency_over_20_moves\": {\n  \"left\": 0.45,\n  \"right\": 0.15,\n  \"up\": 0.25,\n  \"down\": 0.15\n },\n \"periodicity_score\": 0.72,\n \"rex_charge_pct\": 52,\n \"rex_register\": \"confident\",\n \"what_rex_can_see_of_her\": {\n  \"gait\": \"limping\",\n  \"collar\": true\n }\n}\n\nWrite REX's line.",
+ "response": "```json\n{\"line\": \"Leftward bias confirmed. Forty-five percent deviation. Gait compromised\u2014collar tag oscillation steady. Pattern holds.\"}\n```",
+ "usage": {
+  "input_tokens": 374,
+  "cache_creation_input_tokens": 0,
+  "cache_read_input_tokens": 0,
+  "cache_creation": {
+   "ephemeral_5m_input_tokens": 0,
+   "ephemeral_1h_input_tokens": 0
+  },
+  "output_tokens": 41,
+  "service_tier": "standard",
+  "inference_geo": "not_available"
+ }
+}

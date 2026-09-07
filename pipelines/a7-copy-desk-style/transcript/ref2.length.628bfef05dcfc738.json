@@ -1,0 +1,18 @@
+{
+ "role": "ref2.length",
+ "model": "claude-haiku-4-5-20251001",
+ "prompt": "You are rewriting narration for the game REX MACHINA so it matches\nthe house style. Here is the style guide.\n\nREX MACHINA HOUSE STYLE, for Chronicler journey narration.\n\nThe game: a shelter dog walks home across nine days to the family that gave\nher away. The narration is the Chronicler agent's only job. It fires at eight\nfixed beat markers and describes what just happened to the player.\n\n--- 1. VOCABULARY AND LORE (GDD 4, story bible) ---\n- The dog has no name. She is never named. The kid called her \"girl\".\n- The family is a mother and Theo, who is nine.\n- The robot is a REX-line unit, solar, with a warranty sticker on the flank.\n- These words are banned outright: destiny, journey, heart, soul, forever.\n- No fact may appear that is absent from the bible entries and the journey\n  ledger supplied with the beat. No fact may contradict the ledger's day\n  stamps.\n\n--- 2. TONE AND VOICE (GDD 4, rules R2 and R5) ---\n- Second person, addressed to the dog. \"You\" is the subject.\n- The dog never speaks human first-person dialogue.\n- Plain and concrete. The feeling comes from the object described, never from\n  a word that names the feeling.\n- Bittersweet without sentiment. No uplift, no triumph, no exclamation marks.\n- Structural bans: no abstract noun in the final position of a line, no\n  \"not X, but Y\" construction, no line that is only a sentence fragment.\n\n--- 3. LENGTH AND FORMAT (GDD 4, beat table) ---\n- Each beat carries its own word budget. Do not exceed it.\n- Two or three sentences. Prose only.\n- No headings, no markdown, no quotation marks around the narration, no\n  bullet points, no title.\n\n--- WHAT GOOD LOOKS LIKE (authored, from the GDD beat table) ---\nthe_street, 30 words:\n\"Nine days. The porch light is the same. So is the shape moving behind the\nwindow, and it is not the shape of you.\"\n\nalley_escape, 25 words:\n\"Something gave up behind you two corners ago. You keep running anyway,\nbecause stopping is a thing you do at home.\"\n\nlimp_onset, 20 words:\n\"The back leg has opinions now. You tell it the same thing you told the gate:\nnot yet.\"\n\n\nBeat: fed_by_stranger\nWord budget: 25 words\nTone target: wary\n\nTHE TEXT AS WRITTEN:\nA figure sets down a plate. Chicken. Potatoes. You eat while they watch from the doorway, asking for nothing, and then you walk back to the road.\n\nTHE STYLE EDITOR'S OBJECTION:\nThe narration violates one constraint from section 3 (LENGTH AND FORMAT). The word count is 31 words, exceeding the 25-word budget by 6 words. The passage \"asking for nothing\" should be cut or compressed. The second-person voice is correct (\"You eat\"), the tone is appropriately wary and concrete, and no banned words appear. The final clause \"and then you walk back to the road\" ends with a concrete object rather than an abstract noun, which is correct. Trim the middle clause to stay within budget.\n\nRewrite the narration so the objection no longer applies and it would score\n10 out of 10 against the guide. Change only what the objection requires.\n\nReturn JSON only: {\"narration\": \"<the rewritten text>\"}",
+ "response": "```json\n{\n  \"narration\": \"A figure sets down a plate. Chicken. Potatoes. You eat while they watch from the doorway, then walk back to the road.\"\n}\n```",
+ "usage": {
+  "input_tokens": 844,
+  "cache_creation_input_tokens": 0,
+  "cache_read_input_tokens": 0,
+  "cache_creation": {
+   "ephemeral_5m_input_tokens": 0,
+   "ephemeral_1h_input_tokens": 0
+  },
+  "output_tokens": 49,
+  "service_tier": "standard",
+  "inference_geo": "not_available"
+ }
+}

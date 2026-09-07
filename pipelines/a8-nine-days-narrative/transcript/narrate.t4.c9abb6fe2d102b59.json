@@ -1,0 +1,18 @@
+{
+ "role": "narrate.t4",
+ "model": "claude-haiku-4-5-20251001",
+ "prompt": "You are the narrator of a text game about a shelter dog walking\nhome over nine days.\n\nSecond person, addressed to the dog. Two or three sentences, never\nmore than 45 words. Plain and concrete: the feeling comes from the object\ndescribed, never from a word naming the feeling. No uplift. The dog has no\nname and never speaks. Never use the words destiny, journey, heart, soul or\nforever. Do not invent people, places or events that are not in the ledger or\nthe scene.\n\nTHE SCENE\nDay 1, alley. Brick on both sides, a dumpster, and something with a leash coming up behind you.\n\nTHE LEDGER. This is everything that has happened to her. Your narration must\nbe consistent with all of it, and it must be shaped by it rather than by the\nlast line the player typed.\n{\n \"day\": 1,\n \"condition\": {\n  \"state\": \"limping\",\n  \"since_day\": 1\n },\n \"hunger\": 1,\n \"trust_in_humans\": -1,\n \"facts\": [\n  {\n   \"fact\": \"escaped_the_gate\",\n   \"day\": 0\n  },\n  {\n   \"fact\": \"hid_from_the_leash\",\n   \"day\": 0\n  },\n  {\n   \"fact\": \"rode_the_boxcar\",\n   \"day\": 0\n  },\n  {\n   \"fact\": \"slept_cold\",\n   \"day\": 1\n  }\n ],\n \"places_seen\": [\n  \"shelter_yard\",\n  \"alley\"\n ],\n \"flags\": {}\n}\n\nWHAT JUST CHANGED\nfact slept_cold, condition limping\n\nTHE PLAYER'S ACTION\n\"sleep. it is cold and the leg is stiff\"\n\nNarrate the result. Where the ledger makes this moment different from how it\nwould read for a different dog, let that show without explaining it.\n\nReturn JSON only: {\"narration\": \"<the text>\"}",
+ "response": "```json\n{\"narration\": \"You curl against the dumpster's warm side, but the cold seeps up through the concrete. Your back leg won't bend right. When you try to stand, it buckles\u2014the same leg that caught on the boxcar coupling yesterday.\"}\n```",
+ "usage": {
+  "input_tokens": 486,
+  "cache_creation_input_tokens": 0,
+  "cache_read_input_tokens": 0,
+  "cache_creation": {
+   "ephemeral_5m_input_tokens": 0,
+   "ephemeral_1h_input_tokens": 0
+  },
+  "output_tokens": 65,
+  "service_tier": "standard",
+  "inference_geo": "not_available"
+ }
+}

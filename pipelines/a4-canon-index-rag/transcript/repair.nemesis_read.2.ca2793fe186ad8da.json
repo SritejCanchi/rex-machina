@@ -1,0 +1,12 @@
+{
+  "role": "repair.nemesis_read.2",
+  "model": null,
+  "prompt_sha256_16": "ca2793fe186ad8da",
+  "prompt_chars": 8583,
+  "response": "[\n  {\n    \"ReadID\": \"read_cover_habit_strained_01\",\n    \"ReadCategory\": \"cover_habit\",\n    \"ChargeBand\": \"strained\",\n    \"Line\": \"Ended on cover.\",\n    \"WordCount\": 3,\n    \"ObservableCited\": \"cover_tiles\",\n    \"TriggerCondition\": \"the dog has ended three of the last five rounds on a cover tile\"\n  },\n  {\n    \"ReadID\": \"read_gait_read_strained_01\",\n    \"ReadCategory\": \"gait_read\",\n    \"ChargeBand\": \"strained\",\n    \"Line\": \"Gait limped.\",\n    \"WordCount\": 2,\n    \"ObservableCited\": \"dog_observable\",\n    \"TriggerCondition\": \"dog_observable.gait == limping\"\n  },\n  {\n    \"ReadID\": \"read_charge_strain_strained_01\",\n    \"ReadCategory\": \"charge_strain\",\n    \"ChargeBand\": \"strained\",\n    \"Line\": \"Charge dropped.\",\n    \"WordCount\": 2,\n    \"ObservableCited\": \"self_charge_pct\",\n    \"TriggerCondition\": \"self_charge_pct crossed below a band boundary this round\"\n  }\n]",
+  "input_tokens": null,
+  "output_tokens": null,
+  "recorded_by": "claude-opus-5 (subagent, given only the prompt file)",
+  "recorded_at_utc": "2026-08-05T23:46:17Z",
+  "note": "Produced by a subagent handed this prompt file and nothing else. It could not see the gate, the specs or the fallback table. No live Haiku 4.5 call."
+}

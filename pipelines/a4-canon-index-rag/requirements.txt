@@ -1,0 +1,21 @@
+# The pipeline, the retriever, the gate and the tests run on the Python
+# standard library alone. Python 3.9 or newer. There is nothing to install to
+# reproduce every artefact in out/:
+#
+#     python pipeline.py
+#     python evaluate_retrieval.py
+#     python test_pipeline.py
+#     python estimate_cost.py
+#
+# The one optional dependency is the Anthropic SDK, and only for --live:
+#
+#     pip install anthropic
+#     export ANTHROPIC_API_KEY=...
+#     python pipeline.py --live
+#
+# Deliberately no numpy, no scikit-learn, no sentence-transformers, no vector
+# database. The corpus is one 12 KB document; a 90 MB model download to embed
+# it would be the largest thing in the repository by three orders of magnitude.
+# See README, "What the retriever actually is".
+
+anthropic>=0.40.0 ; extra == "live"

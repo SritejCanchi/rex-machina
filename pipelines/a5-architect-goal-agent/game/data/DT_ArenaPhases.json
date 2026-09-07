@@ -1,0 +1,134 @@
+[
+  {
+    "PhaseID": "phase_yard",
+    "PhaseIndex": 1,
+    "ApproachLow": 0.0,
+    "ApproachHigh": 0.33,
+    "ArenaName": "yard",
+    "GridSpan": "10x10",
+    "ExitTiles": [
+      [
+        0,
+        4
+      ],
+      [
+        9,
+        7
+      ]
+    ],
+    "CoverTiles": [
+      [
+        3,
+        5
+      ],
+      [
+        6,
+        2
+      ]
+    ],
+    "Light": "Late afternoon, low sun across the grass; the porch light is already on and throws one long rectangle over tiles 4-6 of the near row.",
+    "SoundBed": "Wind in a chain-link fence, a screen door knocking in its frame, the robot's servo whine held at a steady clinical pitch.",
+    "Props": [
+      "chain-link fence line",
+      "porch steps",
+      "coiled garden hose",
+      "tipped plastic wheelbarrow",
+      "greybox shed block"
+    ],
+    "GateOpenMoment": "The yard gate at the fence line unlatches and swings the moment the approach meter crosses 0.33; the checkpoint fires as the player steps through, keeping the meter and the four-move history.",
+    "PlayerSees": "Home ground turned into a ring. The robot dog stands between you and the house, head scanning for 600 ms every time you commit a step, and the porch light shows you exactly how much yard is left.",
+    "CallbackBeat": "the_street",
+    "NemesisPressure": "Charge above 60 percent. It intercepts on the straight read of your last four moves and reports in a flat clinical register; it never sprints, so its pauses are rare and its predictions are its only weapon.",
+    "Provenance": "generated"
+  },
+  {
+    "PhaseID": "phase_fence_gap",
+    "PhaseIndex": 2,
+    "ApproachLow": 0.33,
+    "ApproachHigh": 0.66,
+    "ArenaName": "fence gap",
+    "GridSpan": "10x10",
+    "ExitTiles": [
+      [
+        0,
+        6
+      ],
+      [
+        9,
+        2
+      ]
+    ],
+    "CoverTiles": [
+      [
+        3,
+        5
+      ],
+      [
+        5,
+        7
+      ]
+    ],
+    "Light": "no house light past the gate, one neighbour's lamp on a motion timer that keeps guessing wrong",
+    "SoundBed": "chain link ringing whenever either animal touches it",
+    "Props": [
+      "a chain link run between two yards",
+      "a gap dug under the bottom rail",
+      "a stack of paving slabs",
+      "a lamp pole with a dead sensor"
+    ],
+    "GateOpenMoment": "at 66% the far panel is already down and the ground turns to ballast",
+    "PlayerSees": "The same shape of gap that took the back leg, with the machine standing in it.",
+    "CallbackBeat": "limp_onset",
+    "NemesisPressure": "rising; it sprints once a phase and pays for it out of charge",
+    "Provenance": "authored_fallback"
+  },
+  {
+    "PhaseID": "phase_train_yard",
+    "PhaseIndex": 3,
+    "ApproachLow": 0.66,
+    "ApproachHigh": 1.0,
+    "ArenaName": "train yard",
+    "GridSpan": "10x10",
+    "ExitTiles": [
+      [
+        4,
+        0
+      ],
+      [
+        0,
+        9
+      ],
+      [
+        9,
+        9
+      ]
+    ],
+    "CoverTiles": [
+      [
+        2,
+        4
+      ],
+      [
+        7,
+        3
+      ],
+      [
+        5,
+        6
+      ]
+    ],
+    "Light": "sodium floods on tall poles, hard shadows that swing when nothing has moved",
+    "SoundBed": "an idling engine out of sight, couplings taking up slack one at a time",
+    "Props": [
+      "a line of stationary flatcars",
+      "a switch stand with its lamp lit",
+      "ballast gravel",
+      "one boxcar with the door standing open"
+    ],
+    "GateOpenMoment": "no gate; this phase ends the fight one way or the other",
+    "PlayerSees": "An open boxcar door, the same shape that saved the dog once, and this time the machine is in front of it.",
+    "CallbackBeat": "train_leap",
+    "NemesisPressure": "highest; charge is low, the reads are clipped, and it stops covering both exits",
+    "Provenance": "authored_fallback"
+  }
+]

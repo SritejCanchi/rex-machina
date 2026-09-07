@@ -1,0 +1,37 @@
+[
+ {"case_id": "retry_yard_clinical",
+  "prior_attempt": "yard", "phase": 1, "rounds_survived": 6,
+  "adjacent_rounds": 2, "self_charge_pct": 82, "charge_band": "clinical",
+  "dir_freq_20": {"left": 0.15, "right": 0.55, "up": 0.15, "down": 0.15},
+  "periodicity": 0.30, "dog_observable": {"gait": "limping", "collar": true}},
+
+ {"case_id": "retry_yard_strained",
+  "prior_attempt": "yard", "phase": 1, "rounds_survived": 11,
+  "adjacent_rounds": 5, "self_charge_pct": 24, "charge_band": "strained",
+  "dir_freq_20": {"left": 0.25, "right": 0.25, "up": 0.25, "down": 0.25},
+  "periodicity": 0.85, "dog_observable": {"gait": "limping", "collar": true}},
+
+ {"case_id": "retry_fence_gap_confident",
+  "prior_attempt": "fence_gap", "phase": 2, "rounds_survived": 9,
+  "adjacent_rounds": 3, "self_charge_pct": 52, "charge_band": "confident",
+  "dir_freq_20": {"left": 0.45, "right": 0.15, "up": 0.25, "down": 0.15},
+  "periodicity": 0.72, "dog_observable": {"gait": "limping", "collar": true}},
+
+ {"case_id": "retry_fence_gap_clinical",
+  "prior_attempt": "fence_gap", "phase": 2, "rounds_survived": 5,
+  "adjacent_rounds": 1, "self_charge_pct": 70, "charge_band": "clinical",
+  "dir_freq_20": {"left": 0.20, "right": 0.20, "up": 0.50, "down": 0.10},
+  "periodicity": 0.20, "dog_observable": {"gait": "limping", "collar": true}},
+
+ {"case_id": "retry_train_yard_strained",
+  "prior_attempt": "train_yard", "phase": 3, "rounds_survived": 13,
+  "adjacent_rounds": 6, "self_charge_pct": 18, "charge_band": "strained",
+  "dir_freq_20": {"left": 0.10, "right": 0.35, "up": 0.35, "down": 0.20},
+  "periodicity": 0.55, "dog_observable": {"gait": "limping", "collar": true}},
+
+ {"case_id": "retry_train_yard_confident",
+  "prior_attempt": "train_yard", "phase": 3, "rounds_survived": 10,
+  "adjacent_rounds": 4, "self_charge_pct": 44, "charge_band": "confident",
+  "dir_freq_20": {"left": 0.30, "right": 0.30, "up": 0.30, "down": 0.10},
+  "periodicity": 0.65, "dog_observable": {"gait": "limping", "collar": true}}
+]

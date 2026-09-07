@@ -1,0 +1,42 @@
+[
+ {
+  "file": "DT_NemesisReads.json",
+  "rows": 24,
+  "from": "A4 Canon Index",
+  "contains": "24 boss read lines, 8 categories x 3 charge bands",
+  "sha256": "0fb9d8d0007c3a3c46bb7ccb1b3048013d8d1e07a769af1dfcfe422297aaac69",
+  "identical": true
+ },
+ {
+  "file": "DT_ArenaPhases.json",
+  "rows": 3,
+  "from": "A4 Canon Index",
+  "contains": "3 Act 3 arena phases with exits and cover",
+  "sha256": "0ede0ad770d55740b1177511e2ca8dfea746aaa04cfff9d4fcc6ca4a369fd7b7",
+  "identical": true
+ },
+ {
+  "file": "DT_JourneyHazards.json",
+  "rows": 6,
+  "from": "A4 Canon Index",
+  "contains": "6 Act 1-2 chase encounters with telegraphs and windows",
+  "sha256": "b557e373030d0efa9b2086d90a5736c8687782c2817691d18939f3a60ca0f57d",
+  "identical": true
+ },
+ {
+  "file": "DT_RetryReads.json",
+  "rows": 6,
+  "from": "A6 Retry Read",
+  "contains": "6 lines the boss speaks when you respawn",
+  "sha256": "911b309df12c2d0de9b4e86f1461f49af5b16d34d674f641517c9153fc256aa2",
+  "identical": true
+ },
+ {
+  "file": "DT_JourneyBeats.json",
+  "rows": 3,
+  "from": "A7 Copy Desk",
+  "contains": "3 journey beats, style-checked",
+  "sha256": "2444e47c22abe8a07cb9177a5af836278a083df4e7c417698aeec84699aa7167",
+  "identical": true
+ }
+]

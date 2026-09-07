@@ -1,0 +1,18 @@
+{
+ "role": "gen.length",
+ "model": "claude-haiku-4-5-20251001",
+ "prompt": "You write journey narration for a game about a shelter dog walking home to the family that gave her away.\n\nThis beat:\n{\n \"beat\": \"fed_by_stranger\",\n \"fires_when\": \"player interacts with the diner back door\",\n \"days_traveled\": 6,\n \"journey_memory\": [\n  {\n   \"fact\": \"left_behind\",\n   \"day\": 0\n  },\n  {\n   \"fact\": \"escaped_alley\",\n   \"day\": 1\n  },\n  {\n   \"fact\": \"rode_train_2_nights\",\n   \"day\": 4\n  },\n  {\n   \"fact\": \"fed_by_stranger\",\n   \"day\": 6\n  }\n ],\n \"condition\": {\n  \"state\": \"healthy\",\n  \"since_day\": 0\n }\n}\n\nArt direction for this line:\nWrite a rich, immersive paragraph with plenty of sensory description. Give it a short bolded title line first, then the prose. Take as many words as the scene deserves.\n\nWrite the narration. Return JSON only: {\"narration\": \"<the text>\"}",
+ "response": "```json\n{\n  \"narration\": \"**A Kindness in the Kitchen**\\n\\nThe diner door swings open and warm air spills out\u2014a rich tapestry of scents that makes your tired legs pause. Chicken broth. Fresh bread. Bacon grease still smoking in a pan somewhere unseen. A woman appears, her apron dusted with flour, her eyes catching yours with the particular gentleness reserved for things that are lost. She doesn't ask questions. She simply sets down a plate\u2014real food, not scraps, still steaming\u2014and sits on the back step beside you. Her weathered hand, warm from the kitchen work, rests near your head without quite touching, respectful of boundaries you didn't know you had the right to have.\\n\\nYou eat slowly, savoring each bite in a way you couldn't in the alley's shadows or the train car's rattling darkness. She hums something tuneless and kind while you eat. When the plate is empty, she refills it without a word, and you realize you've stopped trembling\u2014the constant hum of fear that's been your heartbeat for six days finally stilling, if only for this moment. The kitchen's warmth soaks into your ribs. You don't know her name, and she doesn't seem to need yours. But as you finish the second plate and she scratches gently behind your ear, you understand something crucial: kindness still exists in this vast, confusing world. And that changes everything about how far you think you can go.\"\n}\n```",
+ "usage": {
+  "input_tokens": 279,
+  "cache_creation_input_tokens": 0,
+  "cache_read_input_tokens": 0,
+  "cache_creation": {
+   "ephemeral_5m_input_tokens": 0,
+   "ephemeral_1h_input_tokens": 0
+  },
+  "output_tokens": 346,
+  "service_tier": "standard",
+  "inference_geo": "not_available"
+ }
+}

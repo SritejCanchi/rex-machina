@@ -1,0 +1,446 @@
+{
+  "nemesis_read": {
+    "sealing_direction|clinical": {
+      "ReadID": "sealing_direction__clinical",
+      "ReadCategory": "sealing_direction",
+      "ChargeBand": "clinical",
+      "Line": "Target favored left breaks four times in twenty.",
+      "WordCount": 8,
+      "ObservableCited": "dir_freq_20",
+      "TriggerCondition": "one compass direction dominates dir_freq_20"
+    },
+    "sealing_direction|confident": {
+      "ReadID": "sealing_direction__confident",
+      "ReadCategory": "sealing_direction",
+      "ChargeBand": "confident",
+      "Line": "You broke left four times in twenty.",
+      "WordCount": 7,
+      "ObservableCited": "dir_freq_20",
+      "TriggerCondition": "one compass direction dominates dir_freq_20"
+    },
+    "sealing_direction|strained": {
+      "ReadID": "sealing_direction__strained",
+      "ReadCategory": "sealing_direction",
+      "ChargeBand": "strained",
+      "Line": "Left again. Twenty moves.",
+      "WordCount": 4,
+      "ObservableCited": "dir_freq_20",
+      "TriggerCondition": "one compass direction dominates dir_freq_20"
+    },
+    "cover_habit|clinical": {
+      "ReadID": "cover_habit__clinical",
+      "ReadCategory": "cover_habit",
+      "ChargeBand": "clinical",
+      "Line": "Three of the last five rounds ended in cover.",
+      "WordCount": 9,
+      "ObservableCited": "cover_tiles",
+      "TriggerCondition": "the dog has ended three of the last five rounds on a cover tile"
+    },
+    "cover_habit|confident": {
+      "ReadID": "cover_habit__confident",
+      "ReadCategory": "cover_habit",
+      "ChargeBand": "confident",
+      "Line": "You keep ending your rounds behind cover.",
+      "WordCount": 7,
+      "ObservableCited": "cover_tiles",
+      "TriggerCondition": "the dog has ended three of the last five rounds on a cover tile"
+    },
+    "cover_habit|strained": {
+      "ReadID": "cover_habit__strained",
+      "ReadCategory": "cover_habit",
+      "ChargeBand": "strained",
+      "Line": "Cover again. Same crate.",
+      "WordCount": 4,
+      "ObservableCited": "cover_tiles",
+      "TriggerCondition": "the dog has ended three of the last five rounds on a cover tile"
+    },
+    "exit_fixation|clinical": {
+      "ReadID": "exit_fixation__clinical",
+      "ReadCategory": "exit_fixation",
+      "ChargeBand": "clinical",
+      "Line": "Two consecutive runs at the same exit tile.",
+      "WordCount": 8,
+      "ObservableCited": "exits",
+      "TriggerCondition": "two consecutive runs at the same exit tile"
+    },
+    "exit_fixation|confident": {
+      "ReadID": "exit_fixation__confident",
+      "ReadCategory": "exit_fixation",
+      "ChargeBand": "confident",
+      "Line": "You ran that same gap twice.",
+      "WordCount": 6,
+      "ObservableCited": "exits",
+      "TriggerCondition": "two consecutive runs at the same exit tile"
+    },
+    "exit_fixation|strained": {
+      "ReadID": "exit_fixation__strained",
+      "ReadCategory": "exit_fixation",
+      "ChargeBand": "strained",
+      "Line": "Same exit. Twice.",
+      "WordCount": 3,
+      "ObservableCited": "exits",
+      "TriggerCondition": "two consecutive runs at the same exit tile"
+    },
+    "periodicity_called|clinical": {
+      "ReadID": "periodicity_called__clinical",
+      "ReadCategory": "periodicity_called",
+      "ChargeBand": "clinical",
+      "Line": "The pattern repeats on a five beat cycle.",
+      "WordCount": 8,
+      "ObservableCited": "periodicity",
+      "TriggerCondition": "periodicity > 0.65"
+    },
+    "periodicity_called|confident": {
+      "ReadID": "periodicity_called__confident",
+      "ReadCategory": "periodicity_called",
+      "ChargeBand": "confident",
+      "Line": "Your loop is five beats long.",
+      "WordCount": 6,
+      "ObservableCited": "periodicity",
+      "TriggerCondition": "periodicity > 0.65"
+    },
+    "periodicity_called|strained": {
+      "ReadID": "periodicity_called__strained",
+      "ReadCategory": "periodicity_called",
+      "ChargeBand": "strained",
+      "Line": "Loop again. Five beats.",
+      "WordCount": 4,
+      "ObservableCited": "periodicity",
+      "TriggerCondition": "periodicity > 0.65"
+    },
+    "stall_detected|clinical": {
+      "ReadID": "stall_detected__clinical",
+      "ReadCategory": "stall_detected",
+      "ChargeBand": "clinical",
+      "Line": "Two of the last four moves cancelled out.",
+      "WordCount": 8,
+      "ObservableCited": "dog_recent_moves",
+      "TriggerCondition": "two of the last four moves cancelled each other"
+    },
+    "stall_detected|confident": {
+      "ReadID": "stall_detected__confident",
+      "ReadCategory": "stall_detected",
+      "ChargeBand": "confident",
+      "Line": "You stepped out and stepped back.",
+      "WordCount": 6,
+      "ObservableCited": "dog_recent_moves",
+      "TriggerCondition": "two of the last four moves cancelled each other"
+    },
+    "stall_detected|strained": {
+      "ReadID": "stall_detected__strained",
+      "ReadCategory": "stall_detected",
+      "ChargeBand": "strained",
+      "Line": "Stepped back. Twice.",
+      "WordCount": 3,
+      "ObservableCited": "dog_recent_moves",
+      "TriggerCondition": "two of the last four moves cancelled each other"
+    },
+    "gait_read|clinical": {
+      "ReadID": "gait_read__clinical",
+      "ReadCategory": "gait_read",
+      "ChargeBand": "clinical",
+      "Line": "Gait uneven. The back leg lands short.",
+      "WordCount": 7,
+      "ObservableCited": "dog_observable",
+      "TriggerCondition": "dog_observable.gait == limping"
+    },
+    "gait_read|confident": {
+      "ReadID": "gait_read__confident",
+      "ReadCategory": "gait_read",
+      "ChargeBand": "confident",
+      "Line": "Your back leg lands short now.",
+      "WordCount": 6,
+      "ObservableCited": "dog_observable",
+      "TriggerCondition": "dog_observable.gait == limping"
+    },
+    "gait_read|strained": {
+      "ReadID": "gait_read__strained",
+      "ReadCategory": "gait_read",
+      "ChargeBand": "strained",
+      "Line": "Leg short. Uneven.",
+      "WordCount": 3,
+      "ObservableCited": "dog_observable",
+      "TriggerCondition": "dog_observable.gait == limping"
+    },
+    "charge_strain|clinical": {
+      "ReadID": "charge_strain__clinical",
+      "ReadCategory": "charge_strain",
+      "ChargeBand": "clinical",
+      "Line": "Charge crossed thirty. Reserve draw increased.",
+      "WordCount": 6,
+      "ObservableCited": "self_charge_pct",
+      "TriggerCondition": "self_charge_pct crossed below a band boundary this round"
+    },
+    "charge_strain|confident": {
+      "ReadID": "charge_strain__confident",
+      "ReadCategory": "charge_strain",
+      "ChargeBand": "confident",
+      "Line": "You cost me half my charge.",
+      "WordCount": 6,
+      "ObservableCited": "self_charge_pct",
+      "TriggerCondition": "self_charge_pct crossed below a band boundary this round"
+    },
+    "charge_strain|strained": {
+      "ReadID": "charge_strain__strained",
+      "ReadCategory": "charge_strain",
+      "ChargeBand": "strained",
+      "Line": "Charge low. Sun gone.",
+      "WordCount": 4,
+      "ObservableCited": "self_charge_pct",
+      "TriggerCondition": "self_charge_pct crossed below a band boundary this round"
+    },
+    "prior_attempt|clinical": {
+      "ReadID": "prior_attempt__clinical",
+      "ReadCategory": "prior_attempt",
+      "ChargeBand": "clinical",
+      "Line": "The fence was tried last run. It failed.",
+      "WordCount": 8,
+      "ObservableCited": "prior_attempt",
+      "TriggerCondition": "first round after a checkpoint retry, prior_attempt is set"
+    },
+    "prior_attempt|confident": {
+      "ReadID": "prior_attempt__confident",
+      "ReadCategory": "prior_attempt",
+      "ChargeBand": "confident",
+      "Line": "You tried the fence already. It held.",
+      "WordCount": 7,
+      "ObservableCited": "prior_attempt",
+      "TriggerCondition": "first round after a checkpoint retry, prior_attempt is set"
+    },
+    "prior_attempt|strained": {
+      "ReadID": "prior_attempt__strained",
+      "ReadCategory": "prior_attempt",
+      "ChargeBand": "strained",
+      "Line": "Fence again. Tried before.",
+      "WordCount": 4,
+      "ObservableCited": "prior_attempt",
+      "TriggerCondition": "first round after a checkpoint retry, prior_attempt is set"
+    }
+  },
+  "journey_hazard": {
+    "shelter_gate": {
+      "HazardID": "shelter_gate",
+      "Day": 0,
+      "Act": 1,
+      "Location": "the kennel yard, chain gate, a gravel apron before open pavement",
+      "PursuerType": "a kennel hand with a slip lead, not angry, just quick",
+      "Telegraph": "lead swinging wide",
+      "WindowTurns": 3,
+      "TileSpan": "6x8",
+      "EscapeCondition": "reach the gap in the gate on the beat the lead swings away",
+      "FailCondition": "the lead lands on the collar and the run restarts at the pen",
+      "CausesCondition": false,
+      "Teaches": "telegraph reading",
+      "PlayerSees": "The hand lifts. The lead swings. For one beat there is nothing between the gap and the gravel."
+    },
+    "alley_chase": {
+      "HazardID": "alley_chase",
+      "Day": 1,
+      "Act": 1,
+      "Location": "a brick alley behind a row of shops, bins down both sides",
+      "PursuerType": "a loose yard dog, bigger, faster in a straight line and only in a straight line",
+      "Telegraph": "lunging right",
+      "WindowTurns": 3,
+      "TileSpan": "8x6",
+      "EscapeCondition": "put two bins between the pursuer and the dog, then break the opposite way",
+      "FailCondition": "taken on the shoulder; the run continues on a shorter stamina bar",
+      "CausesCondition": true,
+      "Teaches": "cover use",
+      "PlayerSees": "It commits to the right. The bins on the left stop being scenery."
+    },
+    "road_crossing": {
+      "HazardID": "road_crossing",
+      "Day": 2,
+      "Act": 1,
+      "Location": "four lanes, no signal, a raised kerb on the far side",
+      "PursuerType": "none; the traffic is the hazard and it is not interested",
+      "Telegraph": "gap opening left",
+      "WindowTurns": 2,
+      "TileSpan": "10x4",
+      "EscapeCondition": "cross on the second gap, because the first one closes early",
+      "FailCondition": "driven back to the kerb; one full cycle is lost and the light is going",
+      "CausesCondition": false,
+      "Teaches": "window timing",
+      "PlayerSees": "Two gaps arrive. The first is wide and short. The second is narrow and long enough."
+    },
+    "train_leap": {
+      "HazardID": "train_leap",
+      "Day": 3,
+      "Act": 2,
+      "Location": "the freight line at the edge of the yard, gravel siding, cars moving at a walk",
+      "PursuerType": "a yard dog working the siding, close but committed to the ground",
+      "Telegraph": "cutting the gravel",
+      "WindowTurns": 4,
+      "TileSpan": "12x5",
+      "EscapeCondition": "match the boxcar for three tiles and commit to the open door",
+      "FailCondition": "the door passes; the next car is a flat and the approach restarts",
+      "CausesCondition": true,
+      "Teaches": "gap commitment",
+      "PlayerSees": "The door is a moving hole. It is open for four steps and then it is a wall again."
+    },
+    "diner_yard": {
+      "HazardID": "diner_yard",
+      "Day": 6,
+      "Act": 2,
+      "Location": "the back lot of a roadside diner, one propped door, a stack of crates",
+      "PursuerType": "none; a cook who has not decided about the dog yet",
+      "Telegraph": "door propping open",
+      "WindowTurns": 5,
+      "TileSpan": "7x7",
+      "EscapeCondition": "hold inside the window without breaking cover and the tray comes out",
+      "FailCondition": "break early and the door shuts; no food, no damage, no second offer",
+      "CausesCondition": false,
+      "Teaches": "stamina management",
+      "PlayerSees": "Nothing is chasing. The cost of running is that the door closes."
+    },
+    "fence_line": {
+      "HazardID": "fence_line",
+      "Day": 7,
+      "Act": 2,
+      "Location": "a chain link run behind the last houses, one gap dug under the bottom rail",
+      "PursuerType": "two dogs on the far side, working the wire in step with each other",
+      "Telegraph": "pacing the rail",
+      "WindowTurns": 3,
+      "TileSpan": "9x4",
+      "EscapeCondition": "take the gap on the beat when both dogs are moving the same way",
+      "FailCondition": "the wire takes the back leg; the limp starts here and does not clear",
+      "CausesCondition": true,
+      "Teaches": "pattern breaking",
+      "PlayerSees": "Two dogs pacing one wire, in step. In step means there is a beat when neither is at the gap."
+    }
+  },
+  "arena_phase": {
+    "phase_yard": {
+      "PhaseID": "phase_yard",
+      "PhaseIndex": 1,
+      "ApproachLow": 0.0,
+      "ApproachHigh": 0.33,
+      "ArenaName": "yard",
+      "GridSpan": "10x10",
+      "ExitTiles": [
+        [
+          0,
+          4
+        ],
+        [
+          9,
+          7
+        ]
+      ],
+      "CoverTiles": [
+        [
+          3,
+          3
+        ],
+        [
+          6,
+          5
+        ],
+        [
+          4,
+          7
+        ]
+      ],
+      "Light": "one warm cone from the house, wet grass inside it, everything outside it blue",
+      "SoundBed": "a television two rooms away, and a cooling fan that is not a dog",
+      "Props": [
+        "a hose coiled on its reel",
+        "a bike on its side",
+        "a low chain fence at the property line",
+        "a rubber ball gone flat with age"
+      ],
+      "GateOpenMoment": "at 33% the side gate swings and the warm light stops reaching",
+      "PlayerSees": "The one shape of ground the dog already knows, and the machine knows it better.",
+      "CallbackBeat": "the_street",
+      "NemesisPressure": "low; it holds the middle and lets the fence do the work"
+    },
+    "phase_fence_gap": {
+      "PhaseID": "phase_fence_gap",
+      "PhaseIndex": 2,
+      "ApproachLow": 0.33,
+      "ApproachHigh": 0.66,
+      "ArenaName": "fence gap",
+      "GridSpan": "10x10",
+      "ExitTiles": [
+        [
+          0,
+          6
+        ],
+        [
+          9,
+          2
+        ]
+      ],
+      "CoverTiles": [
+        [
+          3,
+          5
+        ],
+        [
+          5,
+          7
+        ]
+      ],
+      "Light": "no house light past the gate, one neighbour's lamp on a motion timer that keeps guessing wrong",
+      "SoundBed": "chain link ringing whenever either animal touches it",
+      "Props": [
+        "a chain link run between two yards",
+        "a gap dug under the bottom rail",
+        "a stack of paving slabs",
+        "a lamp pole with a dead sensor"
+      ],
+      "GateOpenMoment": "at 66% the far panel is already down and the ground turns to ballast",
+      "PlayerSees": "The same shape of gap that took the back leg, with the machine standing in it.",
+      "CallbackBeat": "limp_onset",
+      "NemesisPressure": "rising; it sprints once a phase and pays for it out of charge"
+    },
+    "phase_train_yard": {
+      "PhaseID": "phase_train_yard",
+      "PhaseIndex": 3,
+      "ApproachLow": 0.66,
+      "ApproachHigh": 1.0,
+      "ArenaName": "train yard",
+      "GridSpan": "10x10",
+      "ExitTiles": [
+        [
+          4,
+          0
+        ],
+        [
+          0,
+          9
+        ],
+        [
+          9,
+          9
+        ]
+      ],
+      "CoverTiles": [
+        [
+          2,
+          4
+        ],
+        [
+          7,
+          3
+        ],
+        [
+          5,
+          6
+        ]
+      ],
+      "Light": "sodium floods on tall poles, hard shadows that swing when nothing has moved",
+      "SoundBed": "an idling engine out of sight, couplings taking up slack one at a time",
+      "Props": [
+        "a line of stationary flatcars",
+        "a switch stand with its lamp lit",
+        "ballast gravel",
+        "one boxcar with the door standing open"
+      ],
+      "GateOpenMoment": "no gate; this phase ends the fight one way or the other",
+      "PlayerSees": "An open boxcar door, the same shape that saved the dog once, and this time the machine is in front of it.",
+      "CallbackBeat": "train_leap",
+      "NemesisPressure": "highest; charge is low, the reads are clipped, and it stops covering both exits"
+    }
+  }
+}

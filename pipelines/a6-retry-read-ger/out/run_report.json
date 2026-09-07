@@ -1,0 +1,74 @@
+{
+ "provider": "replay",
+ "cases": 6,
+ "caught": 6,
+ "escalated": 1,
+ "rows": [
+  {
+   "RowName": "retry_yard_clinical",
+   "Gate": "yard",
+   "Phase": 1,
+   "ChargeBand": "clinical",
+   "Line": "Yard loss noted. Rightward bias confirmed. Gait degradation measured.",
+   "WordCount": 9,
+   "Attempts": 2,
+   "RulesFired": "R2_PRIOR_REF|R3_BUDGET",
+   "Provenance": "model_refined"
+  },
+  {
+   "RowName": "retry_yard_strained",
+   "Gate": "yard",
+   "Phase": 1,
+   "ChargeBand": "strained",
+   "Line": "Yard failure. Balanced approach vectors. Strained gait deterioration. Predictable. Closing.",
+   "WordCount": 10,
+   "Attempts": 2,
+   "RulesFired": "R2_PRIOR_REF",
+   "Provenance": "model_refined"
+  },
+  {
+   "RowName": "retry_fence_gap_confident",
+   "Gate": "fence_gap",
+   "Phase": 2,
+   "ChargeBand": "confident",
+   "Line": "Last run ended at the fence gap. Repeated left.",
+   "WordCount": 9,
+   "Attempts": 3,
+   "RulesFired": "R2_PRIOR_REF|R3_BUDGET|R4_INVENTED_NUMBER",
+   "Provenance": "authored_fallback"
+  },
+  {
+   "RowName": "retry_fence_gap_clinical",
+   "Gate": "fence_gap",
+   "Phase": 2,
+   "ChargeBand": "clinical",
+   "Line": "Fence gap. Northward bias observed. Gait degrading. Domestic strain markers confirmed.",
+   "WordCount": 11,
+   "Attempts": 2,
+   "RulesFired": "R2_PRIOR_REF",
+   "Provenance": "model_refined"
+  },
+  {
+   "RowName": "retry_train_yard_strained",
+   "Gate": "train_yard",
+   "Phase": 3,
+   "ChargeBand": "strained",
+   "Line": "Train yard. Right-up bias. Gait deteriorating. Predictable vector. Finish this.",
+   "WordCount": 11,
+   "Attempts": 2,
+   "RulesFired": "R2_PRIOR_REF",
+   "Provenance": "model_refined"
+  },
+  {
+   "RowName": "retry_train_yard_confident",
+   "Gate": "train_yard",
+   "Phase": 3,
+   "ChargeBand": "confident",
+   "Line": "Train yard. Lateral bias detected. Gait degradation confirmed. Evasion patterns consolidating.",
+   "WordCount": 11,
+   "Attempts": 3,
+   "RulesFired": "R2_PRIOR_REF|R4_INVENTED_NUMBER",
+   "Provenance": "model_refined"
+  }
+ ]
+}

@@ -1,0 +1,46 @@
+flowchart TD
+    subgraph KB["KNOWLEDGE BASE — the GDD, verbatim"]
+        GDD["data/kb/gdd_rex_machina.md<br/>my-capstone.md, unedited"]
+        CH["chunk_markdown()<br/>39 chunks: 21 prose, 12 table rows, 6 code<br/>fenced JSON kept whole, tables split per row"]
+        IX["TF-IDF vector index<br/>2,471 terms, sublinear tf x smoothed idf<br/>L2 normalised, cosine similarity"]
+        GDD --> CH --> IX
+    end
+
+    subgraph RET["RETRIEVAL — two stages"]
+        Q1["shared query per content type<br/>names the mechanics"]
+        Q2["seed query per row<br/>names that row's own canon"]
+        UN["union, dedupe, shared hits pinned<br/>cap 10 chunks"]
+        Q1 --> UN
+        Q2 --> UN
+    end
+    IX --> Q1
+    IX --> Q2
+
+    subgraph AG["AGENTS — claude-haiku-4-5"]
+        GEN["GENERATOR<br/>writes rows, grounded only in retrieved chunks"]
+        CRIT["CONTINUITY CRITIC<br/>finds lore breaks and tone drift<br/>cites rule + chunk id, may not rewrite"]
+        REP["REPAIR<br/>fixes only the cited violations"]
+        GEN --> CRIT --> REP
+    end
+    UN --> GEN
+    UN --> CRIT
+    UN --> REP
+
+    GATE{"GATE — validators.py<br/>21 deterministic rules<br/>the only thing that can stop a row"}
+    REP --> GATE
+    GEN -- "critic found nothing" --> GATE
+
+    FB[("data/fallbacks.json<br/>33 hand-authored rows")]
+    FB -- "on gate failure" --> OUT
+
+    OUT["out/<br/>DT_NemesisReads · DT_JourneyHazards · DT_ArenaPhases<br/>.json + .csv + FxxxRow.h<br/>retrieval_traces.md · retrieval_eval.md · run_report.json"]
+    GATE -- pass --> OUT
+
+    UE["UE5: import DataTable, row lookup at runtime<br/>reads -> UMG · hazards -> Gauntlet pawn · phases -> arena gates"]
+    OUT --> UE
+
+    style GATE fill:#3d2b1f,stroke:#c9a227,stroke-width:2px,color:#f5f0e6
+    style FB fill:#1f2d3d,stroke:#5b8fb9,color:#eaf2f8
+    style KB fill:#14181d,stroke:#4a5568,color:#e2e8f0
+    style AG fill:#14181d,stroke:#4a5568,color:#e2e8f0
+    style RET fill:#14181d,stroke:#4a5568,color:#e2e8f0

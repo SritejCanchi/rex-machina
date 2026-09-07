@@ -1,0 +1,12 @@
+{
+  "role": "critic.nemesis_read.0",
+  "model": null,
+  "prompt_sha256_16": "bbdd0a34c0219d00",
+  "prompt_chars": 9378,
+  "response": "[\n  {\"index\": 0, \"verdict\": \"pass\", \"violations\": []},\n  {\n    \"index\": 1,\n    \"verdict\": \"fail\",\n    \"violations\": [\n      {\n        \"rule\": \"N4\",\n        \"span\": \"three of five rounds\",\n        \"why\": \"The machine's memory is a 4-move sliding window and its only non-decaying statistics are direction frequency over 20 moves and a periodicity score, so a five-round record of which tiles the target ended on is knowledge it cannot hold.\",\n        \"chunk\": \"gdd_rex_machina#006\"\n      }\n    ]\n  },\n  {\"index\": 2, \"verdict\": \"pass\", \"violations\": []},\n  {\n    \"index\": 3,\n    \"verdict\": \"fail\",\n    \"violations\": [\n      {\n        \"rule\": \"N5\",\n        \"span\": \"Periodicity registered above threshold\",\n        \"why\": \"The read names the internal engine-computed scalar and its cutoff instead of leading with the behavior, and the second clause already states the behavior, so the abstraction is both drift and redundant.\",\n        \"chunk\": \"gdd_rex_machina#004\"\n      }\n    ]\n  },\n  {\"index\": 4, \"verdict\": \"pass\", \"violations\": []},\n  {\"index\": 5, \"verdict\": \"pass\", \"violations\": []},\n  {\n    \"index\": 6,\n    \"verdict\": \"fail\",\n    \"violations\": [\n      {\n        \"rule\": \"N6\",\n        \"span\": \"Charge crossed sixty percent.\",\n        \"why\": \"Sixty percent is the boundary between the clinical and confident bands, so a line reporting that charge has already crossed it cannot be delivered in the clinical register this row is tagged with.\",\n        \"chunk\": \"gdd_rex_machina#006\"\n      }\n    ]\n  },\n  {\"index\": 7, \"verdict\": \"pass\", \"violations\": []}\n]",
+  "input_tokens": null,
+  "output_tokens": null,
+  "recorded_by": "claude-opus-5 (subagent, given only the prompt file)",
+  "recorded_at_utc": "2026-08-05T23:46:17Z",
+  "note": "Produced by a subagent handed this prompt file and nothing else. It could not see the gate, the specs or the fallback table. No live Haiku 4.5 call."
+}

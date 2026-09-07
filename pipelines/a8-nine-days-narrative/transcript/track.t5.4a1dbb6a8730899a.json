@@ -1,0 +1,18 @@
+{
+ "role": "track.t5",
+ "model": "claude-haiku-4-5-20251001",
+ "prompt": "You track state for a text game. The player is a dog walking home.\n\nTHE WORLD\nYou are a shelter dog walking home to the family that gave you away. Nine days. No one narrates your thoughts. The world reacts to what you did, not to what you meant.\n\nWHERE SHE IS NOW\nDay 2, rail_yard. Gravel, a line of stopped freight, and a boxcar door standing open.\n\nTHE LEDGER AS IT STANDS\n{\n \"day\": 2,\n \"condition\": {\n  \"state\": \"limping\",\n  \"since_day\": 1\n },\n \"hunger\": 1,\n \"trust_in_humans\": -1,\n \"facts\": [\n  {\n   \"fact\": \"escaped_the_gate\",\n   \"day\": 0\n  },\n  {\n   \"fact\": \"hid_from_the_leash\",\n   \"day\": 0\n  },\n  {\n   \"fact\": \"rode_the_boxcar\",\n   \"day\": 0\n  },\n  {\n   \"fact\": \"slept_cold\",\n   \"day\": 1\n  }\n ],\n \"places_seen\": [\n  \"shelter_yard\",\n  \"alley\"\n ],\n \"flags\": {}\n}\n\nFACT IDS THIS WORLD ALREADY KNOWS (prefer these; you may coin a new one in\nthe same snake_case style if nothing fits)\nleft_behind, escaped_the_gate, escaped_alley, hid_from_the_leash, rode_the_boxcar, slept_cold, drank_from_a_puddle, saw_the_water, took_food_from_stranger, refused_the_hand, walked_the_verge, reached_the_street, was_seen_by_a_child, limped_first\n\nTHE PLAYER JUST DID THIS\n\"put your nose out of the door at the water and keep going\"\n\nRecord what that action changed. Only record what the action actually did.\nDo not record intentions, and do not record anything the player only looked at.\n\nReturn JSON only:\n{\"add_facts\": [\"fact_id\"], \"set_flags\": {\"flag_name\": true},\n \"hunger_delta\": 0, \"trust_delta\": 0, \"condition\": null,\n \"advance_day\": false, \"why\": \"one short sentence\"}\n\nhunger_delta and trust_delta are integers from -2 to 2. condition is one of\n\"sound\", \"limping\", \"hurt\", or null for no change. advance_day is true only if\nthe action ends the day.",
+ "response": "```json\n{\n  \"add_facts\": [\"saw_the_water\"],\n  \"set_flags\": {},\n  \"hunger_delta\": 0,\n  \"trust_delta\": 0,\n  \"condition\": null,\n  \"advance_day\": false,\n  \"why\": \"She looked at the water but didn't drink or move on yet.\"\n}\n```",
+ "usage": {
+  "input_tokens": 620,
+  "cache_creation_input_tokens": 0,
+  "cache_read_input_tokens": 0,
+  "cache_creation": {
+   "ephemeral_5m_input_tokens": 0,
+   "ephemeral_1h_input_tokens": 0
+  },
+  "output_tokens": 89,
+  "service_tier": "standard",
+  "inference_geo": "not_available"
+ }
+}

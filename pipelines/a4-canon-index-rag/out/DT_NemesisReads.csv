@@ -1,0 +1,25 @@
+Name,ReadID,ReadCategory,ChargeBand,Line,WordCount,ObservableCited,TriggerCondition,Provenance
+DT_NemesisReads_00,nemesis_read_sealing_direction_clinical,sealing_direction,clinical,Target favored left nine of twenty recorded moves.,8,dir_freq_20,one compass direction dominates dir_freq_20,generated
+DT_NemesisReads_01,nemesis_read_cover_habit_clinical,cover_habit,clinical,Target ended three of four rounds on cover.,8,cover_tiles,the dog has ended three of the last four rounds on a cover tile,repaired
+DT_NemesisReads_02,nemesis_read_exit_fixation_clinical,exit_fixation,clinical,Two consecutive approaches targeted the same exit tile.,8,exits,two consecutive runs at the same exit tile,generated
+DT_NemesisReads_03,nemesis_read_periodicity_called_clinical,periodicity_called,clinical,Movement repeated on cycle.,4,periodicity,periodicity > 0.65,repaired
+DT_NemesisReads_04,nemesis_read_stall_detected_clinical,stall_detected,clinical,Two of the last four moves cancelled out.,8,dog_recent_moves,two of the last four moves cancelled each other,generated
+DT_NemesisReads_05,nemesis_read_gait_read_clinical,gait_read,clinical,Gait classification updated to limping this round.,7,dog_observable,dog_observable.gait == limping,generated
+DT_NemesisReads_06,nemesis_read_charge_strain_clinical,charge_strain,clinical,Charge above sixty percent. Efficiency margin narrowed.,7,self_charge_pct,self_charge_pct crossed below a band boundary this round,repaired
+DT_NemesisReads_07,prior_attempt__clinical,prior_attempt,clinical,The fence was tried last run. It failed.,8,prior_attempt,"first round after a checkpoint retry, prior_attempt is set",authored_fallback
+DT_NemesisReads_08,NR_sealing_direction_conf_01,sealing_direction,confident,You broke left nine times in twenty.,7,dir_freq_20,one compass direction dominates dir_freq_20,repaired
+DT_NemesisReads_09,NR_cover_habit_conf_01,cover_habit,confident,You ended three of four moves behind cover.,8,cover_tiles,the dog has ended three of the last five rounds on a cover tile,repaired
+DT_NemesisReads_10,NR_exit_fixation_conf_01,exit_fixation,confident,You ran the same exit twice. I noticed.,8,exits,two consecutive runs at the same exit tile,generated
+DT_NemesisReads_11,NR_periodicity_called_conf_01,periodicity_called,confident,You looped a pattern.,4,periodicity,periodicity > 0.65,repaired
+DT_NemesisReads_12,NR_stall_detected_conf_01,stall_detected,confident,Two of your last four moves cancelled out.,8,dog_recent_moves,two of the last four moves cancelled each other,generated
+DT_NemesisReads_13,gait_read__confident,gait_read,confident,Your back leg lands short now.,6,dog_observable,dog_observable.gait == limping,authored_fallback
+DT_NemesisReads_14,NR_charge_strain_conf_01,charge_strain,confident,My charge dropped under sixty. You still ran.,8,self_charge_pct,self_charge_pct crossed below a band boundary this round,generated
+DT_NemesisReads_15,NR_prior_attempt_conf_01,prior_attempt,confident,You tried the fence gap already. It held.,8,prior_attempt,"first round after a checkpoint retry, prior_attempt is set",generated
+DT_NemesisReads_16,read_sealing_direction_strained_01,sealing_direction,strained,Left dominated twenty moves.,4,dir_freq_20,one compass direction dominates dir_freq_20,generated
+DT_NemesisReads_17,read_cover_habit_strained_01,cover_habit,strained,Ended on cover.,3,cover_tiles,the dog has ended three of the last five rounds on a cover tile,repaired
+DT_NemesisReads_18,read_exit_fixation_strained_01,exit_fixation,strained,Ran that exit twice.,4,exits,two consecutive runs at the same exit tile,generated
+DT_NemesisReads_19,read_periodicity_called_strained_01,periodicity_called,strained,Repeating cycle scored high.,4,periodicity,periodicity > 0.65,generated
+DT_NemesisReads_20,read_stall_detected_strained_01,stall_detected,strained,Two moves cancelled each other.,5,dog_recent_moves,two of the last four moves cancelled each other,generated
+DT_NemesisReads_21,read_gait_read_strained_01,gait_read,strained,Gait limped.,2,dog_observable,dog_observable.gait == limping,repaired
+DT_NemesisReads_22,read_charge_strain_strained_01,charge_strain,strained,Charge dropped.,2,self_charge_pct,self_charge_pct crossed below a band boundary this round,repaired
+DT_NemesisReads_23,read_prior_attempt_strained_01,prior_attempt,strained,Fence gap failed before.,4,prior_attempt,"first round after a checkpoint retry, prior_attempt is set",generated

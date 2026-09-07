@@ -1,0 +1,9 @@
+# The Architect has no third-party dependencies.
+#
+# The agent and the game both run on the Python standard library alone.
+# llm.py speaks to the Anthropic messages endpoint with urllib rather than the
+# SDK, because Class 7 slide 21 asks for raw orchestration on this assignment.
+#
+# Python 3.8 or newer.
+#
+# For a live run, set ANTHROPIC_API_KEY in the environment and pass --live.

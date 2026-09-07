@@ -1,0 +1,12 @@
+{
+  "role": "critic.nemesis_read.2",
+  "model": null,
+  "prompt_sha256_16": "54de8470616bb688",
+  "prompt_chars": 9152,
+  "response": "[\n  {\"index\": 0, \"verdict\": \"pass\", \"violations\": []},\n  {\"index\": 1, \"verdict\": \"fail\", \"violations\": [{\"rule\": \"N4\", \"span\": \"Ended on cover three times.\", \"why\": \"Counting three cover-endings across the last five rounds exceeds what the machine retains: its move memory is a 4-move sliding window and the only non-decaying data are the engine scalars dir_freq_20 and periodicity, neither of which tracks cover-tile endings.\", \"chunk\": \"gdd_rex_machina#006\"}]},\n  {\"index\": 2, \"verdict\": \"pass\", \"violations\": []},\n  {\"index\": 3, \"verdict\": \"pass\", \"violations\": []},\n  {\"index\": 4, \"verdict\": \"pass\", \"violations\": []},\n  {\"index\": 5, \"verdict\": \"fail\", \"violations\": [{\"rule\": \"N4\", \"span\": \"Speed dropped.\", \"why\": \"Speed is not an observable the Nemesis receives — dog_observable carries only gait and collar — and canon fixed movement as equal speed with the 2-tile sprint belonging to the robot, so a drop in the dog's speed is an inference the machine cannot make from its input.\", \"chunk\": \"gdd_rex_machina#011\"}]},\n  {\"index\": 6, \"verdict\": \"fail\", \"violations\": [{\"rule\": \"N6\", \"span\": \"Band crossed.\", \"why\": \"The charge band is the register the read is spoken in (clinical/confident/strained), not content the robot announces; naming the band states the strain the player is supposed to hear in the voice.\", \"chunk\": \"gdd_rex_machina#006\"}]},\n  {\"index\": 7, \"verdict\": \"pass\", \"violations\": []}\n]",
+  "input_tokens": null,
+  "output_tokens": null,
+  "recorded_by": "claude-opus-5 (subagent, given only the prompt file)",
+  "recorded_at_utc": "2026-08-05T23:46:17Z",
+  "note": "Produced by a subagent handed this prompt file and nothing else. It could not see the gate, the specs or the fallback table. No live Haiku 4.5 call."
+}

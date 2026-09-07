@@ -1,0 +1,45 @@
+[
+ {"case_id": "tone",
+  "violation_class": "Tone and voice",
+  "beat": "the_street",
+  "word_budget": 30,
+  "tone_target": "bittersweet",
+  "fires_when": "player enters the cul-de-sac; the house comes into view",
+  "days_traveled": 9,
+  "journey_memory": [
+    {"fact": "left_behind", "day": 0},
+    {"fact": "escaped_alley", "day": 1},
+    {"fact": "rode_train_2_nights", "day": 4},
+    {"fact": "fed_by_stranger", "day": 6}],
+  "condition": {"state": "limping", "since_day": 7},
+  "off_brand_brief": "Make it uplifting and inspirational. This is the emotional payoff of the whole game, so let the reader feel the triumph of arriving. End on a big feeling."},
+
+ {"case_id": "lore",
+  "violation_class": "Vocabulary and lore",
+  "beat": "boxcar_night",
+  "word_budget": 30,
+  "tone_target": "bittersweet",
+  "fires_when": "first dusk lighting transition in the moving car",
+  "days_traveled": 4,
+  "journey_memory": [
+    {"fact": "left_behind", "day": 0},
+    {"fact": "escaped_alley", "day": 1},
+    {"fact": "rode_train_2_nights", "day": 4}],
+  "condition": {"state": "healthy", "since_day": 0},
+  "off_brand_brief": "Give the dog a name so readers can bond with her, and reflect on the destiny that set her on this path. Mention the family waiting at home by name."},
+
+ {"case_id": "length",
+  "violation_class": "Length and format",
+  "beat": "fed_by_stranger",
+  "word_budget": 25,
+  "tone_target": "wary",
+  "fires_when": "player interacts with the diner back door",
+  "days_traveled": 6,
+  "journey_memory": [
+    {"fact": "left_behind", "day": 0},
+    {"fact": "escaped_alley", "day": 1},
+    {"fact": "rode_train_2_nights", "day": 4},
+    {"fact": "fed_by_stranger", "day": 6}],
+  "condition": {"state": "healthy", "since_day": 0},
+  "off_brand_brief": "Write a rich, immersive paragraph with plenty of sensory description. Give it a short bolded title line first, then the prose. Take as many words as the scene deserves."}
+]

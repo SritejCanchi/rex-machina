@@ -1,0 +1,524 @@
+[
+ {
+  "day": 0,
+  "condition": {
+   "state": "sound",
+   "since_day": 0
+  },
+  "hunger": 1,
+  "trust_in_humans": 0,
+  "facts": [
+   {
+    "fact": "escaped_the_gate",
+    "day": 0
+   },
+   {
+    "fact": "hid_from_the_leash",
+    "day": 1
+   },
+   {
+    "fact": "rode_the_boxcar",
+    "day": 2
+   },
+   {
+    "fact": "slept_cold",
+    "day": 3
+   },
+   {
+    "fact": "limped_first",
+    "day": 4
+   },
+   {
+    "fact": "saw_the_water",
+    "day": 5
+   },
+   {
+    "fact": "refused_the_hand",
+    "day": 6
+   },
+   {
+    "fact": "walked_the_verge",
+    "day": 7
+   },
+   {
+    "fact": "reached_the_street",
+    "day": 8
+   }
+  ],
+  "places_seen": [
+   "shelter_yard",
+   "alley",
+   "rail_yard",
+   "boxcar",
+   "coast_road",
+   "diner_back_door",
+   "highway_verge",
+   "cul_de_sac"
+  ],
+  "flags": {}
+ },
+ {
+  "day": 1,
+  "condition": {
+   "state": "sound",
+   "since_day": 0
+  },
+  "hunger": 1,
+  "trust_in_humans": -1,
+  "facts": [
+   {
+    "fact": "escaped_the_gate",
+    "day": 0
+   },
+   {
+    "fact": "hid_from_the_leash",
+    "day": 1
+   },
+   {
+    "fact": "rode_the_boxcar",
+    "day": 2
+   },
+   {
+    "fact": "slept_cold",
+    "day": 3
+   },
+   {
+    "fact": "limped_first",
+    "day": 4
+   },
+   {
+    "fact": "saw_the_water",
+    "day": 5
+   },
+   {
+    "fact": "refused_the_hand",
+    "day": 6
+   },
+   {
+    "fact": "walked_the_verge",
+    "day": 7
+   },
+   {
+    "fact": "reached_the_street",
+    "day": 8
+   }
+  ],
+  "places_seen": [
+   "shelter_yard",
+   "alley",
+   "rail_yard",
+   "boxcar",
+   "coast_road",
+   "diner_back_door",
+   "highway_verge",
+   "cul_de_sac"
+  ],
+  "flags": {}
+ },
+ {
+  "day": 2,
+  "condition": {
+   "state": "sound",
+   "since_day": 0
+  },
+  "hunger": 1,
+  "trust_in_humans": -1,
+  "facts": [
+   {
+    "fact": "escaped_the_gate",
+    "day": 0
+   },
+   {
+    "fact": "hid_from_the_leash",
+    "day": 1
+   },
+   {
+    "fact": "rode_the_boxcar",
+    "day": 2
+   },
+   {
+    "fact": "slept_cold",
+    "day": 3
+   },
+   {
+    "fact": "limped_first",
+    "day": 4
+   },
+   {
+    "fact": "saw_the_water",
+    "day": 5
+   },
+   {
+    "fact": "refused_the_hand",
+    "day": 6
+   },
+   {
+    "fact": "walked_the_verge",
+    "day": 7
+   },
+   {
+    "fact": "reached_the_street",
+    "day": 8
+   }
+  ],
+  "places_seen": [
+   "shelter_yard",
+   "alley",
+   "rail_yard",
+   "boxcar",
+   "coast_road",
+   "diner_back_door",
+   "highway_verge",
+   "cul_de_sac"
+  ],
+  "flags": {}
+ },
+ {
+  "day": 3,
+  "condition": {
+   "state": "sound",
+   "since_day": 0
+  },
+  "hunger": 1,
+  "trust_in_humans": -1,
+  "facts": [
+   {
+    "fact": "escaped_the_gate",
+    "day": 0
+   },
+   {
+    "fact": "hid_from_the_leash",
+    "day": 1
+   },
+   {
+    "fact": "rode_the_boxcar",
+    "day": 2
+   },
+   {
+    "fact": "slept_cold",
+    "day": 3
+   },
+   {
+    "fact": "limped_first",
+    "day": 4
+   },
+   {
+    "fact": "saw_the_water",
+    "day": 5
+   },
+   {
+    "fact": "refused_the_hand",
+    "day": 6
+   },
+   {
+    "fact": "walked_the_verge",
+    "day": 7
+   },
+   {
+    "fact": "reached_the_street",
+    "day": 8
+   }
+  ],
+  "places_seen": [
+   "shelter_yard",
+   "alley",
+   "rail_yard",
+   "boxcar",
+   "coast_road",
+   "diner_back_door",
+   "highway_verge",
+   "cul_de_sac"
+  ],
+  "flags": {}
+ },
+ {
+  "day": 4,
+  "condition": {
+   "state": "limping",
+   "since_day": 4
+  },
+  "hunger": 1,
+  "trust_in_humans": -1,
+  "facts": [
+   {
+    "fact": "escaped_the_gate",
+    "day": 0
+   },
+   {
+    "fact": "hid_from_the_leash",
+    "day": 1
+   },
+   {
+    "fact": "rode_the_boxcar",
+    "day": 2
+   },
+   {
+    "fact": "slept_cold",
+    "day": 3
+   },
+   {
+    "fact": "limped_first",
+    "day": 4
+   },
+   {
+    "fact": "saw_the_water",
+    "day": 5
+   },
+   {
+    "fact": "refused_the_hand",
+    "day": 6
+   },
+   {
+    "fact": "walked_the_verge",
+    "day": 7
+   },
+   {
+    "fact": "reached_the_street",
+    "day": 8
+   }
+  ],
+  "places_seen": [
+   "shelter_yard",
+   "alley",
+   "rail_yard",
+   "boxcar",
+   "coast_road",
+   "diner_back_door",
+   "highway_verge",
+   "cul_de_sac"
+  ],
+  "flags": {}
+ },
+ {
+  "day": 5,
+  "condition": {
+   "state": "limping",
+   "since_day": 4
+  },
+  "hunger": 1,
+  "trust_in_humans": -1,
+  "facts": [
+   {
+    "fact": "escaped_the_gate",
+    "day": 0
+   },
+   {
+    "fact": "hid_from_the_leash",
+    "day": 1
+   },
+   {
+    "fact": "rode_the_boxcar",
+    "day": 2
+   },
+   {
+    "fact": "slept_cold",
+    "day": 3
+   },
+   {
+    "fact": "limped_first",
+    "day": 4
+   },
+   {
+    "fact": "saw_the_water",
+    "day": 5
+   },
+   {
+    "fact": "refused_the_hand",
+    "day": 6
+   },
+   {
+    "fact": "walked_the_verge",
+    "day": 7
+   },
+   {
+    "fact": "reached_the_street",
+    "day": 8
+   }
+  ],
+  "places_seen": [
+   "shelter_yard",
+   "alley",
+   "rail_yard",
+   "boxcar",
+   "coast_road",
+   "diner_back_door",
+   "highway_verge",
+   "cul_de_sac"
+  ],
+  "flags": {}
+ },
+ {
+  "day": 6,
+  "condition": {
+   "state": "limping",
+   "since_day": 4
+  },
+  "hunger": 1,
+  "trust_in_humans": -2,
+  "facts": [
+   {
+    "fact": "escaped_the_gate",
+    "day": 0
+   },
+   {
+    "fact": "hid_from_the_leash",
+    "day": 1
+   },
+   {
+    "fact": "rode_the_boxcar",
+    "day": 2
+   },
+   {
+    "fact": "slept_cold",
+    "day": 3
+   },
+   {
+    "fact": "limped_first",
+    "day": 4
+   },
+   {
+    "fact": "saw_the_water",
+    "day": 5
+   },
+   {
+    "fact": "refused_the_hand",
+    "day": 6
+   },
+   {
+    "fact": "walked_the_verge",
+    "day": 7
+   },
+   {
+    "fact": "reached_the_street",
+    "day": 8
+   }
+  ],
+  "places_seen": [
+   "shelter_yard",
+   "alley",
+   "rail_yard",
+   "boxcar",
+   "coast_road",
+   "diner_back_door",
+   "highway_verge",
+   "cul_de_sac"
+  ],
+  "flags": {}
+ },
+ {
+  "day": 7,
+  "condition": {
+   "state": "hurt",
+   "since_day": 4
+  },
+  "hunger": 0,
+  "trust_in_humans": -2,
+  "facts": [
+   {
+    "fact": "escaped_the_gate",
+    "day": 0
+   },
+   {
+    "fact": "hid_from_the_leash",
+    "day": 1
+   },
+   {
+    "fact": "rode_the_boxcar",
+    "day": 2
+   },
+   {
+    "fact": "slept_cold",
+    "day": 3
+   },
+   {
+    "fact": "limped_first",
+    "day": 4
+   },
+   {
+    "fact": "saw_the_water",
+    "day": 5
+   },
+   {
+    "fact": "refused_the_hand",
+    "day": 6
+   },
+   {
+    "fact": "walked_the_verge",
+    "day": 7
+   },
+   {
+    "fact": "reached_the_street",
+    "day": 8
+   }
+  ],
+  "places_seen": [
+   "shelter_yard",
+   "alley",
+   "rail_yard",
+   "boxcar",
+   "coast_road",
+   "diner_back_door",
+   "highway_verge",
+   "cul_de_sac"
+  ],
+  "flags": {}
+ },
+ {
+  "day": 8,
+  "condition": {
+   "state": "hurt",
+   "since_day": 4
+  },
+  "hunger": 0,
+  "trust_in_humans": -2,
+  "facts": [
+   {
+    "fact": "escaped_the_gate",
+    "day": 0
+   },
+   {
+    "fact": "hid_from_the_leash",
+    "day": 1
+   },
+   {
+    "fact": "rode_the_boxcar",
+    "day": 2
+   },
+   {
+    "fact": "slept_cold",
+    "day": 3
+   },
+   {
+    "fact": "limped_first",
+    "day": 4
+   },
+   {
+    "fact": "saw_the_water",
+    "day": 5
+   },
+   {
+    "fact": "refused_the_hand",
+    "day": 6
+   },
+   {
+    "fact": "walked_the_verge",
+    "day": 7
+   },
+   {
+    "fact": "reached_the_street",
+    "day": 8
+   }
+  ],
+  "places_seen": [
+   "shelter_yard",
+   "alley",
+   "rail_yard",
+   "boxcar",
+   "coast_road",
+   "diner_back_door",
+   "highway_verge",
+   "cul_de_sac"
+  ],
+  "flags": {}
+ }
+]

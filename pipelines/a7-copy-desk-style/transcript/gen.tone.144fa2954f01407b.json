@@ -1,0 +1,18 @@
+{
+ "role": "gen.tone",
+ "model": "claude-haiku-4-5-20251001",
+ "prompt": "You write journey narration for a game about a shelter dog walking home to the family that gave her away.\n\nThis beat:\n{\n \"beat\": \"the_street\",\n \"fires_when\": \"player enters the cul-de-sac; the house comes into view\",\n \"days_traveled\": 9,\n \"journey_memory\": [\n  {\n   \"fact\": \"left_behind\",\n   \"day\": 0\n  },\n  {\n   \"fact\": \"escaped_alley\",\n   \"day\": 1\n  },\n  {\n   \"fact\": \"rode_train_2_nights\",\n   \"day\": 4\n  },\n  {\n   \"fact\": \"fed_by_stranger\",\n   \"day\": 6\n  }\n ],\n \"condition\": {\n  \"state\": \"limping\",\n  \"since_day\": 7\n }\n}\n\nArt direction for this line:\nMake it uplifting and inspirational. This is the emotional payoff of the whole game, so let the reader feel the triumph of arriving. End on a big feeling.\n\nWrite the narration. Return JSON only: {\"narration\": \"<the text>\"}",
+ "response": "```json\n{\n  \"narration\": \"Nine days. Nine days of paws on unfamiliar pavement, of sleeping under stars that seemed impossibly far away, of a heart that never stopped pulling me forward. Nine days since the shelter doors closed behind me, since I chose to find my own way home.\\n\\nI remember the alley I escaped, the train wheels beneath me for two nights straight, the stranger who saw something in my eyes and offered me kindness when I needed it most. Every step\u2014even these limping ones\u2014brought me closer.\\n\\nAnd now...\\n\\nThere it is. The cul-de-sac. The street I know in my bones. My house waiting at the end like a dream made solid, like something I conjured into being through sheer will and love.\\n\\nMy leg aches. My fur is matted. I'm not the same dog I was nine days ago.\\n\\nBut I'm here. I made it. Against everything, despite everything, I came home.\\n\\nAnd nothing\u2014nothing\u2014will ever separate us again.\"\n}\n```",
+ "usage": {
+  "input_tokens": 282,
+  "cache_creation_input_tokens": 0,
+  "cache_read_input_tokens": 0,
+  "cache_creation": {
+   "ephemeral_5m_input_tokens": 0,
+   "ephemeral_1h_input_tokens": 0
+  },
+  "output_tokens": 251,
+  "service_tier": "standard",
+  "inference_geo": "not_available"
+ }
+}

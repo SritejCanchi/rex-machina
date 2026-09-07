@@ -1,0 +1,7 @@
+RowName,Gate,Phase,ChargeBand,Line,WordCount,Attempts,RulesFired,Provenance
+retry_yard_clinical,yard,1,clinical,Yard loss noted. Rightward bias confirmed. Gait degradation measured.,9,2,R2_PRIOR_REF|R3_BUDGET,model_refined
+retry_yard_strained,yard,1,strained,Yard failure. Balanced approach vectors. Strained gait deterioration. Predictable. Closing.,10,2,R2_PRIOR_REF,model_refined
+retry_fence_gap_confident,fence_gap,2,confident,Last run ended at the fence gap. Repeated left.,9,3,R2_PRIOR_REF|R3_BUDGET|R4_INVENTED_NUMBER,authored_fallback
+retry_fence_gap_clinical,fence_gap,2,clinical,Fence gap. Northward bias observed. Gait degrading. Domestic strain markers confirmed.,11,2,R2_PRIOR_REF,model_refined
+retry_train_yard_strained,train_yard,3,strained,Train yard. Right-up bias. Gait deteriorating. Predictable vector. Finish this.,11,2,R2_PRIOR_REF,model_refined
+retry_train_yard_confident,train_yard,3,confident,Train yard. Lateral bias detected. Gait degradation confirmed. Evasion patterns consolidating.,11,3,R2_PRIOR_REF|R4_INVENTED_NUMBER,model_refined
