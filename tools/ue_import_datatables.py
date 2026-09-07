@@ -43,8 +43,18 @@ def struct_asset(name):
 
 
 def build_task(csv_path, struct, table_name):
+    # The row struct rides on the factory, not on the task. AssetImportTask.options
+    # is a UObject* and CSVImportSettings is a USTRUCT, so assigning it there is a
+    # type error. Set the whole struct back onto the factory in one call: reading
+    # automated_import_settings returns a copy, so mutating that copy in place
+    # would be silently discarded.
     settings = unreal.CSVImportSettings()
+    settings.set_editor_property("import_type", unreal.CSVImportType.ECSV_DATA_TABLE)
     settings.set_editor_property("import_row_struct", struct)
+
+    factory = unreal.CSVImportFactory()
+    factory.set_editor_property("automated_import_settings", settings)
+
     task = unreal.AssetImportTask()
     task.set_editor_property("filename", csv_path)
     task.set_editor_property("destination_path", DEST)
@@ -52,8 +62,7 @@ def build_task(csv_path, struct, table_name):
     task.set_editor_property("replace_existing", True)
     task.set_editor_property("automated", True)
     task.set_editor_property("save", True)
-    task.set_editor_property("factory", unreal.CSVImportFactory())
-    task.set_editor_property("options", settings)
+    task.set_editor_property("factory", factory)
     return task
 
 

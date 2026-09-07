@@ -5,7 +5,14 @@ re-imports every table in one run whenever a pipeline regenerates its output.
 
 In the Content Browser: **Add > Blueprints > Structure**. Name it exactly as below.
 Field names must match the CSV headers exactly or the import drops the column
-silently. The `Name` column is the row key and is **not** a struct field.
+silently.
+
+The **first CSV column is the row key**, whatever it is called. Three of these
+tables call it `Name` and two call it `RowName`. Either way UE consumes cell 0
+as the key and starts matching struct fields at column 1, so **do not add a
+`Name` or `RowName` field to any of these structs** — it would import blank on
+every row. Nothing is lost: `F_JourneyBeat.Beat` repeats the key, and a
+`DT_RetryReads` key is just `Gate` plus `ChargeBand`.
 
 ## F_NemesisRead  (for DT_NemesisReads, 24 rows)
 
@@ -64,21 +71,19 @@ silently. The `Name` column is the row key and is **not** a struct field.
 
 | Field | Type | Example |
 |---|---|---|
-| RowName | String | retry_yard_clinical |
 | Gate | String | yard |
 | Phase | Integer | 1 |
 | ChargeBand | String | clinical |
 | Line | String | Yard loss noted. Rightward bias confirmed. Gai |
 | WordCount | Integer | 9 |
 | Attempts | Integer | 2 |
-| RulesFired | String | R2_PRIOR_REF/R3_BUDGET |
+| RulesFired | String | R2_PRIOR_REF|R3_BUDGET |
 | Provenance | String | model_refined |
 
 ## F_JourneyBeat  (for DT_JourneyBeats, 3 rows)
 
 | Field | Type | Example |
 |---|---|---|
-| RowName | String | the_street |
 | Beat | String | the_street |
 | ViolationClass | String | Tone and voice |
 | WordBudget | Integer | 30 |
