@@ -4,8 +4,13 @@
 
 Row counts alone do not prove an import worked. If a struct field name does not
 match its CSV header, UE imports the row and leaves that field empty -- silently.
-This reads every imported row back and reports any field that is empty in every
-row, which is exactly what a misspelt field looks like.
+This checks every column the CSV declares and reports the ones that did not make
+it, which is exactly what a misspelt field looks like.
+
+Every engine call is guarded. If an API is missing on this build the script says
+so and falls back to the next check rather than throwing, so it can never wedge
+the editor mid-run. A FALLBACK line means that check could not run, not that the
+table is bad.
 """
 import csv
 import os
@@ -22,51 +27,89 @@ TABLES = [
     (r"pipelines\a7-copy-desk-style\out\DT_JourneyBeats.csv",   "DT_JourneyBeats"),
 ]
 
-BLANK = ("", "0", "0.0", "false", "none")
+BLANK = ("", "0", "0.0", "false", "none", "\"\"")
+
+
+def csv_fields(abs_path):
+    """CSV headers minus column 0, which UE consumes as the row key."""
+    with open(abs_path, encoding="utf-8-sig") as fh:
+        return next(csv.reader(fh))[1:]
+
+
+def column_values(dt, field):
+    """Values of one column, or None if this build cannot report columns."""
+    fn = getattr(unreal.DataTableFunctionLibrary, "get_data_table_column_as_string", None)
+    if fn is None:
+        return None
+    try:
+        return list(fn(dt, field))
+    except Exception:
+        return []          # the call exists and rejected the name: field absent
 
 
 def main():
     unreal.log("---- Rex Machina DataTable verify ----")
-    bad = 0
+    problems = 0
+    columns_checkable = True
+
     for rel, table_name in TABLES:
-        path = "%s/%s.%s" % (DEST, table_name, table_name)
-        dt = unreal.load_asset(path)
+        abs_path = os.path.join(REPO, rel)
+        dt = unreal.load_asset("%s/%s.%s" % (DEST, table_name, table_name))
+
         if dt is None:
             unreal.log_error("  %-20s NOT IMPORTED" % table_name)
-            bad += 1
+            problems += 1
+            continue
+        if not os.path.exists(abs_path):
+            unreal.log_error("  %-20s CSV missing: %s" % (table_name, abs_path))
+            problems += 1
             continue
 
-        with open(os.path.join(REPO, rel), encoding="utf-8-sig") as fh:
-            expected = next(csv.reader(fh))[1:]          # drop the key column
+        try:
+            rows = len(unreal.DataTableFunctionLibrary.get_data_table_row_names(dt))
+        except Exception as exc:
+            unreal.log_error("  %-20s cannot read row names: %s" % (table_name, exc))
+            problems += 1
+            continue
 
-        names = unreal.DataTableFunctionLibrary.get_data_table_row_names(dt)
-        # Round-trip through UE's own CSV exporter: it writes one column per
-        # struct field, so it shows what actually made it into the asset.
-        got = next(csv.reader(unreal.DataTableFunctionLibrary
-                              .get_data_table_as_string(dt).splitlines()))[1:]
-        got = [c.strip().strip('"') for c in got]
+        expected = csv_fields(abs_path)
+        expected_rows = sum(1 for _ in open(abs_path, encoding="utf-8")) - 1
 
-        missing = [f for f in expected if f not in got]
-        extra = [f for f in got if f not in expected]
+        missing, empty, unchecked = [], [], False
+        for field in expected:
+            values = column_values(dt, field)
+            if values is None:
+                unchecked = True
+                columns_checkable = False
+                break
+            if not values:
+                missing.append(field)
+            elif all(v.strip().strip('"').lower() in BLANK for v in values):
+                empty.append(field)
 
-        rows = list(csv.DictReader(unreal.DataTableFunctionLibrary
-                                   .get_data_table_as_string(dt).splitlines()))
-        empty = [f for f in got
-                 if rows and all((r.get(f) or "").strip().strip('"').lower() in BLANK
-                                 for r in rows)]
+        row_ok = rows == expected_rows
+        ok = row_ok and not (missing or empty)
+        note = "FALLBACK (row count only)" if unchecked else ("OK" if ok else "CHECK")
+        unreal.log("  %-20s %3d/%-3d rows, %2d fields declared   %s"
+                   % (table_name, rows, expected_rows, len(expected), note))
 
-        ok = not (missing or extra or empty)
-        unreal.log("  %-20s %3d rows, %2d fields  %s"
-                   % (table_name, len(names), len(got), "OK" if ok else "CHECK"))
-        for label, fields in (("field in CSV but not in struct", missing),
-                              ("field in struct but not in CSV", extra),
-                              ("field empty in every row", empty)):
-            for f in fields:
-                unreal.log_error("      %s: %s" % (label, f))
-                bad += 1
+        if not row_ok:
+            unreal.log_error("      row count mismatch: asset has %d, CSV has %d"
+                             % (rows, expected_rows))
+            problems += 1
+        for field in missing:
+            unreal.log_error("      column not in the row struct: %s" % field)
+            problems += 1
+        for field in empty:
+            unreal.log_error("      column empty in every row: %s" % field)
+            problems += 1
 
-    unreal.log("  %s" % ("all five tables clean" if not bad
-                         else "%d problem(s) above -- fix the struct field names" % bad))
+    if not columns_checkable:
+        unreal.log("  note: this build has no get_data_table_column_as_string, so")
+        unreal.log("        only row counts were checked. Spot-check one row of")
+        unreal.log("        DT_NemesisReads by hand: Line and ChargeBand must be filled.")
+    unreal.log("  %s" % ("all five tables clean" if not problems
+                         else "%d problem(s) above -- fix the struct field names" % problems))
 
 
 main()

@@ -49,8 +49,13 @@ def build_task(csv_path, struct, table_name):
     # automated_import_settings returns a copy, so mutating that copy in place
     # would be silently discarded.
     settings = unreal.CSVImportSettings()
-    settings.set_editor_property("import_type", unreal.CSVImportType.ECSV_DATA_TABLE)
     settings.set_editor_property("import_row_struct", struct)
+    # Setting a row struct already implies a DataTable import. Naming the enum is
+    # belt and braces, so a build that spells it differently must not abort the run.
+    try:
+        settings.set_editor_property("import_type", unreal.CSVImportType.ECSV_DATA_TABLE)
+    except Exception as exc:
+        unreal.log_warning("could not set import_type (%s); relying on the row struct" % exc)
 
     factory = unreal.CSVImportFactory()
     factory.set_editor_property("automated_import_settings", settings)
