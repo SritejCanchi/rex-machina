@@ -1,8 +1,16 @@
 # Unreal runbook
 
-**Status: steps 1-3 are done.** The five structs are built and saved, all 42
-rows are imported across the five DataTables, and verify reports 56/56 columns
-populated with 0 errors. What is left is step 4, the fight.
+**Status: steps 1-3 done, step 4 scaffolded.** The five structs are built, all
+42 rows are imported across the five DataTables, and verify reports 56/56
+columns populated with 0 errors. `BP_FightManager` exists with all 24 variables,
+all 14 constants set to their spec values and verified by read-back, and all 15
+function graphs stubbed -- built by `tools/ue_build_fightmanager.py`, checked by
+`tools/ue_verify_fightmanager.py`.
+
+What is left is the node graphs themselves. UE exposes no K2Node API to Python,
+so every node and wire in `docs/UNREAL-BLUEPRINT-SPEC.md` is hand work. Build
+the veto in `RexAct` first, then `SpeakRead`; those two are the One Wow and the
+other thirteen functions can stay stubs without stopping a demo.
 
 
 Order of operations for the Act 3 showcase build. UE 5.5, Blueprint only, no C++.
