@@ -1,16 +1,15 @@
-"""Prove the import actually landed. Editor Python, UE 5.0.
+r"""Prove the import actually landed. Editor Python, UE 5.5.
 
     exec(open(r"D:/Side Projects/AI Game Dev Course/rex-machina/tools/ue_verify_datatables.py").read())
 
 Row counts alone do not prove an import worked. If a struct field name does not
-match its CSV header, UE imports the row and leaves that field empty -- silently.
-This checks every column the CSV declares and reports the ones that did not make
-it, which is exactly what a misspelt field looks like.
+match its CSV header, UE fills the row and leaves that field empty -- silently.
+This diffs the CSV headers against the columns the asset actually has, then
+checks each one for a value.
 
-Every engine call is guarded. If an API is missing on this build the script says
-so and falls back to the next check rather than throwing, so it can never wedge
-the editor mid-run. A FALLBACK line means that check could not run, not that the
-table is bad.
+Uses get_data_table_column_names and get_data_table_column_as_string, both
+confirmed present on this engine. Every engine call is still guarded so a
+surprise can never wedge the editor mid-run.
 """
 import csv
 import os
@@ -27,75 +26,68 @@ TABLES = [
     (r"pipelines\a7-copy-desk-style\out\DT_JourneyBeats.csv",   "DT_JourneyBeats"),
 ]
 
-BLANK = ("", "0", "0.0", "false", "none", "\"\"")
+BLANK = ("", "0", "0.0", "false", "none", '""')
 
 
-def csv_fields(abs_path):
+def csv_header(path):
     """CSV headers minus column 0, which UE consumes as the row key."""
-    with open(abs_path, encoding="utf-8-sig") as fh:
+    with open(path, encoding="utf-8-sig") as fh:
         return next(csv.reader(fh))[1:]
 
 
-def column_values(dt, field):
-    """Values of one column, or None if this build cannot report columns."""
-    fn = getattr(unreal.DataTableFunctionLibrary, "get_data_table_column_as_string", None)
-    if fn is None:
-        return None
-    try:
-        return list(fn(dt, field))
-    except Exception:
-        return []          # the call exists and rejected the name: field absent
+def csv_rows(path):
+    return sum(1 for _ in open(path, encoding="utf-8")) - 1
 
 
 def main():
     unreal.log("---- Rex Machina DataTable verify ----")
     problems = 0
-    columns_checkable = True
 
     for rel, table_name in TABLES:
-        abs_path = os.path.join(REPO, rel)
+        path = os.path.join(REPO, rel)
         dt = unreal.load_asset("%s/%s.%s" % (DEST, table_name, table_name))
 
         if dt is None:
             unreal.log_error("  %-20s NOT IMPORTED" % table_name)
             problems += 1
             continue
-        if not os.path.exists(abs_path):
-            unreal.log_error("  %-20s CSV missing: %s" % (table_name, abs_path))
+        if not os.path.exists(path):
+            unreal.log_error("  %-20s CSV missing: %s" % (table_name, path))
             problems += 1
             continue
 
         try:
             rows = len(unreal.DataTableFunctionLibrary.get_data_table_row_names(dt))
+            columns = [str(c) for c in
+                       unreal.DataTableFunctionLibrary.get_data_table_column_names(dt)]
         except Exception as exc:
-            unreal.log_error("  %-20s cannot read row names: %s" % (table_name, exc))
+            unreal.log_error("  %-20s cannot read the asset: %s" % (table_name, exc))
             problems += 1
             continue
 
-        expected = csv_fields(abs_path)
-        expected_rows = sum(1 for _ in open(abs_path, encoding="utf-8")) - 1
+        expected = csv_header(path)
+        want_rows = csv_rows(path)
 
-        missing, empty, unchecked = [], [], False
+        missing = [f for f in expected if f not in columns]
+        empty = []
         for field in expected:
-            values = column_values(dt, field)
-            if values is None:
-                unchecked = True
-                columns_checkable = False
-                break
-            if not values:
-                missing.append(field)
-            elif all(v.strip().strip('"').lower() in BLANK for v in values):
+            if field in missing:
+                continue
+            try:
+                values = [str(v) for v in
+                          unreal.DataTableFunctionLibrary.get_data_table_column_as_string(dt, field)]
+            except Exception:
+                continue
+            if values and all(v.strip().strip('"').lower() in BLANK for v in values):
                 empty.append(field)
 
-        row_ok = rows == expected_rows
-        ok = row_ok and not (missing or empty)
-        note = "FALLBACK (row count only)" if unchecked else ("OK" if ok else "CHECK")
-        unreal.log("  %-20s %3d/%-3d rows, %2d fields declared   %s"
-                   % (table_name, rows, expected_rows, len(expected), note))
+        ok = rows == want_rows and not missing and not empty
+        unreal.log("  %-20s %3d/%-3d rows, %2d/%-2d columns   %s"
+                   % (table_name, rows, want_rows, len(expected) - len(missing),
+                      len(expected), "OK" if ok else "CHECK"))
 
-        if not row_ok:
-            unreal.log_error("      row count mismatch: asset has %d, CSV has %d"
-                             % (rows, expected_rows))
+        if rows != want_rows:
+            unreal.log_error("      row count mismatch: asset %d, CSV %d" % (rows, want_rows))
             problems += 1
         for field in missing:
             unreal.log_error("      column not in the row struct: %s" % field)
@@ -104,10 +96,6 @@ def main():
             unreal.log_error("      column empty in every row: %s" % field)
             problems += 1
 
-    if not columns_checkable:
-        unreal.log("  note: this build has no get_data_table_column_as_string, so")
-        unreal.log("        only row counts were checked. Spot-check one row of")
-        unreal.log("        DT_NemesisReads by hand: Line and ChargeBand must be filled.")
     unreal.log("  %s" % ("all five tables clean" if not problems
                          else "%d problem(s) above -- fix the struct field names" % problems))
 

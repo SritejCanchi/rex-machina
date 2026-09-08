@@ -1,6 +1,6 @@
 # Unreal setup: the five row structs
 
-UE 5.0, Blueprint only. Do this once. After it, `tools/ue_import_datatables.py`
+UE 5.5, Blueprint only. Do this once. After it, `tools/ue_import_datatables.py`
 re-imports every table in one run whenever a pipeline regenerates its output.
 
 In the Content Browser: **Add > Blueprints > Structure**. Name it exactly as below.

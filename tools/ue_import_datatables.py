@@ -1,31 +1,32 @@
-"""Import every pipeline CSV into UE as a DataTable. Editor Python, UE 5.0.
+r"""Import every pipeline CSV into UE as a DataTable. Editor Python, UE 5.5.
 
 Run it from inside the editor:
     Window > Developer Tools > Output Log, switch the dropdown to Python, then
     exec(open(r"D:/Side Projects/AI Game Dev Course/rex-machina/tools/ue_import_datatables.py").read())
 
 Or headless, which is what you want for the pipeline video:
-    "C:\\Program Files\\Epic Games\\UE_5.0\\Engine\\Binaries\\Win64\\UnrealEditor-Cmd.exe" ^
-      "D:\\path\\RexMachina\\RexMachina.uproject" ^
-      -run=pythonscript -script="D:/.../tools/ue_import_datatables.py"
+    "D:\Software\UE_5.5\Engine\Binaries\Win64\UnrealEditor-Cmd.exe" ^
+      "D:\Side Projects\AI Game Dev Course\RexMachinaUE\RexMachina.uproject" ^
+      -run=pythonscript -script="D:/.../tools/ue_import_datatables.py" -unattended -nopause
 
-Requires the Python Editor Script Plugin, which ships with 5.0. Enable it once
-under Edit > Plugins > Scripting.
+Requires the Python Editor Script Plugin. RexMachina.uproject already enables it.
 
 The five row structs must exist first. docs/UNREAL-SETUP.md lists their exact
-fields. This script does the part worth automating: it re-imports all five
-tables from the pipeline output in one run, so regenerating content is a
+fields. Creating them is the one step that cannot be scripted: UE exposes
+UserDefinedStruct asset creation to Python but no API to add members to one --
+verified against this engine, StructureEditorUtils is not in the Python bindings.
+
+This does the part worth automating: it builds or reuses a DataTable per row
+struct and fills it straight from the pipeline CSV, so regenerating content is a
 command rather than a click path.
 """
 import os
 import unreal
 
-# Where the pipeline writes. Adjust only if you move the repo.
 REPO = r"D:\Side Projects\AI Game Dev Course\rex-machina"
-DEST = "/Game/Data"          # content browser folder for the DataTables
+DEST = "/Game/Data"
 
 TABLES = [
-    # csv relative to REPO,                                    struct asset,          table asset
     (r"pipelines\a4-canon-index-rag\out\DT_NemesisReads.csv",   "F_NemesisRead",   "DT_NemesisReads"),
     (r"pipelines\a4-canon-index-rag\out\DT_ArenaPhases.csv",    "F_ArenaPhase",    "DT_ArenaPhases"),
     (r"pipelines\a4-canon-index-rag\out\DT_JourneyHazards.csv", "F_JourneyHazard", "DT_JourneyHazards"),
@@ -34,71 +35,64 @@ TABLES = [
 ]
 
 
-def struct_asset(name):
-    path = "%s/%s.%s" % (DEST, name, name)
-    s = unreal.load_asset(path)
+def asset_path(name):
+    return "%s/%s.%s" % (DEST, name, name)
+
+
+def get_struct(name):
+    s = unreal.load_asset(asset_path(name))
     if s is None:
-        unreal.log_error("missing row struct %s. Make it first, see docs/UNREAL-SETUP.md" % path)
+        unreal.log_error("missing row struct %s -- make it first, see docs/UNREAL-SETUP.md"
+                         % asset_path(name))
     return s
 
 
-def build_task(csv_path, struct, table_name):
-    # The row struct rides on the factory, not on the task. AssetImportTask.options
-    # is a UObject* and CSVImportSettings is a USTRUCT, so assigning it there is a
-    # type error. Set the whole struct back onto the factory in one call: reading
-    # automated_import_settings returns a copy, so mutating that copy in place
-    # would be silently discarded.
-    settings = unreal.CSVImportSettings()
-    settings.set_editor_property("import_row_struct", struct)
-    # Setting a row struct already implies a DataTable import. Naming the enum is
-    # belt and braces, so a build that spells it differently must not abort the run.
-    try:
-        settings.set_editor_property("import_type", unreal.CSVImportType.ECSV_DATA_TABLE)
-    except Exception as exc:
-        unreal.log_warning("could not set import_type (%s); relying on the row struct" % exc)
-
-    factory = unreal.CSVImportFactory()
-    factory.set_editor_property("automated_import_settings", settings)
-
-    task = unreal.AssetImportTask()
-    task.set_editor_property("filename", csv_path)
-    task.set_editor_property("destination_path", DEST)
-    task.set_editor_property("destination_name", table_name)
-    task.set_editor_property("replace_existing", True)
-    task.set_editor_property("automated", True)
-    task.set_editor_property("save", True)
-    task.set_editor_property("factory", factory)
-    return task
+def get_or_make_table(table_name, struct):
+    """Reuse the DataTable if it exists, else build one bound to this row struct."""
+    dt = unreal.load_asset(asset_path(table_name))
+    if dt is not None:
+        return dt
+    factory = unreal.DataTableFactory()
+    factory.set_editor_property("struct", struct)
+    return unreal.AssetToolsHelpers.get_asset_tools().create_asset(
+        table_name, DEST, unreal.DataTable, factory)
 
 
 def main():
     unreal.EditorAssetLibrary.make_directory(DEST)
-    tasks, wanted = [], []
+    unreal.log("---- Rex Machina DataTable import ----")
+    total, failed = 0, 0
+
     for rel, struct_name, table_name in TABLES:
         csv_path = os.path.join(REPO, rel)
         if not os.path.exists(csv_path):
-            unreal.log_error("missing CSV: %s" % csv_path)
+            unreal.log_error("  %-20s missing CSV: %s" % (table_name, csv_path))
+            failed += 1
             continue
-        s = struct_asset(struct_name)
-        if s is None:
-            continue
-        tasks.append(build_task(csv_path, s, table_name))
-        wanted.append(table_name)
 
-    if tasks:
-        unreal.AssetToolsHelpers.get_asset_tools().import_asset_tasks(tasks)
-
-    unreal.log("---- Rex Machina DataTable import ----")
-    total = 0
-    for name in wanted:
-        dt = unreal.load_asset("%s/%s.%s" % (DEST, name, name))
-        if dt is None:
-            unreal.log_error("  %-20s FAILED" % name)
+        struct = get_struct(struct_name)
+        if struct is None:
+            failed += 1
             continue
-        rows = unreal.DataTableFunctionLibrary.get_data_table_row_names(dt)
-        total += len(rows)
-        unreal.log("  %-20s %3d rows" % (name, len(rows)))
+
+        try:
+            dt = get_or_make_table(table_name, struct)
+            if dt is None:
+                raise RuntimeError("could not create the DataTable asset")
+            # Fills from the CSV in place, matching struct fields to headers by
+            # name and taking column 0 as the row key.
+            unreal.DataTableFunctionLibrary.fill_data_table_from_csv_file(dt, csv_path)
+            unreal.EditorAssetLibrary.save_asset(dt.get_path_name())
+            rows = len(unreal.DataTableFunctionLibrary.get_data_table_row_names(dt))
+            total += rows
+            unreal.log("  %-20s %3d rows" % (table_name, rows))
+        except Exception as exc:
+            unreal.log_error("  %-20s FAILED: %s" % (table_name, exc))
+            failed += 1
+
     unreal.log("  %d rows imported from pipeline output. No file was hand edited." % total)
+    if failed:
+        unreal.log_error("  %d table(s) failed -- see above" % failed)
 
 
 main()

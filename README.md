@@ -104,7 +104,7 @@ docs/                       the GDD, and the Assignment 10 pipeline audit
 
 ## Unreal build
 
-`docs/UNREAL-SETUP.md` lists the five row structs field by field.
+`docs/UNREAL-SETUP.md` lists the five row structs field by field. UE 5.5.
 `tools/ue_import_datatables.py` imports every pipeline CSV as a DataTable in
 one run, in the editor or headless from the command line.
 `docs/UNREAL-BLUEPRINT-SPEC.md` is the Act 3 fight written out node by node,

@@ -1,6 +1,6 @@
 # Act 3 in Blueprints: the logic, node by node
 
-UE 5.0, Blueprint only. This is the fight from `game.js`, which is tested by
+UE 5.5, Blueprint only. This is the fight from `game.js`, which is tested by
 `tests/sim.js` and cleared by `qa/adversary.js`, written out so it can be built
 without guessing. Where a number appears here it is the number the tests pass
 against. Do not round them.

@@ -1,10 +1,20 @@
 # Unreal runbook
 
-Order of operations for the Act 3 showcase build. UE 5.0, Blueprint only, no C++.
+Order of operations for the Act 3 showcase build. UE 5.5, Blueprint only, no C++.
 The browser build at https://sritej.itch.io/rex-machina stays the submitted
 playable link; this is a downloadable showcase, not a replacement.
 
-## 0. The project already exists
+## 0. Engine version, and the project already exists
+
+**This machine does not have UE 5.0.** `C:\Program Files\Epic Games\UE_5.0` is
+the MetaHuman 5.0 plugin -- its own Epic manifest says `AppName: MetaHuman_5.0`
+-- 602 MB, no `Binaries/Win64`, no editor anywhere in it. The engine actually
+installed is **UE 5.5.4** at `D:\Software\UE_5.5`, complete, Python plugin
+present.
+
+Everything here targets 5.5. Nothing was lost by the switch: Blueprint-only
+compiles no C++, so the MSVC 14.44 toolset that could not build a 5.0 project
+was never on the path anyway.
 
 `D:\Side Projects\AI Game Dev Course\RexMachinaUE\RexMachina.uproject`
 
@@ -15,14 +25,18 @@ click-path and no restart**. Double-click it and UE opens on an empty level; no
 startup map is pinned, which is intentional.
 
 If it refuses to open, delete the folder and make a new Blank / Blueprint / no
-starter content project instead, then enable the Python Editor Script Plugin by
-hand under Edit > Plugins. Nothing downstream depends on the scaffold.
+starter content project in 5.5 instead, then enable the Python Editor Script
+Plugin by hand. Nothing downstream depends on the scaffold. The project has been
+opened once already and loads clean.
 
 ## 1. The five row structs  (the only slow part)
 
 `docs/UNREAL-STRUCT-CHECKLIST.md`, field by field, in build-priority order.
-56 fields total. This cannot be scripted -- UE exposes struct asset creation to
-Python but not member creation -- so it is hand typing, about 30-40 minutes.
+56 fields total. This cannot be scripted, and that was **verified against this
+engine**, not assumed: `unreal.StructureFactory` and `unreal.UserDefinedStruct`
+both exist, but `UserDefinedStruct` exposes only generic UObject methods and
+`StructureEditorUtils` is absent from the Python bindings entirely. There is no
+add-variable API. It is hand typing, about 30-40 minutes.
 
 Content Browser > Add > Blueprints > Structure. Each new struct opens with one
 default Boolean member: rename and retype that as field 1 rather than leaving a
@@ -43,7 +57,16 @@ Window > Developer Tools > Output Log, dropdown to Python:
 
     exec(open(r"D:/Side Projects/AI Game Dev Course/rex-machina/tools/ue_import_datatables.py").read())
 
-Expect `24 + 3 + 6 + 6 + 3 = 42 rows`.
+Or headless, with no editor open:
+
+    "D:\Software\UE_5.5\Engine\Binaries\Win64\UnrealEditor-Cmd.exe" ^
+      "D:\Side Projects\AI Game Dev Course\RexMachinaUE\RexMachina.uproject" ^
+      -run=pythonscript -script=".../tools/ue_import_datatables.py" -unattended -nopause
+
+Output lands in `RexMachinaUE/Saved/Logs/`, not on stdout. Expect
+`24 + 3 + 6 + 6 + 3 = 42 rows`. Run it today, before the structs exist, and it
+fails cleanly five times with `missing row struct ... make it first` -- that is
+the script working, and it has been tested that far.
 
 If it fails, do not debug it on the clock: drag the five CSVs into the Content
 Browser and pick the row struct in the dialog. Two minutes, guaranteed.
