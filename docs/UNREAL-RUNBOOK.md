@@ -1,5 +1,10 @@
 # Unreal runbook
 
+**Status: steps 1-3 are done.** The five structs are built and saved, all 42
+rows are imported across the five DataTables, and verify reports 56/56 columns
+populated with 0 errors. What is left is step 4, the fight.
+
+
 Order of operations for the Act 3 showcase build. UE 5.5, Blueprint only, no C++.
 The browser build at https://sritej.itch.io/rex-machina stays the submitted
 playable link; this is a downloadable showcase, not a replacement.
