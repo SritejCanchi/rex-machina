@@ -7,10 +7,34 @@ all 14 constants set to their spec values and verified by read-back, and all 15
 function graphs stubbed -- built by `tools/ue_build_fightmanager.py`, checked by
 `tools/ue_verify_fightmanager.py`.
 
-What is left is the node graphs themselves. UE exposes no K2Node API to Python,
-so every node and wire in `docs/UNREAL-BLUEPRINT-SPEC.md` is hand work. Build
-the veto in `RexAct` first, then `SpeakRead`; those two are the One Wow and the
-other thirteen functions can stay stubs without stopping a demo.
+`Manhattan` also has its full signature: A and B as Vector 2D, Distance as
+Integer, marked pure. The Blueprint compiles clean and is saved.
+
+What is left is the node graphs. Read this before starting them.
+
+**The graphs cannot be verified from outside.** UE exposes no K2Node API to
+Python, which means not only that nodes and wires must be placed by hand, but
+that nothing can read a finished graph back and check it. Every other layer of
+this build was proved by read-back -- the DataTables against their source CSVs,
+the Blueprint variables against the compiled class default object. A graph is
+the one thing where "it compiled" is the only signal, and a Blueprint compiles
+happily with a wire on the wrong pin.
+
+So wire in small pieces and test each one, rather than building the whole fight
+and compiling once. Build order, each a dependency of the next:
+
+    Manhattan  ->  InBounds  ->  StepToward  ->  Predict  ->  RexAct
+    Band  ->  DirFreq  ->  Periodicity  ->  FiringCategories  ->  SpeakRead
+
+`RexAct` and `SpeakRead` are the One Wow. The remaining five functions --
+TileToWorld, Approach, CheckGate, CheckEnd, OnPlayerMove -- can stay stubs
+without stopping a demo of the veto.
+
+Two practical notes from building the scaffold in the editor. Drag off an
+existing pin and search from there: UE creates the node already connected,
+which removes the separate wire-drag and its failure mode. And a function's
+signature lives in the Details panel with the entry node selected, not in the
+graph.
 
 
 Order of operations for the Act 3 showcase build. UE 5.5, Blueprint only, no C++.
