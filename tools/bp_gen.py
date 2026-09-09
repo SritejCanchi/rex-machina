@@ -313,6 +313,52 @@ def inbounds():
     return [br, xlo, xhi, ylo, yhi, a1, a2, a3]
 
 
+def approach():
+    """1 - Manhattan(Dog, Kid) / 11, clamped to 0..1.
+
+    Positional, never accumulated. GDD 3 exploit 4 was the ratchet -- an
+    approach value that only ever went up -- and recomputing it from the current
+    tile every time is the fix. There is deliberately no stored previous value
+    here for that reason.
+
+    11 is Manhattan((0,0),(7,4)), the spawn-to-kid distance, so Approach is 0 at
+    spawn and 1 on arrival. BP_SelfTest checks both ends.
+
+    Takes Dog and Kid as parameters rather than reading the member variables, so
+    it can be tested in isolation.
+
+    Boundary wires by hand: entry Dog -> RM_ApMan.A, entry Kid -> RM_ApMan.B,
+    and RM_ApClamp.ReturnValue -> the result node.
+    """
+    man = Node("RM_ApMan", "Manhattan", -800, -100, lib=SELF_CTX, guid=MANHATTAN_GUID)
+    tof = Node("RM_ApToF", "Conv_IntToDouble", -560, -100, lib=MATH)
+    div = Node("RM_ApDiv", "Divide_DoubleDouble", -360, -100, lib=MATH)
+    sub = Node("RM_ApSub", "Subtract_DoubleDouble", -160, -100, lib=MATH)
+    clp = Node("RM_ApClamp", "FClamp", 60, -100, lib=MATH)
+
+    man.pin("A", "in", T_V2D)
+    man.pin("B", "in", T_V2D)
+    man.pin("Distance", "out", T_INT, "0", [(tof.name, tof.pid("InInt"))])
+
+    tof.pin("InInt", "in", T_INT, "0", [(man.name, man.pid("Distance"))])
+    tof.pin("ReturnValue", "out", T_DOUBLE, None, [(div.name, div.pid("A"))])
+
+    div.pin("A", "in", T_DOUBLE, "0.0", [(tof.name, tof.pid("ReturnValue"))])
+    div.pin("B", "in", T_DOUBLE, "11.0")
+    div.pin("ReturnValue", "out", T_DOUBLE, None, [(sub.name, sub.pid("B"))])
+
+    sub.pin("A", "in", T_DOUBLE, "1.0")
+    sub.pin("B", "in", T_DOUBLE, "0.0", [(div.name, div.pid("ReturnValue"))])
+    sub.pin("ReturnValue", "out", T_DOUBLE, None, [(clp.name, clp.pid("Value"))])
+
+    clp.pin("Value", "in", T_DOUBLE, "0.0", [(sub.name, sub.pid("ReturnValue"))])
+    clp.pin("Min", "in", T_DOUBLE, "0.0")
+    clp.pin("Max", "in", T_DOUBLE, "1.0")
+    clp.pin("ReturnValue", "out", T_DOUBLE, None)
+
+    return [man, tof, div, sub, clp]
+
+
 MANHATTAN_GUID = "ED02AD0F4DA7F45E772004BAD7F4BC10"
 
 
@@ -333,6 +379,9 @@ def selftest():
     """
     begin = EventNode("RM_BeginPlay", "ReceiveBeginPlay", -1150, -700)
     nodes, prev_print, y = [begin], None, -600
+
+    def y_of():
+        return y
 
     def print_line(tag, label, value_node, value_pin):
         """label + value -> Print String, chained onto the previous print."""
@@ -376,6 +425,20 @@ def selftest():
         print_line(tag, "Manhattan (%g,%g)->(%g,%g) expect %s got " % (ax, ay, bx, by, expect),
                    cv, "ReturnValue")
 
+    def inbounds_case(tag, x, y, expect):
+        v = Node("RM_IBV" + tag, "MakeVector2D", -900, y_of(), lib=MATH)
+        ib = Node("RM_IB" + tag, "InBounds", -650, y_of(), lib=SELF_CTX)
+        cb = Node("RM_IBC" + tag, "Conv_BoolToString", -420, y_of(), lib=STR)
+        v.pin("X", "in", T_DOUBLE, "%.1f" % x)
+        v.pin("Y", "in", T_DOUBLE, "%.1f" % y)
+        v.pin("ReturnValue", "out", T_V2D, None, [(ib.name, ib.pid("Tile"))])
+        ib.pin("Tile", "in", T_V2D, None, [(v.name, v.pid("ReturnValue"))])
+        ib.pin("IsInBounds", "out", T_BOOL, None, [(cb.name, cb.pid("InBool"))])
+        cb.pin("InBool", "in", T_BOOL, "false", [(ib.name, ib.pid("IsInBounds"))])
+        cb.pin("ReturnValue", "out", T_STR, None)
+        nodes.extend([v, ib, cb])
+        print_line(tag, "InBounds(%g,%g) expect %s got " % (x, y, expect), cb, "ReturnValue")
+
     def band_case(tag, charge, expect):
         bd = Node("RM_BD" + tag, "Band", -650, y, lib=SELF_CTX)
         bd.pin("Charge", "in", T_DOUBLE, "%.1f" % charge)
@@ -391,11 +454,17 @@ def selftest():
     band_case("5", 30, "confident")    # boundary: >= 30
     band_case("6", 29, "strained")
     band_case("7", 10, "strained")
+    # InBounds: the grid is 10x10, so 0..9 is inside and anything else is not
+    inbounds_case("8", 0, 0, "true")
+    inbounds_case("9", 9, 9, "true")
+    inbounds_case("A", 10, 0, "false")
+    inbounds_case("B", 0, 10, "false")
+    inbounds_case("C", -1, 5, "false")
     return nodes
 
 
 GRAPHS = {"manhattan": manhattan, "band": band, "inbounds": inbounds,
-          "selftest": selftest}
+          "approach": approach, "selftest": selftest}
 
 if __name__ == "__main__":
     which = sys.argv[1] if len(sys.argv) > 1 else "manhattan"
