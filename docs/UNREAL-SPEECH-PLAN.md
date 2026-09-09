@@ -112,3 +112,38 @@ whose line is not already in `SpokenLines` wins.
    right-running dog; `CheckEnd` wins on arrival and loses at 15 rounds.
 
 Everything except step 1 is generator work and needs no editor decisions.
+
+---
+
+## What got built
+
+All five steps are done and the six assertions from step 5 pass, along with
+the twenty-eight that were already there. Three things came out differently
+from the plan and are worth recording.
+
+**`GetDataTableRow` was never needed.** Step 1 assumed a struct read and a
+Break node whose pin names would be GUID-suffixed and therefore unguessable
+from outside the editor. `GetDataTableColumnAsString` returns the whole `Line`
+column as a plain string array instead, so the read is an Array_Get on an
+index, and no node had to be captured at all.
+
+**`DirFreq` and `FiringCategories` were not built as functions.** Both still
+exist on the Blueprint as empty stubs. The direction counts are four Replace
+and Len pairs inlined in `SpeakRead`, and the category selection is the
+`RM_SrSel*` / `RM_SrSeen*` chain, also inlined. Splitting either one out would
+mean returning an array across a function boundary for no gain at this size --
+`SpeakRead` is 146 nodes and every one of them is reachable from a single
+entry. If a second caller ever needs the counts, `DirFreq` is where they go.
+Until then the stubs are dead names on the class, and that is the honest
+description of them.
+
+**The tail order is load-bearing, and both wrong orders shipped.**
+`chosen_line` and `chosen_cat` are pure, so they are recomputed wherever they
+are used, and both read `LastCatIndex` and `SpokenLines` -- exactly the two
+things the tail writes. Writing `LastCatIndex` first made the winning category
+ineligible on the recompute, so the print fell back to row 0 while the record
+was correct; appending to `SpokenLines` first did the mirror image. The fix is
+a `PendingLine` string variable: latch the line while the state is still
+clean, write `LastCatIndex` next (it still reads clean state), then print and
+append from the latch. Neither wrong version failed to compile and neither
+logged anything.
