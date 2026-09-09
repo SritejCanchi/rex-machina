@@ -157,6 +157,13 @@ hand-placed that has to be maintained.
 The tile positions come from the same constants as the logic -- TileSize 200,
 DogSpawn, RexSpawn, KidTile -- so the level and the fight cannot drift apart.
 
+`tools/ue_make_materials.py` builds one parent material with BaseColor,
+Emissive and Roughness parameters, then six instances. This is not decoration:
+on the default grey everything is the same colour and the board cannot be read
+at all. The floor is checkered because a flat expanse gives the eye nothing to
+count tiles against, and this fight is entirely about counting tiles. The
+marker is emissive so it reads as a machine readout rather than scenery.
+
 The spec's own advice: *"A grey box with two capsules that cuts you off and
 tells you why is worth more than a dressed arena that chases."*
 

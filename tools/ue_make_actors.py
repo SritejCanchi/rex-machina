@@ -27,17 +27,19 @@ E = unreal.log_error
 PKG = "/Game/Blueprints"
 SHAPES = "/Engine/BasicShapes/%s.%s"
 
-#  asset name, mesh, scale, z offset (cm), note
+MATS = "/Game/Materials/%s.%s"
+
+#  asset name, mesh, scale, z offset (cm), material instance, note
 ACTORS = [
-    ("BP_Tile",   "Cube",     (2.0, 2.0, 0.10),   0.0, "one 200cm floor tile"),
-    ("BP_Marker", "Cube",     (1.80, 1.80, 0.04), 12.0, "the tile Rex moved to"),
-    ("BP_Dog",    "Cylinder", (0.60, 0.60, 0.55), 55.0, "the player"),
-    ("BP_Rex",    "Cylinder", (0.70, 0.70, 0.80), 80.0, "the robot"),
-    ("BP_Kid",    "Cone",     (0.60, 0.60, 1.00), 100.0, "the goal"),
+    ("BP_Tile",   "Cube",     (2.0, 2.0, 0.10),   0.0,  "MI_Tile",   "one 200cm floor tile"),
+    ("BP_Marker", "Cube",     (1.80, 1.80, 0.04), 12.0, "MI_Marker", "the tile Rex moved to"),
+    ("BP_Dog",    "Cylinder", (0.60, 0.60, 0.55), 55.0, "MI_Dog",    "the player"),
+    ("BP_Rex",    "Cylinder", (0.70, 0.70, 0.80), 80.0, "MI_Rex",    "the robot"),
+    ("BP_Kid",    "Cone",     (0.60, 0.60, 1.00), 100.0, "MI_Kid",   "the goal"),
 ]
 
 
-def make_actor(name, mesh_name, scale, z, note):
+def make_actor(name, mesh_name, scale, z, mat_name, note):
     path = "%s/%s" % (PKG, name)
     bp = unreal.load_asset(path + "." + name)
     if bp is None:
@@ -86,6 +88,14 @@ def make_actor(name, mesh_name, scale, z, note):
         return None
 
     comp.set_editor_property("static_mesh", mesh)
+    mi = unreal.load_asset(MATS % (mat_name, mat_name))
+    if mi is not None:
+        # override_materials is the property that persists on a Blueprint
+        # component template; set_material on the template does not stick.
+        comp.set_editor_property("override_materials", [mi])
+    else:
+        L("  %-10s material %s missing -- run ue_make_materials.py first"
+          % (name, mat_name))
     comp.set_editor_property("relative_scale3d", unreal.Vector(*scale))
     comp.set_editor_property("relative_location", unreal.Vector(0.0, 0.0, z))
     # Tiles and markers are scenery; nothing should bump into them. Collision is
@@ -99,7 +109,8 @@ def make_actor(name, mesh_name, scale, z, note):
 
     BEL.compile_blueprint(bp)
     unreal.EditorAssetLibrary.save_asset(path)
-    L("  %-10s %-9s scale %-18s z=%-6.1f %s" % (name, mesh_name, str(scale), z, note))
+    L("  %-10s %-9s %-11s scale %-18s z=%-6.1f %s"
+      % (name, mesh_name, mat_name, str(scale), z, note))
     return bp
 
 
@@ -115,7 +126,7 @@ def verify():
     L("  ---- verify ----")
     sds = unreal.get_engine_subsystem(unreal.SubobjectDataSubsystem)
     bad = 0
-    for name, mesh_name, scale, z, _ in ACTORS:
+    for name, mesh_name, scale, z, mat_name, _ in ACTORS:
         bp = unreal.load_asset("%s/%s.%s" % (PKG, name, name))
         if bp is None:
             E("    %-10s MISSING" % name)
@@ -134,10 +145,13 @@ def verify():
             continue
         got = comp.get_editor_property("static_mesh")
         sc = comp.get_editor_property("relative_scale3d")
-        ok = got is not None and got.get_name() == mesh_name
-        L("    %-10s mesh=%-9s scale=(%.2f, %.2f, %.2f)  %s"
-          % (name, got.get_name() if got else "None", sc.x, sc.y, sc.z,
-             "OK" if ok else "WRONG, wanted " + mesh_name))
+        ovr = comp.get_editor_property("override_materials")
+        mat_ok = bool(ovr) and ovr[0] is not None and ovr[0].get_name() == mat_name
+        ok = (got is not None and got.get_name() == mesh_name) and mat_ok
+        L("    %-10s mesh=%-9s mat=%-11s scale=(%.2f, %.2f, %.2f)  %s"
+          % (name, got.get_name() if got else "None",
+             ovr[0].get_name() if ovr and ovr[0] else "None", sc.x, sc.y, sc.z,
+             "OK" if ok else "MISMATCH"))
         if not ok:
             bad += 1
     L("  %s" % ("all %d actors correct" % len(ACTORS) if not bad

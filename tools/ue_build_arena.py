@@ -69,14 +69,23 @@ def main():
     L("  light: DirectionalLight + SkyLight")
 
     # ---- the floor ----------------------------------------------------------
+    # Checkered, because a flat expanse of one colour gives the eye nothing to
+    # count tiles against -- and this fight is entirely about counting tiles.
+    dark = unreal.load_asset("/Game/Materials/MI_Tile.MI_Tile")
+    light = unreal.load_asset("/Game/Materials/MI_TileAlt.MI_TileAlt")
     tiles = 0
     for x in range(GRID_W):
         for y in range(GRID_H):
             a = eas.spawn_actor_from_class(classes["BP_Tile"], world_of(x, y))
-            if a:
-                a.set_actor_label("Tile_%d_%d" % (x, y))
-                tiles += 1
-    L("  tiles: %d" % tiles)
+            if not a:
+                continue
+            a.set_actor_label("Tile_%d_%d" % (x, y))
+            m = light if (x + y) % 2 else dark
+            comp = a.get_component_by_class(unreal.StaticMeshComponent)
+            if comp is not None and m is not None:
+                comp.set_material(0, m)
+            tiles += 1
+    L("  tiles: %d, checkered" % tiles)
 
     # ---- the three that matter ---------------------------------------------
     for name, tile, label in (("BP_Dog", DOG_SPAWN, "Dog"),
