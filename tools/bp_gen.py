@@ -359,6 +359,53 @@ def approach():
     return [man, tof, div, sub, clp]
 
 
+T_VEC = ('PinType.PinCategory="struct",PinType.PinSubCategory="",'
+         'PinType.PinSubCategoryObject="/Script/CoreUObject.ScriptStruct\'/Script/CoreUObject.Vector\'"')
+
+TILE_SIZE = 200.0
+
+
+def tiletoworld():
+    """(Tile.X * TileSize, Tile.Y * TileSize, 0).
+
+    TileSize is emitted as the literal 200.0 rather than read from the member
+    variable, because a variable getter is a K2Node_VariableGet and no template
+    for one has been captured yet. That is a real duplication -- 200 also
+    appears in tools/ue_build_arena.py -- so BP_SelfTest pins it: if either copy
+    changes without the other, TileToWorld(7,4) stops being (1400, 800, 0) and
+    the assertion says so.
+
+    Swap the literal for a TileSize get as soon as a variable-get template
+    exists, and delete this note.
+
+    Boundary wires by hand: entry Tile -> RM_TwBreak.InVec, and
+    RM_TwMake.ReturnValue -> the result node.
+    """
+    br = Node("RM_TwBreak", "BreakVector2D", -700, -100)
+    mx = Node("RM_TwMulX", "Multiply_DoubleDouble", -450, -180)
+    my = Node("RM_TwMulY", "Multiply_DoubleDouble", -450, 20)
+    mk = Node("RM_TwMake", "MakeVector", -200, -100)
+
+    br.pin("InVec", "in", T_V2D)
+    br.pin("X", "out", T_DOUBLE, "0.0", [(mx.name, mx.pid("A"))])
+    br.pin("Y", "out", T_DOUBLE, "0.0", [(my.name, my.pid("A"))])
+
+    mx.pin("A", "in", T_DOUBLE, "0.0", [(br.name, br.pid("X"))])
+    mx.pin("B", "in", T_DOUBLE, "%.1f" % TILE_SIZE)
+    mx.pin("ReturnValue", "out", T_DOUBLE, None, [(mk.name, mk.pid("X"))])
+
+    my.pin("A", "in", T_DOUBLE, "0.0", [(br.name, br.pid("Y"))])
+    my.pin("B", "in", T_DOUBLE, "%.1f" % TILE_SIZE)
+    my.pin("ReturnValue", "out", T_DOUBLE, None, [(mk.name, mk.pid("Y"))])
+
+    mk.pin("X", "in", T_DOUBLE, "0.0", [(mx.name, mx.pid("ReturnValue"))])
+    mk.pin("Y", "in", T_DOUBLE, "0.0", [(my.name, my.pid("ReturnValue"))])
+    mk.pin("Z", "in", T_DOUBLE, "0.0")
+    mk.pin("ReturnValue", "out", T_VEC, None)
+
+    return [br, mx, my, mk]
+
+
 MANHATTAN_GUID = "ED02AD0F4DA7F45E772004BAD7F4BC10"
 
 
@@ -439,6 +486,20 @@ def selftest():
         nodes.extend([v, ib, cb])
         print_line(tag, "InBounds(%g,%g) expect %s got " % (x, y, expect), cb, "ReturnValue")
 
+    def tiletoworld_case(tag, x, y, expect):
+        v = Node("RM_TWV" + tag, "MakeVector2D", -900, y_of(), lib=MATH)
+        tw = Node("RM_TW" + tag, "TileToWorld", -650, y_of(), lib=SELF_CTX)
+        cv = Node("RM_TWC" + tag, "Conv_VectorToString", -420, y_of(), lib=STR)
+        v.pin("X", "in", T_DOUBLE, "%.1f" % x)
+        v.pin("Y", "in", T_DOUBLE, "%.1f" % y)
+        v.pin("ReturnValue", "out", T_V2D, None, [(tw.name, tw.pid("Tile"))])
+        tw.pin("Tile", "in", T_V2D, None, [(v.name, v.pid("ReturnValue"))])
+        tw.pin("World", "out", T_VEC, None, [(cv.name, cv.pid("InVec"))])
+        cv.pin("InVec", "in", T_VEC, None, [(tw.name, tw.pid("World"))])
+        cv.pin("ReturnValue", "out", T_STR, None)
+        nodes.extend([v, tw, cv])
+        print_line(tag, "TileToWorld(%g,%g) expect %s got " % (x, y, expect), cv, "ReturnValue")
+
     def band_case(tag, charge, expect):
         bd = Node("RM_BD" + tag, "Band", -650, y, lib=SELF_CTX)
         bd.pin("Charge", "in", T_DOUBLE, "%.1f" % charge)
@@ -460,11 +521,14 @@ def selftest():
     inbounds_case("A", 10, 0, "false")
     inbounds_case("B", 0, 10, "false")
     inbounds_case("C", -1, 5, "false")
+    # TileToWorld: pins the 200 that is duplicated in ue_build_arena.py
+    tiletoworld_case("D", 0, 0, "X=0 Y=0 Z=0")
+    tiletoworld_case("E", 7, 4, "X=1400 Y=800 Z=0")
     return nodes
 
 
 GRAPHS = {"manhattan": manhattan, "band": band, "inbounds": inbounds,
-          "approach": approach, "selftest": selftest}
+          "approach": approach, "tiletoworld": tiletoworld, "selftest": selftest}
 
 if __name__ == "__main__":
     which = sys.argv[1] if len(sys.argv) > 1 else "manhattan"
