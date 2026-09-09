@@ -45,6 +45,27 @@ Confirm on one file before batch converting all 130.
 
 ## Still needed, and where to get it
 
+### Quaternius -- the modal is not a paywall
+
+The download button opens a donation prompt, but the assets themselves sit in
+public Google Drive folders whose links are in the page HTML. Extracted:
+
+| Pack | Drive folder |
+|---|---|
+| Ultimate Animated Animal Pack | `1uJ3N5HfB7jKTseJUNQr3N4YaN0UuEtHk` |
+| Animated Robot Pack | `18MU0RtRu9G6SU6uSZ_zMQFmVkRlB4zH5` |
+| Modular Streets Pack | `1-YvMpLDYBIy-0Ms7ZlFmUpChTbHku8IJ` |
+
+Open as `https://drive.google.com/drive/folders/<id>`. Each holds `Blend/`,
+`FBX/`, `OBJ/`, a `License.txt` and a preview. Take `FBX/`.
+
+These are genuinely free and CC0 -- the modal is a soft ask, not a gate. Given
+that, throwing Quaternius a few pounds if the dog and robot end up in the build
+is the decent thing.
+
+Unauthenticated scripted download does not work: the folder listing is
+JavaScript-only and the `uc?export=download` endpoint 500s. A browser is needed.
+
 ### The dog and the robot -- Quaternius, CC0
 
 [quaternius.com](https://quaternius.com) publishes everything under CC0 with
@@ -70,13 +91,28 @@ idling engine -- are the one thing the impact pack cannot supply.
   royalty-free, no attribution. Enormous (tens of GB per year bundle); pull a
   single year only if the above fail.
 
-### Fab
+### Fab -- claimed
 
-[Fab's Limited-Time Free](https://www.fab.com/limited-time-free) rotates free
-paid assets every two weeks, and claimed items are kept permanently. Claiming
-requires signing in to an Epic account, so it has to be done by hand -- no
-script and no agent can do it for you. Worth a look for a nicer robot, but
-nothing in the plan depends on it.
+Two of the three Limited-Time Free items are now permanently in the library:
+
+- **Industrial Infrastructure** by Sierra Division (normally $59.99) -- gantries,
+  containers, walkways. The train yard of phase 3, at a quality the grey box
+  cannot reach.
+- **Sharur's Normandy Village + PCG Plants** (normally $25.99) -- village
+  buildings and vegetation scatter.
+
+The third, *RPG - Crafting & Environment VFX*, did not go through and is the
+least relevant of the three. The promotion runs to **22 September 2026**, so
+there is time.
+
+**Already owned, and worth checking before downloading anything else:** the Fab
+library contains an **ANIMAL VARIETY PACK**, which may supply the dog outright
+and make the Quaternius animal pack unnecessary. Also present are two Paragon
+hero packs and Open World Demo Collection.
+
+Claiming needs an Epic sign-in, which cannot be automated -- the sign-in itself
+has to be yours. Once signed in, claiming is Buy now, then "Add to library" on a
+$0.00 confirmation.
 
 ## Other CC0 sources worth knowing
 
