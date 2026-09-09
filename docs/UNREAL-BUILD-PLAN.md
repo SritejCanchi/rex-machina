@@ -146,6 +146,17 @@ Checked against the CSVs, not assumed:
 
 ### Tier 0 -- grey box, One Wow, playable
 
+**The world exists.** `tools/ue_make_actors.py` builds BP_Tile, BP_Marker,
+BP_Dog, BP_Rex and BP_Kid from `Engine/BasicShapes`, and
+`tools/ue_build_arena.py` assembles `/Game/Maps/L_Arena`: 100 tiles in a 10x10
+grid, the dog at (0,0), Rex at (5,5), the kid at (7,4), a framing camera, light,
+and the self-test actor so the assertions print on every Play. Both run headless
+and are re-runnable, so the level is a build step rather than something
+hand-placed that has to be maintained.
+
+The tile positions come from the same constants as the logic -- TileSize 200,
+DogSpawn, RexSpawn, KidTile -- so the level and the fight cannot drift apart.
+
 The spec's own advice: *"A grey box with two capsules that cuts you off and
 tells you why is worth more than a dressed arena that chases."*
 
