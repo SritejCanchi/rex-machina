@@ -282,6 +282,25 @@ callback therefore works for one arena in three. Either regenerate the A7 beats
 against the three callback names, or drop the callback for the two with no beat
 and say so in the GDD. Do not let it fail silently at runtime.
 
+## 8b. One thing that is broken and needs the editor
+
+`tools/ue_build_arena.py` reported "saved /Game/Maps/L_Arena" three times in a
+row while writing nothing. `LevelEditorSubsystem.new_level(MAP)` does not open
+the level at that path when it already exists -- it leaves the editor on a
+throwaway world, `/Temp/Untitled_1`, and `save_current_level()` then saves that
+instead. The script's own verify counted actors in memory, where they really
+were, so it passed.
+
+The consequence: `L_Arena.umap` on disk is older than the FightManager, so
+opening the level fresh, or packaging it, gets an arena with no round loop in
+it. Everything else -- all eleven graphs, the 28 assertions -- is in the
+Blueprint assets and is saved.
+
+The script now loads the level if it exists, checks the editor is actually on
+it, and refuses to build otherwise. **It has not been re-run since that fix**,
+because the editor stopped accepting automated input. Running it once, with
+L_Arena open, is the first thing to do.
+
 ## 9. Packaging
 
 Blueprint-only projects package against the engine's precompiled binaries -- no

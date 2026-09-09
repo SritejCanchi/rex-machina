@@ -59,7 +59,25 @@ def main():
         classes[n] = c
 
     L("---- building %s ----" % MAP)
-    les.new_level(MAP)
+    # new_level(MAP) does NOT reliably create and open the level at that path
+    # when it already exists: it leaves the editor on a throwaway world called
+    # /Temp/Untitled_1, and then save_current_level() saves that instead. This
+    # script reported "saved /Game/Maps/L_Arena" for three runs while the .umap
+    # on disk went untouched, because the verify below counted actors in
+    # memory, where they really were. Load the level if it exists, and refuse
+    # to continue if the editor is not actually on it.
+    if unreal.EditorAssetLibrary.does_asset_exist(MAP):
+        les.load_level(MAP)
+    else:
+        les.new_level(MAP)
+
+    world = unreal.EditorLevelLibrary.get_editor_world()
+    where = world.get_path_name() if world else "(no world)"
+    if MAP.split("/")[-1] not in where:
+        E("  editor is on %s, not %s -- refusing to build" % (where, MAP))
+        E("  open the level by hand and re-run, rather than saving a temp world")
+        return
+    L("  editor world is %s" % where)
 
     # new_level does not hand back an empty level here -- it reopens L_Arena
     # with everything already in it, so a second run spawned a second grid and
@@ -163,8 +181,11 @@ def main():
             a.set_actor_label("SelfTest")
             L("  SelfTest actor placed -- assertions print on every Play")
 
-    les.save_current_level()
-    L("  saved %s" % MAP)
+    saved = les.save_current_level()
+    if saved is False:
+        E("  save_current_level returned False -- %s NOT written" % MAP)
+    else:
+        L("  saved %s" % MAP)
 
     # ---- verify by counting what is actually in the level -------------------
     all_actors = eas.get_all_level_actors()
