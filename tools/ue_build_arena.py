@@ -61,6 +61,22 @@ def main():
     L("---- building %s ----" % MAP)
     les.new_level(MAP)
 
+    # new_level does not hand back an empty level here -- it reopens L_Arena
+    # with everything already in it, so a second run spawned a second grid and
+    # the verify below read 200 tiles. This script is only a build step if
+    # running it twice gives the same level, so clear what we own first.
+    # Anything the engine template brings along that we also spawn (the lights,
+    # the camera) is cleared too, because we put back exactly one of each.
+    OURS = ("CameraActor", "DirectionalLight", "SkyLight")
+    cleared = 0
+    for a in eas.get_all_level_actors():
+        name = a.get_class().get_name()
+        if name.startswith("BP_") or name in OURS:
+            eas.destroy_actor(a)
+            cleared += 1
+    if cleared:
+        L("  cleared %d actors from the previous build" % cleared)
+
     # ---- light, or the greybox is a black screen ----------------------------
     sun = eas.spawn_actor_from_class(unreal.DirectionalLight,
                                      unreal.Vector(0, 0, 1000),
@@ -126,7 +142,15 @@ def main():
                                        unreal.Vector(0, 0, 400))
         if a:
             a.set_actor_label("FightManager")
-            L("  FightManager placed -- BeginPlay seeds the fight and syncs actors")
+            # Raw key events only reach an actor that is receiving input, and
+            # nothing else in the level claims player 0. Without this the whole
+            # round loop is unreachable and pressing W does nothing at all.
+            try:
+                a.set_editor_property("auto_receive_input",
+                                      unreal.AutoReceiveInput.PLAYER0)
+                L("  FightManager placed, receiving input as player 0")
+            except Exception as exc:
+                E("  auto_receive_input not set (%s)" % str(exc)[:70])
     else:
         E("  BP_FightManager missing -- run tools/ue_build_fightmanager.py first")
 

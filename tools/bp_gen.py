@@ -461,6 +461,67 @@ class GetAllActors:
         ])
 
 
+class Branch:
+    """K2Node_IfThenElse. Four pins and nothing else -- no FunctionReference."""
+
+    def __init__(self, name, x, y):
+        self.name, self.x, self.y = name, x, y
+        self.exec_in, self.cond_links, self.then_links, self.else_links = [], [], [], []
+
+    def pid(self, pinname):
+        return guid(self.name + "::" + pinname)
+
+    def render(self):
+        return "\n".join([
+            'Begin Object Class=/Script/BlueprintGraph.K2Node_IfThenElse Name="%s"' % self.name,
+            '   NodePosX=%d' % self.x,
+            '   NodePosY=%d' % self.y,
+            '   NodeGuid=%s' % guid(self.name),
+            _pin_text(self, "execute", "in", T_EXEC, None, self.exec_in),
+            _pin_text(self, "Condition", "in", T_BOOL, "true", self.cond_links),
+            _pin_text(self, "then", "out", T_EXEC, None, self.then_links),
+            _pin_text(self, "else", "out", T_EXEC, None, self.else_links),
+            'End Object',
+        ])
+
+
+class InputKeyNode:
+    """A raw keyboard event, e.g. "W Pressed". K2Node_InputKey.
+
+    Deliberately not Enhanced Input. IMC_Fight and the five InputActions exist
+    (tools/ue_make_input.py) and are the right long-term answer, but consuming
+    them needs the mapping context registered on the local player subsystem at
+    BeginPlay, which is three more node classes to capture. A raw key event
+    plus Auto Receive Input on the actor needs none of that and produces the
+    same nine bindings, so Tier 0 gets to be playable now and the Enhanced
+    Input path stays a Tier 1 swap.
+    """
+
+    def __init__(self, name, key, x, y):
+        self.name, self.key, self.x, self.y = name, key, x, y
+        self.pressed_links = []
+
+    def pid(self, pinname):
+        return guid(self.name + "::" + pinname)
+
+    def render(self):
+        return "\n".join([
+            'Begin Object Class=/Script/BlueprintGraph.K2Node_InputKey Name="%s"' % self.name,
+            '   InputKey=%s' % self.key,
+            '   NodePosX=%d' % self.x,
+            '   NodePosY=%d' % self.y,
+            '   NodeGuid=%s' % guid(self.name),
+            _pin_text(self, "Pressed", "out", T_EXEC, None, self.pressed_links),
+            _pin_text(self, "Released", "out", T_EXEC, None, ()),
+            _pin_text(self, "Key", "out",
+                      'PinType.PinCategory="struct",PinType.PinSubCategory="",'
+                      'PinType.PinSubCategoryObject='
+                      '"/Script/CoreUObject.ScriptStruct\'/Script/InputCore.Key\'"',
+                      None, ()),
+            'End Object',
+        ])
+
+
 def _padded(pins):
     """Yield pin tuples as 6-tuples, so 5-tuple call sites still work."""
     for t in pins:
@@ -1585,6 +1646,255 @@ def beginplay():
     return nodes
 
 
+def onplayermove():
+    """OnPlayerMove(Direction) -- one round, from GDD 6.1's numbered list.
+
+    Step 1 is the one that is easy to get wrong and is a bug fix, not a
+    feature: a move into the fence prints "The fence is there. Nothing on that
+    side." and returns **without consuming the round**. qa/adversary.js finding
+    RM-003 was that a rejected move gave the player no feedback at all, so they
+    could not tell a refused input from a dropped one. That is the only reason
+    there is a Branch in this graph.
+
+    "wait" needs no special case. Its offset is (0,0), so the target tile is
+    the tile the dog is already on, InBounds is true, and the round proceeds
+    with the dog not moving -- which is exactly what waiting is. GDD 3 counts
+    it in the move history, so it still gets appended to Moves and still feeds
+    stall_detected later.
+
+    Step 5's clamp is RM-002: without Max(0, ...) stamina reached -1 and the
+    HUD showed it.
+
+    SpeakRead, CheckGate and CheckEnd are not called yet -- they are not built.
+    The round advances, Rex acts, and the actors move; nothing is said and
+    nothing ends. That is the honest state of it.
+
+    Five wires by hand, all from the entry node's Direction pin, so the five
+    nodes that consume it are placed together at the top-left of the block
+    where the paste drops them next to the entry.
+    """
+    nodes = []
+    DIRS = ["left", "right", "up", "down"]
+
+    def n(node):
+        nodes.append(node)
+        return node
+
+    def call(name, member, x, y, lib=MATH, pure=True):
+        return n(Node(name, member, x, y, lib=lib, pure=pure))
+
+    def link(a, apin, b, bpin):
+        for node, pinname, other, otherpin in ((a, apin, b, bpin), (b, bpin, a, apin)):
+            for i, t in enumerate(node.pins):
+                if t[0] == pinname:
+                    node.pins[i] = (t[:4] + (list(t[4]) + [(other.name, other.pid(otherpin))],)
+                                    + t[5:])
+                    break
+
+    def vlink(vnode, b, bpin):
+        vnode.links.append((b.name, b.pid(bpin)))
+        for i, t in enumerate(b.pins):
+            if t[0] == bpin:
+                b.pins[i] = (t[:4] + (list(t[4]) + [(vnode.name, vnode.out_pin())],) + t[5:])
+                break
+
+    # ---- Direction -> offset ------------------------------------------------
+    # These five and the Array_Add below are the only nodes the entry node
+    # touches, so they sit at the top-left where the paste puts them within
+    # reach of it.
+    ints = {}
+    for i, d in enumerate(DIRS):
+        eq = call("RM_OmEq%s" % d[:1].upper(), "EqualEqual_StrStr", -3000, -900 + i * 120, lib=STR)
+        eq.pin("A", "in", T_STR)
+        eq.pin("B", "in", T_STR, d)
+        eq.pin("ReturnValue", "out", T_BOOL)
+        b2i = call("RM_OmI%s" % d[:1].upper(), "Conv_BoolToInt", -2800, -900 + i * 120)
+        b2i.pin("InBool", "in", T_BOOL, "false")
+        b2i.pin("ReturnValue", "out", T_INT)
+        link(eq, "ReturnValue", b2i, "InBool")
+        ints[d] = b2i
+
+    offs = {}
+    for axis, plus, minus, row in (("X", "right", "left", -900), ("Y", "down", "up", -760)):
+        sub = call("RM_OmOff%s" % axis, "Subtract_IntInt", -2600, row)
+        sub.pin("A", "in", T_INT, "0")
+        sub.pin("B", "in", T_INT, "0")
+        sub.pin("ReturnValue", "out", T_INT)
+        link(ints[plus], "ReturnValue", sub, "A")
+        link(ints[minus], "ReturnValue", sub, "B")
+        cv = call("RM_OmD%s" % axis, "Conv_IntToDouble", -2450, row)
+        cv.pin("InInt", "in", T_INT, "0")
+        cv.pin("ReturnValue", "out", T_DOUBLE)
+        link(sub, "ReturnValue", cv, "InInt")
+        offs[axis] = cv
+
+    # ---- target tile --------------------------------------------------------
+    dog = n(VarGet("RM_OmDog", "DogTile", T_V2D, -2450, -600))
+    br = call("RM_OmBr", "BreakVector2D", -2300, -600)
+    br.pin("InVec", "in", T_V2D)
+    br.pin("X", "out", T_DOUBLE, "0.0")
+    br.pin("Y", "out", T_DOUBLE, "0.0")
+    vlink(dog, br, "InVec")
+
+    target = call("RM_OmTarget", "MakeVector2D", -2000, -700)
+    for axis in ("X", "Y"):
+        add = call("RM_OmAdd%s" % axis, "Add_DoubleDouble", -2150,
+                   -700 if axis == "X" else -600)
+        add.pin("A", "in", T_DOUBLE, "0.0")
+        add.pin("B", "in", T_DOUBLE, "0.0")
+        add.pin("ReturnValue", "out", T_DOUBLE)
+        link(br, axis, add, "A")
+        link(offs[axis], "ReturnValue", add, "B")
+        target.pin(axis, "in", T_DOUBLE, "0.0")
+        link(add, "ReturnValue", target, axis)
+    target.pin("ReturnValue", "out", T_V2D)
+
+    ib = call("RM_OmIn", "InBounds", -1850, -700, lib=SELF_CTX)
+    ib.pin("Tile", "in", T_V2D)
+    ib.pin("Inside", "out", T_BOOL)
+    link(target, "ReturnValue", ib, "Tile")
+
+    # ---- the branch ---------------------------------------------------------
+    branch = n(Branch("RM_OmBranch", -1650, -800))
+    link_cond = (ib.name, ib.pid("Inside"))
+    branch.cond_links.append(link_cond)
+    for i, t in enumerate(ib.pins):
+        if t[0] == "Inside":
+            ib.pins[i] = t[:4] + ([(branch.name, branch.pid("Condition"))],) + t[5:]
+
+    refuse = call("RM_OmRefuse", "PrintString", -1400, -600, lib=SYS, pure=False)
+    refuse.pin("execute", "in", T_EXEC, None, [(branch.name, branch.pid("else"))])
+    refuse.pin("then", "out", T_EXEC)
+    refuse.pin("InString", "in", T_STR, "The fence is there. Nothing on that side.")
+    branch.else_links.append((refuse.name, refuse.pid("execute")))
+
+    # ---- the round proceeds -------------------------------------------------
+    setdog = n(VarSet("RM_OmSetDog", "DogTile", T_V2D, -1400, -900))
+    setdog.exec_in.append((branch.name, branch.pid("then")))
+    branch.then_links.append((setdog.name, setdog.pid("execute")))
+    setdog.value_links.append((target.name, target.pid("ReturnValue")))
+    for i, t in enumerate(target.pins):
+        if t[0] == "ReturnValue":
+            target.pins[i] = (t[:4] + (list(t[4]) + [(setdog.name, setdog.pid("DogTile"))],)
+                              + t[5:])
+
+    moves = n(VarGet("RM_OmMoves", "Moves",
+                     'PinType.PinCategory="string",PinType.PinSubCategory="",'
+                     'PinType.PinSubCategoryObject=None', -3000, -420, tail=TAIL_ARRAY))
+    add_move = n(ArrayAdd("RM_OmAddMove", -2800, -420))
+    add_move.array_links.append((moves.name, moves.out_pin()))
+    moves.links.append((add_move.name, add_move.pid("TargetArray")))
+    setdog.exec_out.append((add_move.name, add_move.pid("execute")))
+    add_move.exec_in.append((setdog.name, setdog.pid("then")))
+
+    getround = n(VarGet("RM_OmGetRound", "Round", T_INT, -1150, -800))
+    inc = call("RM_OmInc", "Add_IntInt", -1000, -900)
+    inc.pin("A", "in", T_INT, "0")
+    inc.pin("B", "in", T_INT, "1")
+    inc.pin("ReturnValue", "out", T_INT)
+    vlink(getround, inc, "A")
+    setround = n(VarSet("RM_OmSetRound", "Round", T_INT, -850, -900))
+    setround.value_links.append((inc.name, inc.pid("ReturnValue")))
+    for i, t in enumerate(inc.pins):
+        if t[0] == "ReturnValue":
+            inc.pins[i] = t[:4] + ([(setround.name, setround.pid("Round"))],) + t[5:]
+    add_move.exec_out.append((setround.name, setround.pid("execute")))
+    setround.exec_in.append((add_move.name, add_move.pid("then")))
+
+    act = call("RM_OmAct", "RexAct", -650, -900, lib=SELF_CTX, pure=False)
+    act.pin("execute", "in", T_EXEC, None, [(setround.name, setround.pid("then"))])
+    act.pin("then", "out", T_EXEC)
+    act.pin("Predicted", "out", T_V2D)
+    setround.exec_out.append((act.name, act.pid("execute")))
+
+    # ---- stamina, with RM-002's clamp --------------------------------------
+    rex2 = n(VarGet("RM_OmRex2", "RexTile", T_V2D, -650, -600))
+    dog2 = n(VarGet("RM_OmDog2", "DogTile", T_V2D, -650, -520))
+    gap = call("RM_OmGap", "Manhattan", -480, -600, lib=SELF_CTX)
+    gap.pin("A", "in", T_V2D)
+    gap.pin("B", "in", T_V2D)
+    gap.pin("Distance", "out", T_INT, "0")
+    vlink(rex2, gap, "A")
+    vlink(dog2, gap, "B")
+    close = call("RM_OmClose", "LessEqual_IntInt", -340, -600)
+    close.pin("A", "in", T_INT, "0")
+    close.pin("B", "in", T_INT, "1")
+    close.pin("ReturnValue", "out", T_BOOL)
+    link(gap, "Distance", close, "A")
+    closei = call("RM_OmCloseI", "Conv_BoolToInt", -200, -600)
+    closei.pin("InBool", "in", T_BOOL, "false")
+    closei.pin("ReturnValue", "out", T_INT)
+    link(close, "ReturnValue", closei, "InBool")
+    cost = call("RM_OmCost", "Add_IntInt", -60, -600)
+    cost.pin("A", "in", T_INT, "1")
+    cost.pin("B", "in", T_INT, "0")
+    cost.pin("ReturnValue", "out", T_INT)
+    link(closei, "ReturnValue", cost, "B")
+
+    stam = n(VarGet("RM_OmStam", "Stamina", T_INT, -60, -480))
+    spend = call("RM_OmSpend", "Subtract_IntInt", 100, -520)
+    spend.pin("A", "in", T_INT, "0")
+    spend.pin("B", "in", T_INT, "0")
+    spend.pin("ReturnValue", "out", T_INT)
+    vlink(stam, spend, "A")
+    link(cost, "ReturnValue", spend, "B")
+    floor = call("RM_OmFloor", "Max", 250, -520)
+    floor.pin("A", "in", T_INT, "0")
+    floor.pin("B", "in", T_INT, "0")
+    floor.pin("ReturnValue", "out", T_INT)
+    link(spend, "ReturnValue", floor, "A")
+    setstam = n(VarSet("RM_OmSetStam", "Stamina", T_INT, 400, -900))
+    setstam.value_links.append((floor.name, floor.pid("ReturnValue")))
+    for i, t in enumerate(floor.pins):
+        if t[0] == "ReturnValue":
+            floor.pins[i] = t[:4] + ([(setstam.name, setstam.pid("Stamina"))],) + t[5:]
+    setstam.exec_in.append((act.name, act.pid("then")))
+    for i, t in enumerate(act.pins):
+        if t[0] == "then":
+            act.pins[i] = t[:4] + ([(setstam.name, setstam.pid("execute"))],) + t[5:]
+
+    sync = call("RM_OmSync", "SyncActors", 600, -900, lib=SELF_CTX, pure=False)
+    sync.pin("execute", "in", T_EXEC, None, [(setstam.name, setstam.pid("then"))])
+    sync.pin("then", "out", T_EXEC)
+    sync.pin("Marker", "in", T_V2D)
+    setstam.exec_out.append((sync.name, sync.pid("execute")))
+    link(act, "Predicted", sync, "Marker")
+    return nodes
+
+
+def inputkeys():
+    """Nine key events, each calling OnPlayerMove with one direction.
+
+    WASD and the arrows, plus space to wait. Wait is a real key rather than the
+    absence of input because GDD 3 counts it in the move history: two waits
+    inside the last four moves fire stall_detected, so standing still has to be
+    something the player actively does.
+
+    Pressed only. The fight is turn based -- one press is one round, and a held
+    key must not repeat, which is why there is no Released wire and no axis.
+
+    Pasted into BP_FightManager's EventGraph alongside BeginPlay. Like the
+    self-test and BeginPlay, the event nodes are inside the paste, so this
+    needs no hand-wiring at all.
+    """
+    #  key, the string OnPlayerMove receives
+    KEYS = [("W", "up"), ("S", "down"), ("A", "left"), ("D", "right"),
+            ("Up", "up"), ("Down", "down"), ("Left", "left"), ("Right", "right"),
+            ("SpaceBar", "wait")]
+    nodes = []
+    for i, (key, direction) in enumerate(KEYS):
+        y = 400 + i * 180
+        ev = InputKeyNode("RM_Key%s" % key, key, -600, y)
+        call = Node("RM_Move%s" % key, "OnPlayerMove", -300, y,
+                    lib=SELF_CTX, pure=False)
+        call.pin("execute", "in", T_EXEC, None, [(ev.name, ev.pid("Pressed"))])
+        call.pin("then", "out", T_EXEC)
+        call.pin("Direction", "in", T_STR, direction)
+        ev.pressed_links.append((call.name, call.pid("execute")))
+        nodes.extend([ev, call])
+    return nodes
+
+
 MANHATTAN_GUID = "ED02AD0F4DA7F45E772004BAD7F4BC10"
 
 
@@ -1900,6 +2210,7 @@ GRAPHS = {"manhattan": manhattan, "band": band, "inbounds": inbounds,
           "approach": approach, "tiletoworld": tiletoworld,
           "steptoward": steptoward, "predict": predict, "rexact": rexact,
           "syncactors": syncactors, "beginplay": beginplay,
+          "onplayermove": onplayermove, "inputkeys": inputkeys,
           "selftest": selftest}
 
 if __name__ == "__main__":
