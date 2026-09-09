@@ -179,6 +179,15 @@ tells you why is worth more than a dressed arena that chases."*
   prediction is invisible and the One Wow does not land.
 - Win and lose text. No audio, no props, no dressing.
 
+`tools/ue_make_input.py` builds the Enhanced Input half: five digital actions
+and `IMC_Fight` with nine key bindings (WASD plus arrows, space to wait). Five
+actions rather than an axis pair, because the fight is turn based -- one press
+is one round, and a held key must not repeat. `Wait` is a first-class action
+rather than the absence of input: GDD 3 counts "wait" in the move history, and
+two of them inside the last four moves fire `stall_detected`, so standing still
+has to be something the player actively does. The assets exist; binding them
+needs `OnPlayerMove`.
+
 ### Tier 1 -- the full fight
 
 - `Periodicity`, `cover_habit`, `exit_fixation` (needs the tile arrays).
