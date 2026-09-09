@@ -16,14 +16,32 @@ Do them in this order. Each takes two or three minutes.
 
 Open `BP_FightManager`. Everything below happens in it except step 4.
 
-Two things that will bite otherwise:
+Four things that will bite otherwise. The first three all cost me a round of
+debugging on `InBounds`, and all three compiled clean while returning a
+constant -- which is exactly why the self-test prints values instead of
+PASS/FAIL.
 
 - **Drop each wire exactly on the pin**, not near it. Dropping near a result pin
   makes UE quietly add a second output to the function signature. It compiles
   clean and looks right. If an unexpected pin appears on the Return node,
-  Ctrl+Z and try again.
-- **Paste into empty graph space.** If nodes land on top of each other, that is
-  cosmetic only -- the wires are already correct.
+  Ctrl+Z and try again. Dropping on a node's *body* does not auto-connect in
+  5.5; it opens the node menu.
+- **Paste once.** A second paste into the same graph does not replace the first,
+  it stacks a second disconnected copy. Both compile. The entry feeds one copy
+  and the Return node reads the other, so the function returns whatever the
+  unconnected copy computes from zeroes -- `InBounds` answered `true` for every
+  tile, including (-1,5). If you are unsure whether a graph was already pasted,
+  Ctrl+A then Ctrl+C in the graph and count `Begin Object` lines in the
+  clipboard.
+- **Wire the entry's exec pin to the Return node**, the white one, even on a
+  pure function. Without it the Return node never runs and the output stays at
+  its default -- `InBounds` answered `false` for every tile, wiring otherwise
+  perfect.
+- **Never delete a Return node.** Deleting it deletes the function's output
+  parameter with it, and UE then refuses to reuse that parameter name: after
+  losing `IsInBounds` this way the rename silently reverted every time, while
+  `IsInBound` and `Inside` were both accepted. Recreating the node is
+  right-click -> Add Return Node, then re-add the output by hand.
 
 ---
 
@@ -35,15 +53,20 @@ Open the `InBounds` function. Click its entry node, then in **Details**:
 |---|---|
 | Pure | tick it |
 | Inputs | `Tile` — Vector 2D |
-| Outputs | `IsInBounds` — Boolean |
+| Outputs | `Inside` — Boolean |
 
-Then paste the file contents into the graph and make **two** wires:
+Then paste the file contents into the graph and make **three** wires:
 
     entry Tile              ->  RM_BreakT . InVec
-    RM_And3 . ReturnValue   ->  Return node IsInBounds
+    RM_And3 . ReturnValue   ->  Return node Inside
+    entry exec (white)      ->  Return node exec
 
 Compile. It checks `0 <= X < 10` and `0 <= Y < 10` -- the bounds are literals
 because `GridSpan` is `10x10` in all three `DT_ArenaPhases` rows.
+
+The output is `Inside`, not `IsInBounds`: UE 5.5 refuses that exact name on this
+Blueprint. `tools/bp_gen.py` emits the same name, so the pasted self-test binds
+to it.
 
 ---
 
@@ -57,7 +80,8 @@ Open `Approach`. Entry node, Details:
 | Inputs | `Dog` — Vector 2D, then `Kid` — Vector 2D |
 | Outputs | `Approach` — Float |
 
-Paste, then **three** wires:
+Paste, then **three** wires (the exec wire is already there -- this Return node
+was never deleted):
 
     entry Dog                  ->  RM_ApMan . A
     entry Kid                  ->  RM_ApMan . B
@@ -67,9 +91,9 @@ Compile. This is `1 - Manhattan(Dog, Kid) / 11` clamped 0..1. It is positional
 and stores nothing -- GDD 3 exploit 4 was an approach value that only ratcheted
 upward, and recomputing it every call is the fix.
 
-**Three member names here are unproven:** `Conv_IntToDouble`,
-`Divide_DoubleDouble`, `FClamp`. If any node pastes in red, its name is wrong --
-tell me which and I will correct the generator.
+`Conv_IntToDouble`, `Divide_DoubleDouble` and `FClamp` were guesses when this
+was written. All three resolve on 5.5.4 -- the paste comes in clean and the
+function compiles.
 
 ---
 
@@ -88,11 +112,11 @@ Paste, then **two** wires:
     entry Tile                 ->  RM_TwBreak . InVec
     RM_TwMake . ReturnValue    ->  Return node World
 
-Compile. `Multiply_DoubleDouble` and `MakeVector` are also unproven names.
+Compile. `Multiply_DoubleDouble` and `MakeVector` also resolve on 5.5.4.
 
 ---
 
-## 4. The self-test  (`generated/selftest.txt`, 66 nodes)
+## 4. The self-test  (`generated/selftest.txt`, 90 nodes)
 
 Open **`BP_SelfTest`** (a different asset), go to its **EventGraph**.
 
@@ -100,7 +124,7 @@ Select all (Ctrl+A), delete, then paste the file. **Zero wires needed** -- the
 `Event BeginPlay` node is inside the paste, so the whole exec chain resolves
 itself.
 
-Compile, then Play. Fifteen lines print to the Output Log:
+Compile, then Play. Nineteen lines print to the Output Log:
 
     Manhattan (0,0)->(7,4) expect 11 got ...
     Manhattan (9,9)->(0,0) expect 18 got ...
@@ -117,12 +141,40 @@ Compile, then Play. Fifteen lines print to the Output Log:
     InBounds(-1,5) expect false got ...
     TileToWorld(0,0) expect X=0 Y=0 Z=0 got ...
     TileToWorld(7,4) expect X=1400 Y=800 Z=0 got ...
+    Approach (0,0)->(7,4) expect 0 got ...          <- spawn reads 0
+    Approach (7,4)->(7,4) expect 1 got ...          <- on the kid reads 1
+    Approach (6,4)->(7,4) expect 0.909091 got ...
+    Approach (9,9)->(0,0) expect 0 (clamped) got ...
 
 Every line prints the computed value beside the expected one rather than a
 PASS/FAIL, because a boolean hides *what* went wrong. That is what caught the
 Band thresholds silently reverting to zero earlier.
 
-Paste me the fifteen lines and I will tell you what, if anything, is wrong.
+All nineteen pass as of the 5.5.4 build:
+
+    Manhattan (0,0)->(7,4) expect 11 got 11
+    Manhattan (9,9)->(0,0) expect 18 got 18
+    Band(100) expect clinical got clinical
+    Band(60)  expect confident got confident
+    Band(45)  expect confident got confident
+    Band(30)  expect confident got confident
+    Band(29)  expect strained got strained
+    Band(10)  expect strained got strained
+    InBounds(0,0)  expect true  got true
+    InBounds(9,9)  expect true  got true
+    InBounds(10,0) expect false got false
+    InBounds(0,10) expect false got false
+    InBounds(-1,5) expect false got false
+    TileToWorld(0,0) expect X=0 Y=0 Z=0       got X=0.000 Y=0.000 Z=0.000
+    TileToWorld(7,4) expect X=1400 Y=800 Z=0  got X=1400.000 Y=800.000 Z=0.000
+    Approach (0,0)->(7,4) expect 0            got 0.0
+    Approach (7,4)->(7,4) expect 1            got 1.0
+    Approach (6,4)->(7,4) expect 0.909091     got 0.909091
+    Approach (9,9)->(0,0) expect 0 (clamped)  got 0.0
+
+The log lives at `RexMachinaUE/Saved/Logs/RexMachina.log`; the lines are tagged
+`LogBlueprintUserMessages`, so `grep expect` on it is faster than reading the
+Output Log in the editor.
 
 ---
 
