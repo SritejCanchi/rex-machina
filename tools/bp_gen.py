@@ -2162,6 +2162,107 @@ def selftest():
         nodes.extend([ch, cc])
         print_line("W", "RexAct charge: expect 94 got ", cc, "ReturnValue")
 
+    def round_case():
+        """Drive OnPlayerMove twice and check what the round did.
+
+        The first move is into the fence. The dog spawns at (0,0) and "up" is
+        (0,-1), so the target is off the grid: the round must NOT advance and
+        the dog must NOT move. That is RM-003, and it is the only assertion
+        here that can catch the Branch being wired to the wrong exec pin --
+        a graph with the true and false paths swapped compiles perfectly and
+        simply lets the dog walk through the fence.
+
+        The second move is legal and everything advances by one.
+
+        This also covers the input path indirectly: the nine key events call
+        OnPlayerMove with exactly these strings and nothing else, so if this
+        passes, pressing D does what pressing D should.
+        """
+        nonlocal prev_print, y
+
+        def drive(tag, direction, expect):
+            nonlocal prev_print
+            mv = Node("RM_Rd%s" % tag, "OnPlayerMove", -1100, y_of(),
+                      lib=SELF_CTX, pure=False)
+            mv.pin("execute", "in", T_EXEC)
+            mv.pin("then", "out", T_EXEC)
+            mv.pin("Direction", "in", T_STR, direction)
+            head = prev_print
+            mv.pins[0] = mv.pins[0][:4] + ([(head.name, head.pid("then"))],) + mv.pins[0][5:]
+            # VarSet keeps its exec links in a list; Node keeps them in pins.
+            if hasattr(head, "exec_out"):
+                head.exec_out.append((mv.name, mv.pid("execute")))
+            else:
+                for i, t in enumerate(head.pins):
+                    if t[0] == "then":
+                        head.pins[i] = t[:4] + ([(mv.name, mv.pid("execute"))],) + t[5:]
+            nodes.append(mv)
+            prev_print = mv
+
+            dog = VarGet("RM_RdDog%s" % tag, "DogTile", T_V2D, -900, y_of() + 120)
+            br = Node("RM_RdBr%s" % tag, "BreakVector2D", -780, y_of() + 120)
+            cx = Node("RM_RdCX%s" % tag, "Conv_DoubleToString", -650, y_of() + 120, lib=STR)
+            cy = Node("RM_RdCY%s" % tag, "Conv_DoubleToString", -650, y_of() + 180, lib=STR)
+            rnd = VarGet("RM_RdRnd%s" % tag, "Round", T_INT, -900, y_of() + 240)
+            ci = Node("RM_RdCI%s" % tag, "Conv_IntToString", -650, y_of() + 240, lib=STR)
+            j1 = Node("RM_RdJ1%s" % tag, "Concat_StrStr", -500, y_of() + 120, lib=STR)
+            j2 = Node("RM_RdJ2%s" % tag, "Concat_StrStr", -420, y_of() + 120, lib=STR)
+            j3 = Node("RM_RdJ3%s" % tag, "Concat_StrStr", -340, y_of() + 120, lib=STR)
+            br.pin("InVec", "in", T_V2D, None, [(dog.name, dog.out_pin())])
+            dog.links.append((br.name, br.pid("InVec")))
+            br.pin("X", "out", T_DOUBLE, "0.0", [(cx.name, cx.pid("InDouble"))])
+            br.pin("Y", "out", T_DOUBLE, "0.0", [(cy.name, cy.pid("InDouble"))])
+            cx.pin("InDouble", "in", T_DOUBLE, "0.0", [(br.name, br.pid("X"))])
+            cx.pin("ReturnValue", "out", T_STR, None, [(j1.name, j1.pid("A"))])
+            cy.pin("InDouble", "in", T_DOUBLE, "0.0", [(br.name, br.pid("Y"))])
+            cy.pin("ReturnValue", "out", T_STR, None, [(j2.name, j2.pid("B"))])
+            ci.pin("InInt", "in", T_INT, "0", [(rnd.name, rnd.out_pin())])
+            rnd.links.append((ci.name, ci.pid("InInt")))
+            ci.pin("ReturnValue", "out", T_STR, None, [(j3.name, j3.pid("B"))])
+            j1.pin("A", "in", T_STR, None, [(cx.name, cx.pid("ReturnValue"))])
+            j1.pin("B", "in", T_STR, ",")
+            j1.pin("ReturnValue", "out", T_STR, None, [(j2.name, j2.pid("A"))])
+            j2.pin("A", "in", T_STR, None, [(j1.name, j1.pid("ReturnValue"))])
+            j2.pin("B", "in", T_STR, None, [(cy.name, cy.pid("ReturnValue"))])
+            j2.pin("ReturnValue", "out", T_STR, None,
+                   [("RM_RdSep%s" % tag, guid("RM_RdSep%s::A" % tag))])
+            # A literal on a pin that is also connected is ignored, so " round "
+            # needs a concat of its own rather than sharing the pin with ci.
+            jsep = Node("RM_RdSep%s" % tag, "Concat_StrStr", -380, y_of() + 120, lib=STR)
+            jsep.pin("A", "in", T_STR, None, [(j2.name, j2.pid("ReturnValue"))])
+            jsep.pin("B", "in", T_STR, " round ")
+            jsep.pin("ReturnValue", "out", T_STR, None, [(j3.name, j3.pid("A"))])
+            j3.pin("A", "in", T_STR, None, [(jsep.name, jsep.pid("ReturnValue"))])
+            j3.pin("B", "in", T_STR, None, [(ci.name, ci.pid("ReturnValue"))])
+            j3.pin("ReturnValue", "out", T_STR, None)
+            nodes.extend([dog, br, cx, cy, rnd, ci, j1, j2, jsep, j3])
+            print_line("R" + tag, "OnPlayerMove(%s) expect %s got dog " % (direction, expect),
+                       j3, "ReturnValue")
+
+        setdog = VarSet("RM_RdSetDog", "DogTile", T_V2D, -1400, y_of(),
+                        value_default="(X=0.000000,Y=0.000000)")
+        setrex = VarSet("RM_RdSetRex", "RexTile", T_V2D, -1250, y_of(),
+                        value_default="(X=5.000000,Y=5.000000)")
+        setrnd = VarSet("RM_RdSetRnd", "Round", T_INT, -1100, y_of(),
+                        value_default="0")
+        nodes.extend([setdog, setrex, setrnd])
+        head = prev_print
+        setdog.exec_in.append((head.name, head.pid("then")))
+        if hasattr(head, "exec_out"):
+            head.exec_out.append((setdog.name, setdog.pid("execute")))
+        else:
+            for i, t in enumerate(head.pins):
+                if t[0] == "then":
+                    head.pins[i] = t[:4] + ([(setdog.name, setdog.pid("execute"))],) + t[5:]
+        setdog.exec_out.append((setrex.name, setrex.pid("execute")))
+        setrex.exec_in.append((setdog.name, setdog.pid("then")))
+        setrex.exec_out.append((setrnd.name, setrnd.pid("execute")))
+        setrnd.exec_in.append((setrex.name, setrex.pid("then")))
+        prev_print = setrnd
+
+        drive("A", "up", "dog 0.0,0.0 round 0 (refused)")
+        drive("B", "right", "dog 1.0,0.0 round 1")
+
     def band_case(tag, charge, expect):
         bd = Node("RM_BD" + tag, "Band", -650, y, lib=SELF_CTX)
         bd.pin("Charge", "in", T_DOUBLE, "%.1f" % charge)
@@ -2203,6 +2304,9 @@ def selftest():
     # RexTile and Moves so that following the prediction would walk Rex away
     # from the dog, and then checks that the veto did not let it.
     veto_case()
+    # Last of all, because it drives the real round loop and leaves the fight
+    # mid-game: dog one tile east of spawn, one round on the clock.
+    round_case()
     return nodes
 
 
