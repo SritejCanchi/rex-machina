@@ -361,6 +361,106 @@ class ArrayAdd:
         ])
 
 
+GAMEPLAY = "/Script/CoreUObject.Class'/Script/Engine.GameplayStatics'"
+ACTOR_CLS = "/Script/CoreUObject.Class'/Script/Engine.Actor'"
+T_ACTOR = ('PinType.PinCategory="object",PinType.PinSubCategory="",'
+           'PinType.PinSubCategoryObject="%s"' % ACTOR_CLS)
+T_ACTOR_CLASS = ('PinType.PinCategory="class",PinType.PinSubCategory="",'
+                 'PinType.PinSubCategoryObject="%s"' % ACTOR_CLS)
+TAIL_CLASS = TAIL.replace('bIsUObjectWrapper=False', 'bIsUObjectWrapper=True')
+
+
+def bp_class(asset):
+    """The literal a class pin wants for one of this project's Blueprints.
+
+    Just the object path -- NOT the /Script/Engine.BlueprintGeneratedClass'...'
+    form an object pin uses. Emitting the wrapped form pastes a pin that reads
+    "Select Class", with no error anywhere. A class pin also needs
+    bIsUObjectWrapper=True in its type, which is why it does not use the shared
+    TAIL.
+    """
+    return "/Game/Blueprints/%s.%s_C" % (asset, asset)
+
+
+class MemberCall:
+    """A call on someone else's object, e.g. SetActorLocation on an actor.
+
+    Different from both shapes the generator already had. A Kismet library call
+    hides its `self` pin and fills it with the library default; a self-context
+    call has no MemberParent at all. This one names the class that owns the
+    function AND leaves `self` visible, because the whole point is to wire a
+    different actor into it.
+    """
+
+    def __init__(self, name, member, parent, x, y, pure=False):
+        self.name, self.member, self.parent = name, member, parent
+        self.x, self.y, self.pure = x, y, pure
+        self.self_links = []
+        self.pins = []
+
+    def pin(self, pinname, direction, typefrag, default=None, links=(), tail=None):
+        self.pins.append((pinname, direction, typefrag, default, links, tail))
+        return self
+
+    def pid(self, pinname):
+        return guid(self.name + "::" + pinname)
+
+    def render(self):
+        out = [
+            'Begin Object Class=/Script/BlueprintGraph.K2Node_CallFunction Name="%s"' % self.name,
+            '   FunctionReference=(MemberParent="%s",MemberName="%s")' % (self.parent, self.member),
+            '   NodePosX=%d' % self.x,
+            '   NodePosY=%d' % self.y,
+            '   NodeGuid=%s' % guid(self.name),
+        ]
+        if self.pure:
+            out.insert(1, '   bDefaultsToPureFunc=True')
+        out.append(_pin_text(self, "self", "in", T_ACTOR, None, self.self_links, None,
+                             'PinFriendlyName=NSLOCTEXT("K2Node", "Target", "Target")'))
+        for pn, d, tf, dv, lk, tl in _padded(self.pins):
+            out.append(_pin_text(self, pn, d, tf, dv, lk, tl))
+        out.append('End Object')
+        return "\n".join(out)
+
+
+class GetAllActors:
+    """GetAllActorsOfClass. WorldContextObject is hidden and UE fills it in."""
+
+    def __init__(self, name, asset, x, y):
+        self.name, self.asset, self.x, self.y = name, asset, x, y
+        self.exec_in, self.exec_out, self.out_links = [], [], []
+
+    def pid(self, pinname):
+        return guid(self.name + "::" + pinname)
+
+    def render(self):
+        return "\n".join([
+            'Begin Object Class=/Script/BlueprintGraph.K2Node_CallFunction Name="%s"' % self.name,
+            '   FunctionReference=(MemberParent="%s",MemberName="GetAllActorsOfClass")' % GAMEPLAY,
+            '   NodePosX=%d' % self.x,
+            '   NodePosY=%d' % self.y,
+            '   NodeGuid=%s' % guid(self.name),
+            _pin_text(self, "execute", "in", T_EXEC, None, self.exec_in),
+            _pin_text(self, "then", "out", T_EXEC, None, self.exec_out),
+            _pin_text(self, "self", "in",
+                      'PinType.PinCategory="object",PinType.PinSubCategory="",'
+                      'PinType.PinSubCategoryObject="%s"' % GAMEPLAY, None, (), None,
+                      'PinFriendlyName=NSLOCTEXT("K2Node", "Target", "Target")')
+            .replace('bHidden=False', 'bHidden=True'),
+            _pin_text(self, "WorldContextObject", "in",
+                      'PinType.PinCategory="object",PinType.PinSubCategory="",'
+                      'PinType.PinSubCategoryObject='
+                      '"/Script/CoreUObject.Class\'/Script/CoreUObject.Object\'"',
+                      None, ())
+            .replace('bHidden=False', 'bHidden=True'),
+            _pin_text(self, "ActorClass", "in", T_ACTOR_CLASS, None, (),
+                      TAIL_CLASS).replace(
+                'PersistentGuid=', 'DefaultObject="%s",PersistentGuid=' % bp_class(self.asset)),
+            _pin_text(self, "OutActors", "out", T_ACTOR, None, self.out_links, TAIL_ARRAY),
+            'End Object',
+        ])
+
+
 def _padded(pins):
     """Yield pin tuples as 6-tuples, so 5-tuple call sites still work."""
     for t in pins:
@@ -1338,6 +1438,153 @@ def rexact():
     return nodes
 
 
+def syncactors():
+    """Move the three actors in the level onto the tiles the fight is using.
+
+    Nothing in docs/UNREAL-BLUEPRINT-SPEC.md asks for this -- the spec defines
+    the whole round in tile space and never says anything moves on screen. The
+    acceptance test does: "the robot moves to the tile it predicted". So this
+    is the join between the logic, which is finished and asserted, and the
+    thing a person actually watches.
+
+    The marker is a parameter rather than a variable because it is RexAct's
+    return value, and it is the only reason the prediction is visible at all.
+    Without it on screen the veto has nothing to read against and the fight
+    looks like an ordinary chase.
+
+    Actors are found with GetAllActorsOfClass and index 0 rather than held in
+    variables, because ue_build_arena.py places exactly one of each and there
+    is no spawn step that could hand out references. If the arena ever gets a
+    second dog, this is the line that breaks.
+    """
+    nodes = []
+
+    def n(node):
+        nodes.append(node)
+        return node
+
+    def call(name, member, x, y, lib=MATH, pure=True):
+        return n(Node(name, member, x, y, lib=lib, pure=pure))
+
+    def link(a, apin, b, bpin):
+        for node, pinname, other, otherpin in ((a, apin, b, bpin), (b, bpin, a, apin)):
+            for i, t in enumerate(node.pins):
+                if t[0] == pinname:
+                    node.pins[i] = (t[:4] + (list(t[4]) + [(other.name, other.pid(otherpin))],)
+                                    + t[5:])
+                    break
+
+    prev_exec = None          # the node whose `then` feeds the next one
+    marker_links = []
+
+    #  asset, where the tile comes from
+    TARGETS = [("BP_Dog", "DogTile"), ("BP_Rex", "RexTile"), ("BP_Marker", None)]
+    for i, (asset, var) in enumerate(TARGETS):
+        row = -400 + i * 260
+        find = n(GetAllActors("RM_SyFind%d" % i, asset, -1400, row))
+        item = n(ArrayGet("RM_SyItem%d" % i, -1150, row + 60, elem_cat=T_ACTOR))
+        item.array_links.append((find.name, find.pid("OutActors")))
+        find.out_links.append((item.name, item.pid("Array")))
+
+        tw = call("RM_SyTw%d" % i, "TileToWorld", -900, row + 120, lib=SELF_CTX)
+        tw.pin("Tile", "in", T_V2D)
+        tw.pin("World", "out", T_VEC)
+        if var:
+            src = n(VarGet("RM_SyVar%d" % i, var, T_V2D, -1150, row + 160))
+            src.links.append((tw.name, tw.pid("Tile")))
+            tw.pins[0] = tw.pins[0][:4] + ([(src.name, src.out_pin())],) + tw.pins[0][5:]
+        else:
+            marker_links.append((tw.name, tw.pid("Tile")))
+
+        move = n(MemberCall("RM_SyMove%d" % i, "K2_SetActorLocation", ACTOR_CLS, -650, row))
+        move.pin("execute", "in", T_EXEC)
+        move.pin("then", "out", T_EXEC)
+        move.pin("NewLocation", "in", T_VEC)
+        move.pin("bSweep", "in", T_BOOL, "false")
+        move.pin("SweepHitResult", "out",
+                 'PinType.PinCategory="struct",PinType.PinSubCategory="",'
+                 'PinType.PinSubCategoryObject='
+                 '"/Script/CoreUObject.ScriptStruct\'/Script/Engine.HitResult\'"')
+        move.pin("bTeleport", "in", T_BOOL, "true")
+        move.pin("ReturnValue", "out", T_BOOL)
+        move.self_links.append((item.name, item.pid("Output")))
+        item.out_links.append((move.name, move.pid("self")))
+        link(tw, "World", move, "NewLocation")
+
+        # exec: find -> move -> next find
+        find.exec_out.append((move.name, move.pid("execute")))
+        move.pins[0] = move.pins[0][:4] + ([(find.name, find.pid("then"))],) + move.pins[0][5:]
+        if prev_exec is not None:
+            prev_exec.pins[1] = (prev_exec.pins[1][:4]
+                                 + ([(find.name, find.pid("execute"))],)
+                                 + prev_exec.pins[1][5:])
+            find.exec_in.append((prev_exec.name, prev_exec.pid("then")))
+        prev_exec = move
+    return nodes
+
+
+def beginplay():
+    """BP_FightManager's EventGraph: set the fight up and show it.
+
+    Every constant this copies from is already a variable on the Blueprint and
+    already asserted, so nothing here is a new number -- DogSpawn (0,0),
+    RexSpawn (5,5), StartCharge 100, StartStamina 15. The point is that the
+    round loop and the level stop being two separate things: after this runs,
+    what is on screen is what the logic thinks is true.
+
+    It ends on SyncActors so the marker starts under Rex rather than at the
+    world origin, which is where an unplaced actor sits and looks like a bug.
+
+    Pasted into the EventGraph whole. The BeginPlay node is inside the paste,
+    so unlike every function graph here this one needs no hand-wiring at all.
+    """
+    nodes = []
+    begin = EventNode("RM_BpBegin", "ReceiveBeginPlay", -1200, -400)
+    begin.pin("then", "out", T_EXEC)
+    nodes.append(begin)
+
+    #  target variable, source variable or literal, pin type
+    STEPS = [
+        ("DogTile", "DogSpawn", T_V2D, None),
+        ("RexTile", "RexSpawn", T_V2D, None),
+        ("Charge", "StartCharge", T_DOUBLE, None),
+        ("Stamina", "StartStamina", T_INT, None),
+        ("Round", None, T_INT, "0"),
+        ("PhaseIndex", None, T_INT, "0"),
+    ]
+    prev = begin
+    prev_pin = "then"
+    for i, (target, source, typefrag, literal) in enumerate(STEPS):
+        x = -1000 + i * 260
+        setter = VarSet("RM_Bp%s" % target, target, typefrag, x, -400,
+                        value_default=literal)
+        nodes.append(setter)
+        if source is not None:
+            get = VarGet("RM_BpGet%s" % source, source, typefrag, x - 40, -260)
+            get.links.append((setter.name, setter.pid(target)))
+            setter.value_links.append((get.name, get.out_pin()))
+            nodes.append(get)
+        setter.exec_in.append((prev.name, prev.pid(prev_pin)))
+        if prev is begin:
+            begin.pins[0] = begin.pins[0][:4] + ([(setter.name, setter.pid("execute"))],) \
+                + begin.pins[0][5:]
+        else:
+            prev.exec_out.append((setter.name, setter.pid("execute")))
+        prev, prev_pin = setter, "then"
+
+    # ---- put the actors where the state says they are ----------------------
+    rex = VarGet("RM_BpSyncRex", "RexTile", T_V2D, 620, -260)
+    sync = Node("RM_BpSync", "SyncActors", 620, -400, lib=SELF_CTX, pure=False)
+    sync.pin("execute", "in", T_EXEC)
+    sync.pin("then", "out", T_EXEC)
+    sync.pin("Marker", "in", T_V2D, None, [(rex.name, rex.out_pin())])
+    rex.links.append((sync.name, sync.pid("Marker")))
+    sync.pins[0] = sync.pins[0][:4] + ([(prev.name, prev.pid("then"))],) + sync.pins[0][5:]
+    prev.exec_out.append((sync.name, sync.pid("execute")))
+    nodes.extend([rex, sync])
+    return nodes
+
+
 MANHATTAN_GUID = "ED02AD0F4DA7F45E772004BAD7F4BC10"
 
 
@@ -1652,6 +1899,7 @@ def selftest():
 GRAPHS = {"manhattan": manhattan, "band": band, "inbounds": inbounds,
           "approach": approach, "tiletoworld": tiletoworld,
           "steptoward": steptoward, "predict": predict, "rexact": rexact,
+          "syncactors": syncactors, "beginplay": beginplay,
           "selftest": selftest}
 
 if __name__ == "__main__":

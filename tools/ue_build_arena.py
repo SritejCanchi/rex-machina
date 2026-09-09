@@ -114,6 +114,22 @@ def main():
         L("  camera at (%.0f, %.0f, 2000) looking down 38 degrees" %
           (centre_x, centre_y - 2400.0))
 
+    # ---- the fight manager itself ------------------------------------------
+    # It has no visible component -- it is where the round loop lives. Its
+    # BeginPlay copies DogSpawn/RexSpawn into DogTile/RexTile and calls
+    # SyncActors, so the three actors above snap onto the tiles the logic
+    # believes they are on. Without this actor in the level nothing runs the
+    # fight at all, and the arena is just scenery.
+    fm = unreal.load_asset("/Game/Blueprints/BP_FightManager.BP_FightManager")
+    if fm is not None:
+        a = eas.spawn_actor_from_class(fm.generated_class(),
+                                       unreal.Vector(0, 0, 400))
+        if a:
+            a.set_actor_label("FightManager")
+            L("  FightManager placed -- BeginPlay seeds the fight and syncs actors")
+    else:
+        E("  BP_FightManager missing -- run tools/ue_build_fightmanager.py first")
+
     # ---- the self-test rides along so PIE always runs the assertions --------
     st = unreal.load_asset("/Game/Blueprints/BP_SelfTest.BP_SelfTest")
     if st is not None:
