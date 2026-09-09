@@ -293,6 +293,10 @@ Paste, then **two** wires:
     entry exec (white)      ->  RM_SyFind0 . execute
     entry Marker            ->  RM_SyTw2 . Tile
 
+The paste drops a `Rex Tile` getter on top of RM_SyFind0's execute pin. Move it
+out of the way before wiring, or the drag grabs the getter instead and the exec
+wire silently does not happen.
+
 Then set the three `Actor Class` pins by hand to BP_Dog, BP_Rex and BP_Marker.
 The generator emits the right literal now, but a graph pasted before that fix
 shows "Select Class" on all three, with no error anywhere.
@@ -325,9 +329,15 @@ reach of it.
     entry Direction     ->  RM_OmEqD . A
     entry Direction     ->  RM_OmAddMove . NewItem
 
-Worth reading the entry node back afterwards to check all six landed: select
-all, Ctrl+C, and look at the `LinkedTo` on its `then` and `Direction` pins. A
-missing exec wire compiles perfectly and does nothing.
+**Read the entry node back after wiring any function.** Select all, Ctrl+C,
+and check the `LinkedTo` on its `then` pin. A missing exec wire compiles
+perfectly and does nothing, and it has now cost three separate debugging
+sessions: InBounds returned a constant, and SyncActors silently never ran, so
+the round loop advanced correctly while nothing moved on screen for an hour.
+
+    PinName="then",Direction="EGPD_Output",LinkedTo=(RM_OmBranch ...)
+
+No `LinkedTo` on that line means the function body is unreachable.
 
 ---
 
