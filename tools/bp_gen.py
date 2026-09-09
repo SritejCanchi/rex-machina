@@ -86,7 +86,7 @@ def _autogen(typefrag):
 
 
 class Node:
-    def __init__(self, name, member, x, y, lib=None, guid=None):
+    def __init__(self, name, member, x, y, lib=None, guid=None, pure=True):
         """lib: MATH / SYS / STR, or SELF_CTX for a call on this Blueprint.
 
         A self-context call carries no MemberParent at all -- it is
@@ -96,7 +96,8 @@ class Node:
         self.name, self.member, self.x, self.y = name, member, x, y
         self.lib = lib or MATH
         self.member_guid = guid
-        self.pins = []   # (pinname, direction, typefrag, default, links)
+        self.pure = pure
+        self.pins = []   # (pinname, direction, typefrag, default, links, tail)
 
     def pin(self, pinname, direction, typefrag, default=None, links=(), tail=None):
         self.pins.append((pinname, direction, typefrag, default, links, tail))
@@ -113,12 +114,16 @@ class Node:
             ref = 'FunctionReference=(MemberParent="%s",MemberName="%s")' % (self.lib, self.member)
         out = [
             'Begin Object Class=/Script/BlueprintGraph.K2Node_CallFunction Name="%s"' % self.name,
-            '   bDefaultsToPureFunc=True',
             '   ' + ref,
             '   NodePosX=%d' % self.x,
             '   NodePosY=%d' % self.y,
             '   NodeGuid=%s' % guid(self.name),
         ]
+        if self.pure:
+            # An impure call carries execute/then instead, and the caller adds
+            # them as ordinary pins -- a function that writes state cannot be
+            # pure, and marking it so makes UE refuse the exec connection.
+            out.insert(1, '   bDefaultsToPureFunc=True')
         if self.lib != SELF_CTX:
             # the hidden static-library target pin every Kismet* call carries
             default_obj = "/Script/Engine.Default__" + self.lib.rsplit(".", 1)[1].rstrip("'")
@@ -268,6 +273,90 @@ class ArrayGet:
             _pin_text(self, "Array", "in", self.elem, None, self.array_links, TAIL_ARRAY),
             _pin_text(self, "Dimension 1", "in", T_INT, "0", self.index_links),
             _pin_text(self, "Output", "out", self.elem, None, self.out_links),
+            'End Object',
+        ])
+
+
+TAIL_ARRAY_REF_MUT = TAIL_ARRAY.replace('bIsReference=False', 'bIsReference=True')
+
+
+class VarSet:
+    """Write a Blueprint variable. K2Node_VariableSet, captured from the editor.
+
+    Unlike a get this is an exec node: it carries `execute` and `then`, so the
+    sets in a function body chain between the entry node and the return node.
+    The value pin is named after the variable, and there is also an
+    `Output_Get` pin that hands back what was just written -- handy, because it
+    saves a second Get node downstream.
+    """
+
+    def __init__(self, name, var, typefrag, x, y, value_default=None):
+        self.name, self.var, self.typefrag = name, var, typefrag
+        self.x, self.y, self.value_default = x, y, value_default
+        self.exec_in, self.exec_out, self.value_links, self.get_links = [], [], [], []
+
+    def pid(self, pinname):
+        return guid(self.name + "::" + pinname)
+
+    def render(self):
+        gid = VAR_GUID.get(self.var)
+        ref = 'VariableReference=(MemberName="%s"%s,bSelfContext=True)' % (
+            self.var, (",MemberGuid=%s" % gid) if gid else "")
+        return "\n".join([
+            'Begin Object Class=/Script/BlueprintGraph.K2Node_VariableSet Name="%s"' % self.name,
+            '   ' + ref,
+            '   NodePosX=%d' % self.x,
+            '   NodePosY=%d' % self.y,
+            '   NodeGuid=%s' % guid(self.name),
+            _pin_text(self, "execute", "in", T_EXEC, None, self.exec_in),
+            _pin_text(self, "then", "out", T_EXEC, None, self.exec_out),
+            _pin_text(self, self.var, "in", self.typefrag, self.value_default,
+                      self.value_links),
+            _pin_text(self, "self", "in",
+                      'PinType.PinCategory="object",PinType.PinSubCategory="",'
+                      'PinType.PinSubCategoryObject="%s"' % SELF_CLASS, None, (), None,
+                      'PinFriendlyName=NSLOCTEXT("K2Node", "Target", "Target")'),
+            _pin_text(self, "Output_Get", "out", self.typefrag, None, self.get_links),
+            'End Object',
+        ])
+
+
+class ArrayAdd:
+    """Array_Add -- append to an array. Impure, so it has exec pins.
+
+    The array pin is by-reference but *not* const, unlike Array_Length's: Add
+    mutates what it is handed. Getting that wrong produces a pin that looks
+    identical and refuses the connection.
+    """
+
+    def __init__(self, name, x, y, elem_cat='PinType.PinCategory="string",'
+                 'PinType.PinSubCategory="",PinType.PinSubCategoryObject=None',
+                 item_default=None):
+        self.name, self.x, self.y, self.elem = name, x, y, elem_cat
+        self.item_default = item_default
+        self.exec_in, self.exec_out = [], []
+        self.array_links, self.item_links, self.out_links = [], [], []
+
+    def pid(self, pinname):
+        return guid(self.name + "::" + pinname)
+
+    def render(self):
+        return "\n".join([
+            'Begin Object Class=/Script/BlueprintGraph.K2Node_CallArrayFunction Name="%s"' % self.name,
+            '   FunctionReference=(MemberParent="%s",MemberName="Array_Add")' % ARRAYLIB,
+            '   NodePosX=%d' % self.x,
+            '   NodePosY=%d' % self.y,
+            '   NodeGuid=%s' % guid(self.name),
+            _pin_text(self, "execute", "in", T_EXEC, None, self.exec_in),
+            _pin_text(self, "then", "out", T_EXEC, None, self.exec_out),
+            _pin_text(self, "self", "in",
+                      'PinType.PinCategory="object",PinType.PinSubCategory="",'
+                      'PinType.PinSubCategoryObject="%s"' % ARRAYLIB, None, (), None,
+                      'PinFriendlyName=NSLOCTEXT("K2Node", "Target", "Target")'),
+            _pin_text(self, "TargetArray", "in", self.elem, None, self.array_links,
+                      TAIL_ARRAY_REF_MUT),
+            _pin_text(self, "NewItem", "in", self.elem, self.item_default, self.item_links),
+            _pin_text(self, "ReturnValue", "out", T_INT, None, self.out_links),
             'End Object',
         ])
 
@@ -992,6 +1081,263 @@ def _sum_ints(call, link, prefix, parts, x, y):
     return level[0]
 
 
+def rexact():
+    """RexAct -- one robot turn, and the single most important graph here.
+
+    GDD 6.1, step 4:
+
+        Move = StepToward(RexTile, Predicted)
+        if Manhattan(Move, DogTile) > Before:  Move = StepToward(RexTile, DogTile)
+
+    That is the veto. Rex commits to its prediction right up until committing
+    would put it further from the dog than it already was, and then it stops
+    predicting and cuts inside. Without it the player leads the robot away with
+    a repeating pattern and the fight becomes free; tests/sim.js asserts the
+    invariant every round of every run, and so does the self-test here.
+
+    Choosing between two tiles needs no branch. `veto` is a bool, so
+
+        final = A + veto * (B - A)
+
+    componentwise is the same selection, and keeps the whole body pure up to
+    the two writes at the end.
+
+    "Did it move" is Manhattan(final, RexTile) > 0 rather than a vector
+    inequality, which reuses a function that is already asserted instead of
+    reaching for NotEqual_Vector2DVector2D.
+
+    The charge line is GDD 6.1 step 6 with RM-002's clamp:
+
+        Charge = clamp(Charge - (Moved ? PursuitCost : HoldCost) + SolarRecovery, 0, 100)
+
+    and the ternary is folded the same way: cost = Hold + moved * (Pursuit - Hold).
+    """
+    nodes = []
+
+    def n(node):
+        nodes.append(node)
+        return node
+
+    def call(name, member, x, y, lib=MATH):
+        return n(Node(name, member, x, y, lib=lib))
+
+    def link(a, apin, b, bpin):
+        for node, pinname, other, otherpin in ((a, apin, b, bpin), (b, bpin, a, apin)):
+            for i, t in enumerate(node.pins):
+                if t[0] == pinname:
+                    node.pins[i] = (t[:4] + (list(t[4]) + [(other.name, other.pid(otherpin))],)
+                                    + t[5:])
+                    break
+
+    def vlink(vnode, b, bpin):
+        """VarGet -> some pin. VarGet keeps its links in a plain list."""
+        vnode.links.append((b.name, b.pid(bpin)))
+        for i, t in enumerate(b.pins):
+            if t[0] == bpin:
+                b.pins[i] = (t[:4] + (list(t[4]) + [(vnode.name, vnode.out_pin())],) + t[5:])
+                break
+
+    # ---- state ------------------------------------------------------------
+    rex = n(VarGet("RM_RaRex", "RexTile", T_V2D, -2200, -400))
+    rex2 = n(VarGet("RM_RaRex2", "RexTile", T_V2D, -2200, -200))
+    rex3 = n(VarGet("RM_RaRex3", "RexTile", T_V2D, -2200, 0))
+    rex4 = n(VarGet("RM_RaRex4", "RexTile", T_V2D, -1400, 400))
+    dog = n(VarGet("RM_RaDog", "DogTile", T_V2D, -2200, -300))
+    dog2 = n(VarGet("RM_RaDog2", "DogTile", T_V2D, -2200, -100))
+    dog3 = n(VarGet("RM_RaDog3", "DogTile", T_V2D, -1800, 100))
+
+    pred = call("RM_RaPredict", "Predict", -3000, -1000, lib=SELF_CTX)
+    pred.pin("Predicted", "out", T_V2D)
+
+    before = call("RM_RaBefore", "Manhattan", -1900, -350, lib=SELF_CTX,
+                  )
+    before.pin("A", "in", T_V2D)
+    before.pin("B", "in", T_V2D)
+    before.pin("Distance", "out", T_INT, "0")
+    vlink(rex, before, "A")
+    vlink(dog, before, "B")
+
+    move_a = call("RM_RaMoveA", "StepToward", -1700, -600, lib=SELF_CTX)
+    move_a.pin("From", "in", T_V2D)
+    move_a.pin("Target", "in", T_V2D)
+    move_a.pin("Step", "out", T_V2D)
+    vlink(rex2, move_a, "From")
+    link(pred, "Predicted", move_a, "Target")
+
+    dist_a = call("RM_RaDistA", "Manhattan", -1450, -600, lib=SELF_CTX)
+    dist_a.pin("A", "in", T_V2D)
+    dist_a.pin("B", "in", T_V2D)
+    dist_a.pin("Distance", "out", T_INT, "0")
+    link(move_a, "Step", dist_a, "A")
+    vlink(dog2, dist_a, "B")
+
+    veto = call("RM_RaVeto", "Greater_IntInt", -1250, -600)
+    veto.pin("A", "in", T_INT, "0")
+    veto.pin("B", "in", T_INT, "0")
+    veto.pin("ReturnValue", "out", T_BOOL)
+    link(dist_a, "Distance", veto, "A")
+    link(before, "Distance", veto, "B")
+
+    move_b = call("RM_RaMoveB", "StepToward", -1700, -100, lib=SELF_CTX)
+    move_b.pin("From", "in", T_V2D)
+    move_b.pin("Target", "in", T_V2D)
+    move_b.pin("Step", "out", T_V2D)
+    vlink(rex3, move_b, "From")
+    vlink(dog3, move_b, "Target")
+
+    # ---- final = A + veto * (B - A) ---------------------------------------
+    vf = call("RM_RaVetoI", "Conv_BoolToInt", -1080, -600)
+    vf.pin("InBool", "in", T_BOOL, "false")
+    vf.pin("ReturnValue", "out", T_INT)
+    link(veto, "ReturnValue", vf, "InBool")
+    vd = call("RM_RaVetoD", "Conv_IntToDouble", -940, -600)
+    vd.pin("InInt", "in", T_INT, "0")
+    vd.pin("ReturnValue", "out", T_DOUBLE)
+    link(vf, "ReturnValue", vd, "InInt")
+
+    ba = call("RM_RaBrA", "BreakVector2D", -1450, -420)
+    ba.pin("InVec", "in", T_V2D)
+    ba.pin("X", "out", T_DOUBLE, "0.0")
+    ba.pin("Y", "out", T_DOUBLE, "0.0")
+    link(move_a, "Step", ba, "InVec")
+    bb = call("RM_RaBrB", "BreakVector2D", -1450, -100)
+    bb.pin("InVec", "in", T_V2D)
+    bb.pin("X", "out", T_DOUBLE, "0.0")
+    bb.pin("Y", "out", T_DOUBLE, "0.0")
+    link(move_b, "Step", bb, "InVec")
+
+    final = call("RM_RaFinal", "MakeVector2D", -400, -300)
+    for axis, row in (("X", -350), ("Y", -180)):
+        d = call("RM_RaD%s" % axis, "Subtract_DoubleDouble", -1150, row)
+        d.pin("A", "in", T_DOUBLE, "0.0")
+        d.pin("B", "in", T_DOUBLE, "0.0")
+        d.pin("ReturnValue", "out", T_DOUBLE)
+        link(bb, axis, d, "A")
+        link(ba, axis, d, "B")
+        m = call("RM_RaM%s" % axis, "Multiply_DoubleDouble", -900, row)
+        m.pin("A", "in", T_DOUBLE, "0.0")
+        m.pin("B", "in", T_DOUBLE, "0.0")
+        m.pin("ReturnValue", "out", T_DOUBLE)
+        link(d, "ReturnValue", m, "A")
+        link(vd, "ReturnValue", m, "B")
+        a = call("RM_RaA%s" % axis, "Add_DoubleDouble", -650, row)
+        a.pin("A", "in", T_DOUBLE, "0.0")
+        a.pin("B", "in", T_DOUBLE, "0.0")
+        a.pin("ReturnValue", "out", T_DOUBLE)
+        link(ba, axis, a, "A")
+        link(m, "ReturnValue", a, "B")
+        final.pin(axis, "in", T_DOUBLE, "0.0")
+        link(a, "ReturnValue", final, axis)
+    final.pin("ReturnValue", "out", T_V2D)
+
+    # ---- did it move ------------------------------------------------------
+    movedist = call("RM_RaMoveDist", "Manhattan", -200, 400, lib=SELF_CTX)
+    movedist.pin("A", "in", T_V2D)
+    movedist.pin("B", "in", T_V2D)
+    movedist.pin("Distance", "out", T_INT, "0")
+    link(final, "ReturnValue", movedist, "A")
+    vlink(rex4, movedist, "B")
+    moved = call("RM_RaMoved", "Greater_IntInt", 0, 400)
+    moved.pin("A", "in", T_INT, "0")
+    moved.pin("B", "in", T_INT, "0")
+    moved.pin("ReturnValue", "out", T_BOOL)
+    link(movedist, "Distance", moved, "A")
+
+    mi = call("RM_RaMovedI", "Conv_BoolToInt", 160, 400)
+    mi.pin("InBool", "in", T_BOOL, "false")
+    mi.pin("ReturnValue", "out", T_INT)
+    link(moved, "ReturnValue", mi, "InBool")
+    md = call("RM_RaMovedD", "Conv_IntToDouble", 300, 400)
+    md.pin("InInt", "in", T_INT, "0")
+    md.pin("ReturnValue", "out", T_DOUBLE)
+    link(mi, "ReturnValue", md, "InInt")
+
+    # ---- charge -----------------------------------------------------------
+    pursuit = n(VarGet("RM_RaPursuit", "PursuitCost", T_DOUBLE, 300, 560))
+    hold = n(VarGet("RM_RaHold", "HoldCost", T_DOUBLE, 300, 640))
+    hold2 = n(VarGet("RM_RaHold2", "HoldCost", T_DOUBLE, 300, 720))
+    solar = n(VarGet("RM_RaSolar", "SolarRecovery", T_DOUBLE, 300, 800))
+    charge = n(VarGet("RM_RaCharge", "Charge", T_DOUBLE, 300, 880))
+    startc = n(VarGet("RM_RaStart", "StartCharge", T_DOUBLE, 300, 960))
+
+    gap = call("RM_RaGap", "Subtract_DoubleDouble", 480, 580)
+    gap.pin("A", "in", T_DOUBLE, "0.0")
+    gap.pin("B", "in", T_DOUBLE, "0.0")
+    gap.pin("ReturnValue", "out", T_DOUBLE)
+    vlink(pursuit, gap, "A")
+    vlink(hold, gap, "B")
+
+    scaled = call("RM_RaScaled", "Multiply_DoubleDouble", 640, 580)
+    scaled.pin("A", "in", T_DOUBLE, "0.0")
+    scaled.pin("B", "in", T_DOUBLE, "0.0")
+    scaled.pin("ReturnValue", "out", T_DOUBLE)
+    link(gap, "ReturnValue", scaled, "A")
+    link(md, "ReturnValue", scaled, "B")
+
+    cost = call("RM_RaCost", "Add_DoubleDouble", 800, 580)
+    cost.pin("A", "in", T_DOUBLE, "0.0")
+    cost.pin("B", "in", T_DOUBLE, "0.0")
+    cost.pin("ReturnValue", "out", T_DOUBLE)
+    vlink(hold2, cost, "A")
+    link(scaled, "ReturnValue", cost, "B")
+
+    spent = call("RM_RaSpent", "Subtract_DoubleDouble", 960, 700)
+    spent.pin("A", "in", T_DOUBLE, "0.0")
+    spent.pin("B", "in", T_DOUBLE, "0.0")
+    spent.pin("ReturnValue", "out", T_DOUBLE)
+    vlink(charge, spent, "A")
+    link(cost, "ReturnValue", spent, "B")
+
+    recovered = call("RM_RaRecov", "Add_DoubleDouble", 1120, 700)
+    recovered.pin("A", "in", T_DOUBLE, "0.0")
+    recovered.pin("B", "in", T_DOUBLE, "0.0")
+    recovered.pin("ReturnValue", "out", T_DOUBLE)
+    link(spent, "ReturnValue", recovered, "A")
+    vlink(solar, recovered, "B")
+
+    clamped = call("RM_RaClamp", "FClamp", 1280, 700)
+    clamped.pin("Value", "in", T_DOUBLE, "0.0")
+    clamped.pin("Min", "in", T_DOUBLE, "0.0")
+    clamped.pin("Max", "in", T_DOUBLE, "0.0")
+    clamped.pin("ReturnValue", "out", T_DOUBLE)
+    link(recovered, "ReturnValue", clamped, "Value")
+    vlink(startc, clamped, "Max")
+
+    # ---- the two writes, in an exec chain ----------------------------------
+    # Deliberately the top-left of the block. UE pastes a selection so its
+    # bounding box lands at the mouse, so putting the two nodes that need
+    # hand-wiring furthest up-left drops them next to the entry and return
+    # nodes, instead of 4000 units away at the far end of the fan-out.
+    set_rex = n(VarSet("RM_RaSetRex", "RexTile", T_V2D, -3000, -1200))
+    set_charge = n(VarSet("RM_RaSetCharge", "Charge", T_DOUBLE, -2750, -1200))
+    for i, t in enumerate(final.pins):
+        if t[0] == "ReturnValue":
+            final.pins[i] = (t[:4] + (list(t[4]) + [(set_rex.name, set_rex.pid("RexTile"))],)
+                             + t[5:])
+    set_rex.value_links.append((final.name, final.pid("ReturnValue")))
+    # Charge is written FIRST, and the order is load-bearing.
+    #
+    # "Did Rex move" is Manhattan(final, RexTile) > 0, and RexTile there is a
+    # pure Get. UE evaluates a pure chain at the moment the impure node that
+    # consumes it runs, not once up front -- so with the writes the other way
+    # round, that Get ran after RexTile had already become `final`, the
+    # distance was always 0, `moved` was always false, and Rex paid HoldCost
+    # for a move it had just made. The self-test read 1.0 where it expected 94
+    # and that is the only reason this was noticed; it compiled clean and the
+    # veto assertion beside it still passed.
+    #
+    # Nothing in the charge chain wants the new RexTile, so doing the write
+    # that invalidates the read last is enough.
+    set_charge.exec_out.append((set_rex.name, set_rex.pid("execute")))
+    set_rex.exec_in.append((set_charge.name, set_charge.pid("then")))
+    set_charge.value_links.append((clamped.name, clamped.pid("ReturnValue")))
+    for i, t in enumerate(clamped.pins):
+        if t[0] == "ReturnValue":
+            clamped.pins[i] = (t[:4] + (list(t[4])
+                               + [(set_charge.name, set_charge.pid("Charge"))],) + t[5:])
+    return nodes
+
+
 MANHATTAN_GUID = "ED02AD0F4DA7F45E772004BAD7F4BC10"
 
 
@@ -1161,6 +1507,104 @@ def selftest():
         print_line(tag, "StepToward (%g,%g)->(%g,%g) expect %s got "
                    % (fx, fy, tx, ty, expect), j2, "ReturnValue")
 
+    def veto_case():
+        """The One Wow, asserted.
+
+        Dog at (0,0), Rex at (0,1), one "right" in the move history. Predict
+        reads that as the dog stepping to (1,0), and StepToward(Rex, (1,0))
+        goes right, to (1,1) -- which is two tiles from the dog when Rex was
+        one tile away. Rex would have followed its own prediction away from
+        the thing it is chasing.
+
+        The veto catches exactly that and falls back to StepToward(Rex, Dog),
+        which is (0,0). So a passing run prints 0.0,0.0 and a build with the
+        veto removed prints 1.0,1.0 -- the assertion fails loudly rather than
+        the fight quietly becoming free, which is GDD 6.1's whole point.
+
+        Charge is checked in the same breath: Rex moved, so it pays PursuitCost
+        8 and recovers SolarRecovery 2, 100 - 8 + 2 = 94.
+        """
+        nonlocal prev_print, y
+        # A struct pin literal serialises as UE writes it: "(X=..,Y=..)".
+        setdog = VarSet("RM_VtDog", "DogTile", T_V2D, -1300, y_of(),
+                        value_default="(X=0.000000,Y=0.000000)")
+        setrex = VarSet("RM_VtRex", "RexTile", T_V2D, -1100, y_of(),
+                        value_default="(X=0.000000,Y=1.000000)")
+        moves = VarGet("RM_VtMoves", "Moves",
+                       'PinType.PinCategory="string",PinType.PinSubCategory="",'
+                       'PinType.PinSubCategoryObject=None',
+                       -1000, y_of() + 120, tail=TAIL_ARRAY)
+        add = ArrayAdd("RM_VtAdd", -900, y_of())
+        act = Node("RM_VtAct", "RexAct", -700, y_of(), lib=SELF_CTX, pure=False)
+        act.pin("execute", "in", T_EXEC)
+        act.pin("then", "out", T_EXEC)
+        act.pin("Predicted", "out", T_V2D)
+
+        # dog (0,0) and rex (0,1) go in as pin literals on the setters
+        setdog.value_links = []
+        setrex.value_links = []
+        nodes.extend([setdog, setrex, moves, add, act])
+
+        head = prev_print if prev_print is not None else begin
+        setdog.exec_in.append((head.name, head.pid("then")))
+        if prev_print is None:
+            begin.pin("then", "out", T_EXEC, None, [(setdog.name, setdog.pid("execute"))])
+        else:
+            for i, t in enumerate(prev_print.pins):
+                if t[0] == "then":
+                    prev_print.pins[i] = (t[:4]
+                                          + ([(setdog.name, setdog.pid("execute"))],)
+                                          + t[5:])
+        setdog.exec_out.append((setrex.name, setrex.pid("execute")))
+        setrex.exec_in.append((setdog.name, setdog.pid("then")))
+        setch = VarSet("RM_VtSetCh", "Charge", T_DOUBLE, -1000, y_of() - 80,
+                       value_default="100.0")
+        nodes.append(setch)
+        setrex.exec_out.append((setch.name, setch.pid("execute")))
+        setch.exec_in.append((setrex.name, setrex.pid("then")))
+        setch.exec_out.append((add.name, add.pid("execute")))
+        add.exec_in.append((setch.name, setch.pid("then")))
+        add.exec_out.append((act.name, act.pid("execute")))
+        act.pins[0] = act.pins[0][:4] + ([(add.name, add.pid("then"))],) + act.pins[0][5:]
+        add.array_links.append((moves.name, moves.out_pin()))
+        moves.links.append((add.name, add.pid("TargetArray")))
+        add.item_default = "right"
+
+        prev_print = act          # the next print chains off RexAct's then
+
+        # read the tile back and print it
+        rex = VarGet("RM_VtOut", "RexTile", T_V2D, -500, y_of() + 140)
+        br = Node("RM_VtBr", "BreakVector2D", -380, y_of() + 140)
+        cx = Node("RM_VtCX", "Conv_DoubleToString", -260, y_of() + 140, lib=STR)
+        cy = Node("RM_VtCY", "Conv_DoubleToString", -260, y_of() + 200, lib=STR)
+        j1 = Node("RM_VtJ1", "Concat_StrStr", -140, y_of() + 140, lib=STR)
+        j2 = Node("RM_VtJ2", "Concat_StrStr", -60, y_of() + 140, lib=STR)
+        br.pin("InVec", "in", T_V2D, None, [(rex.name, rex.out_pin())])
+        rex.links.append((br.name, br.pid("InVec")))
+        br.pin("X", "out", T_DOUBLE, "0.0", [(cx.name, cx.pid("InDouble"))])
+        br.pin("Y", "out", T_DOUBLE, "0.0", [(cy.name, cy.pid("InDouble"))])
+        cx.pin("InDouble", "in", T_DOUBLE, "0.0", [(br.name, br.pid("X"))])
+        cx.pin("ReturnValue", "out", T_STR, None, [(j1.name, j1.pid("A"))])
+        cy.pin("InDouble", "in", T_DOUBLE, "0.0", [(br.name, br.pid("Y"))])
+        cy.pin("ReturnValue", "out", T_STR, None, [(j2.name, j2.pid("B"))])
+        j1.pin("A", "in", T_STR, None, [(cx.name, cx.pid("ReturnValue"))])
+        j1.pin("B", "in", T_STR, ",")
+        j1.pin("ReturnValue", "out", T_STR, None, [(j2.name, j2.pid("A"))])
+        j2.pin("A", "in", T_STR, None, [(j1.name, j1.pid("ReturnValue"))])
+        j2.pin("B", "in", T_STR, None, [(cy.name, cy.pid("ReturnValue"))])
+        j2.pin("ReturnValue", "out", T_STR, None)
+        nodes.extend([rex, br, cx, cy, j1, j2])
+        print_line("V", "RexAct veto: dog(0,0) rex(0,1) moves[right] "
+                        "expect rex 0.0,0.0 got ", j2, "ReturnValue")
+
+        ch = VarGet("RM_VtCh", "Charge", T_DOUBLE, -500, y_of() + 140)
+        cc = Node("RM_VtCC", "Conv_DoubleToString", -300, y_of() + 140, lib=STR)
+        cc.pin("InDouble", "in", T_DOUBLE, "0.0", [(ch.name, ch.out_pin())])
+        ch.links.append((cc.name, cc.pid("InDouble")))
+        cc.pin("ReturnValue", "out", T_STR, None)
+        nodes.extend([ch, cc])
+        print_line("W", "RexAct charge: expect 94 got ", cc, "ReturnValue")
+
     def band_case(tag, charge, expect):
         bd = Node("RM_BD" + tag, "Band", -650, y, lib=SELF_CTX)
         bd.pin("Charge", "in", T_DOUBLE, "%.1f" % charge)
@@ -1198,12 +1642,16 @@ def selftest():
     steptoward_case("L", 5, 5, 5, 2, "5.0,4.0")    # dx is 0, so Y moves
     steptoward_case("M", 0, 3, -1, 0, "0.0,2.0")   # left is off-grid: falls to up
     steptoward_case("N", 9, 9, 9, 0, "9.0,8.0")    # against the far fence
+    # Last, because unlike every case above it writes state: it sets DogTile,
+    # RexTile and Moves so that following the prediction would walk Rex away
+    # from the dog, and then checks that the veto did not let it.
+    veto_case()
     return nodes
 
 
 GRAPHS = {"manhattan": manhattan, "band": band, "inbounds": inbounds,
           "approach": approach, "tiletoworld": tiletoworld,
-          "steptoward": steptoward, "predict": predict,
+          "steptoward": steptoward, "predict": predict, "rexact": rexact,
           "selftest": selftest}
 
 if __name__ == "__main__":
