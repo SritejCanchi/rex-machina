@@ -34,22 +34,39 @@ Two leaves are already done and verified: the **variables** (24, constants read
 back off the compiled CDO) and the **data** (42 rows, 56/56 columns).
 Everything else is open.
 
-## 3. The unlock: generate graphs as text, do not wire them
+## 3. The unlock: generate graphs as text -- CONFIRMED WORKING
 
 UE serialises selected Blueprint nodes to the clipboard as text and rebuilds
-them on paste, wires included -- this is what blueprintue.com is built on.
-That turns roughly 400 hand-placed nodes and every wire drag into: generate
-text, paste, compile.
+them on paste, wires included. This was tested end to end on `Manhattan`:
+`tools/bp_gen.py` emitted 8 nodes and every internal wire, the paste
+materialised the whole graph, and it compiled in 312 ms. `Manhattan` is now
+built, wired, compiled and saved -- and it was generated, not hand-placed.
 
-It also makes the graphs **diffable and reproducible**: the node text lives in
-the repo next to the pipelines, so regenerating the fight becomes a command,
-exactly like regenerating the DataTables.
+So the graphs are diffable and reproducible: the generator lives in the repo
+next to the pipelines, and regenerating the fight is a command.
 
-**Validate it before relying on it.** Hand-build `Manhattan` once (8 nodes),
-select all, copy, and read the clipboard. That yields a known-good sample of the
-exact format for this engine version. Only then generate the rest. If the
-round-trip does not reproduce, fall back to hand-wiring Tier 0 only and cut
-Tier 1.
+**What the experiment established, all verified in the editor:**
+
+- Both directions work. Reading gives an exact template; writing rebuilds it.
+- **Wires resolve only inside the pasted set.** `LinkedTo` pointing at a node
+  that already exists in the graph is silently dropped. So a generated body
+  cannot stitch itself onto the pre-existing entry node.
+- **The function entry node cannot be deleted; the result node can.** So the
+  result can be generated, but the entry's parameters must be connected by
+  hand.
+- Net cost per function: **two or three manual wires**, not thirty.
+- Under large world coordinates a Blueprint float is a double and serialises as
+  `PinType.PinCategory="real"` with `PinType.PinSubCategory="double"`. Emit
+  `"float"` and the pin silently mismatches.
+- `MemberParent` quoting is exact:
+  `MemberParent="/Script/CoreUObject.Class'/Script/Engine.KismetMathLibrary'"`
+- Every KismetMathLibrary member name resolved first try: `BreakVector2D`,
+  `Subtract_DoubleDouble`, `Abs`, `Add_DoubleDouble`, `FTrunc`.
+
+**One hazard.** Dropping a wire *near* a result pin rather than *on* it makes
+UE silently add a new output parameter to the function signature. It compiles
+clean and looks right. Check the Details panel after wiring a return, and undo
+if an unexpected pin appears.
 
 ## 4. The verification problem, and the answer
 
