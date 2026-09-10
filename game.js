@@ -558,13 +558,23 @@ function describe(t){
 // does not look like one still image and the round count is felt as well as
 // read. The pieces keep their colours; only the ground moves.
 const THEMES = [
-  { name: "night yard",   a: "#243038", b: "#182027", line: "#0e1418", glow: "#3d5a6e" },
-  { name: "sodium floods",a: "#3a2c14", b: "#26200f", line: "#15110a", glow: "#8a6420" },
-  { name: "moonlit",      a: "#262c48", b: "#1a1f36", line: "#0f1224", glow: "#4a5490" },
-  { name: "rust and ballast", a: "#3a2620", b: "#281a16", line: "#160e0c", glow: "#7a3e2e" },
-  { name: "wet concrete", a: "#2e3236", b: "#212427", line: "#121415", glow: "#5a6066" },
-  { name: "grass at dusk",a: "#243422", b: "#182417", line: "#0e150d", glow: "#3f6a3a" },
-  { name: "porch light",  a: "#3b3320", b: "#282316", line: "#16130c", glow: "#9a7a2a" }
+  // Each one is a place, not a tint. Two floor colours far enough apart to
+  // read as a floor, a sky wash, a glow for the frame, and a set dressing
+  // pass (deco) drawn from a fixed seed so it holds still between frames.
+  { name: "grass at dusk",    a: "#3e7a3a", b: "#346a35", line: "#264d28", glow: "#8fd17a",
+    sky: "rgba(230,120,40,.28)", deco: "grass" },
+  { name: "night yard",       a: "#22334f", b: "#1a2942", line: "#0f1a2c", glow: "#5f8fd0",
+    sky: "rgba(20,30,70,.35)",  deco: "stars" },
+  { name: "sodium floods",    a: "#7a5416", b: "#654410", line: "#3e2a08", glow: "#ffb52e",
+    sky: "rgba(255,190,60,.22)", deco: "flood" },
+  { name: "moonlit",          a: "#46407c", b: "#3a3468", line: "#241f45", glow: "#a9a0ff",
+    sky: "rgba(200,205,255,.16)", deco: "moon" },
+  { name: "rust and ballast", a: "#7a3a28", b: "#652f20", line: "#3d1c12", glow: "#e8744e",
+    sky: "rgba(60,20,10,.3)",  deco: "rails" },
+  { name: "wet concrete",     a: "#4f5964", b: "#434c56", line: "#2a3038", glow: "#9fb4c8",
+    sky: "rgba(120,150,180,.18)", deco: "puddles" },
+  { name: "porch light",      a: "#6a5420", b: "#59461a", line: "#362b0e", glow: "#ffd27a",
+    sky: "rgba(255,210,120,.2)", deco: "porch" }
 ];
 let THEME = THEMES[0];
 function rollTheme(){
@@ -572,6 +582,57 @@ function rollTheme(){
   while(t === THEME) t = THEMES[Math.floor(Math.random() * THEMES.length)];
   THEME = t;
   const tp = $("tip"); if(tp) tp.textContent = "Round " + S.round + ". " + THEME.name + ".";
+}
+// a tiny seeded generator so the set dressing does not jitter every frame
+function seeded(seed){ let x = seed | 0 || 1; return () => { x ^= x << 13; x ^= x >>> 17; x ^= x << 5; return ((x >>> 0) % 10000) / 10000; }; }
+function deco(g, w, h, T, now){
+  const W = w*T, H = h*T, r = seeded(THEME.name.length * 7919 + 17);
+  g.save();
+  if(THEME.deco === "grass"){
+    g.strokeStyle = "rgba(170,230,120,.55)"; g.lineWidth = 1.5;
+    for(let i=0;i<70;i++){ const x = r()*W, y = r()*H, l = 4 + r()*6;
+      g.beginPath(); g.moveTo(x, y); g.lineTo(x - 2 + r()*4, y - l); g.stroke(); }
+    const sky = g.createLinearGradient(0,0,0,H); sky.addColorStop(0,"rgba(255,140,50,.35)"); sky.addColorStop(.6,"rgba(255,140,50,0)");
+    g.fillStyle = sky; g.fillRect(0,0,W,H);
+  } else if(THEME.deco === "stars"){
+    for(let i=0;i<60;i++){ const tw = 0.5 + 0.5*Math.sin(now/600 + i);
+      g.fillStyle = "rgba(255,255,255," + (0.25 + 0.6*tw*r()) + ")"; g.fillRect(r()*W, r()*H*0.6, 1.5, 1.5); }
+    const moon = g.createRadialGradient(W-50, 40, 4, W-50, 40, 90);
+    moon.addColorStop(0,"rgba(220,230,255,.45)"); moon.addColorStop(1,"rgba(220,230,255,0)");
+    g.fillStyle = moon; g.fillRect(0,0,W,H);
+  } else if(THEME.deco === "flood"){
+    const cone = g.createRadialGradient(W/2, -20, 10, W/2, -20, H*1.1);
+    cone.addColorStop(0,"rgba(255,220,120,.55)"); cone.addColorStop(.5,"rgba(255,200,90,.18)"); cone.addColorStop(1,"rgba(255,200,90,0)");
+    g.fillStyle = cone; g.fillRect(0,0,W,H);
+    g.fillStyle = "rgba(255,230,150,.9)"; g.fillRect(W/2-14, 0, 28, 4);
+  } else if(THEME.deco === "moon"){
+    const beam = g.createLinearGradient(0,0,W,H); beam.addColorStop(0,"rgba(220,225,255,.22)"); beam.addColorStop(.5,"rgba(220,225,255,0)"); beam.addColorStop(1,"rgba(220,225,255,.12)");
+    g.fillStyle = beam; g.fillRect(0,0,W,H);
+    g.fillStyle = "rgba(0,0,20,.35)";
+    for(let i=0;i<5;i++){ const x = r()*W; g.fillRect(x, 0, 6 + r()*10, H); }
+  } else if(THEME.deco === "rails"){
+    g.fillStyle = "rgba(0,0,0,.25)";
+    for(let i=0;i<120;i++) g.fillRect(r()*W, r()*H, 2, 2);
+    const y1 = H*0.35, y2 = H*0.68;
+    g.strokeStyle = "rgba(40,20,10,.7)"; g.lineWidth = 6;
+    for(let x=10;x<W;x+=26){ g.beginPath(); g.moveTo(x, y1-8); g.lineTo(x, y2+8); g.stroke(); }
+    g.strokeStyle = "#c9c2b8"; g.lineWidth = 3;
+    for(const y of [y1, y2]){ g.beginPath(); g.moveTo(0,y); g.lineTo(W,y); g.stroke(); }
+  } else if(THEME.deco === "puddles"){
+    for(let i=0;i<9;i++){ const x = r()*W, y = r()*H, rx = 14 + r()*22, ry = 5 + r()*8;
+      const pg = g.createRadialGradient(x, y, 1, x, y, rx);
+      pg.addColorStop(0,"rgba(170,200,230,.45)"); pg.addColorStop(1,"rgba(170,200,230,.05)");
+      g.fillStyle = pg; g.beginPath(); g.ellipse(x, y, rx, ry, 0, 0, Math.PI*2); g.fill(); }
+    g.strokeStyle = "rgba(200,220,240,.12)"; g.lineWidth = 1;
+    for(let i=0;i<25;i++){ const x = r()*W, y = r()*H; g.beginPath(); g.moveTo(x,y); g.lineTo(x+1, y+8); g.stroke(); }
+  } else if(THEME.deco === "porch"){
+    const y = (h-1)*T, x0 = Math.min(4, w-3)*T;
+    const lamp = g.createLinearGradient(0, y-T, 0, y+T); lamp.addColorStop(0,"rgba(255,220,130,.0)"); lamp.addColorStop(1,"rgba(255,220,130,.6)");
+    g.fillStyle = lamp; g.fillRect(x0, y - T, 3*T, 2*T);
+    g.fillStyle = "rgba(255,230,160,.55)"; g.fillRect(x0, y, 3*T, T);
+    g.fillStyle = "rgba(255,240,200,.9)"; g.fillRect(x0 + 1.5*T - 5, y + T - 6, 10, 6);
+  }
+  g.restore();
 }
 
 // ------------------------------------------------------------ the board
@@ -595,7 +656,7 @@ function boardSync(){
   // the next paint can slide them from there to where the state says they are.
   const c = $("board");
   if(!c) return;
-  if(BOARD.lastRound !== S.round){ BOARD.lastRound = S.round; if(S.round > 0) rollTheme(); }
+  if(BOARD.lastRound !== S.round){ BOARD.lastRound = S.round; rollTheme(); }
   if(!BOARD.dog || S.round === 0){ BOARD.dog = S.dog.slice(); BOARD.rex = S.rex.slice(); BOARD.dogFrom = BOARD.rexFrom = null; }
   if(!eq(BOARD.dog, S.dog) || !eq(BOARD.rex, S.rex)){
     BOARD.dogFrom = BOARD.dog.slice(); BOARD.rexFrom = BOARD.rex.slice();
@@ -638,18 +699,26 @@ function paint(now){
   const dogPos = lerpPos(BOARD.dogFrom, BOARD.dog, k);
   const rexPos = lerpPos(BOARD.rexFrom, BOARD.rex, k);
 
-  // floor: a yard at night, two greys, a hair of grid
+  // floor: the place this round happens in. Two colours, then the set
+  // dressing for the theme, then a thin grid so tiles still count.
   for(let y=0;y<h;y++) for(let x=0;x<w;x++){
     g.fillStyle = (x+y)%2 ? THEME.a : THEME.b;
     g.fillRect(x*T, y*T, T, T);
   }
+  g.fillStyle = THEME.sky; g.fillRect(0, 0, w*T, h*T);
+  deco(g, w, h, T, now);
   const wash = g.createRadialGradient(w*T/2, h*T/2, 20, w*T/2, h*T/2, w*T*0.75);
-  wash.addColorStop(0, "rgba(255,255,255,0)"); wash.addColorStop(1, "rgba(0,0,0,.42)");
+  wash.addColorStop(0, "rgba(255,255,255,0)"); wash.addColorStop(1, "rgba(0,0,0,.28)");
   g.fillStyle = wash; g.fillRect(0, 0, w*T, h*T);
-  c.style.borderColor = THEME.glow; c.style.boxShadow = "0 0 24px " + THEME.glow + "55";
+  c.style.borderColor = THEME.glow; c.style.boxShadow = "0 0 28px " + THEME.glow + "77";
   g.strokeStyle = THEME.line; g.lineWidth = 1;
   for(let i=0;i<=w;i++){ g.beginPath(); g.moveTo(i*T+.5,0); g.lineTo(i*T+.5,h*T); g.stroke(); }
   for(let i=0;i<=h;i++){ g.beginPath(); g.moveTo(0,i*T+.5); g.lineTo(w*T,i*T+.5); g.stroke(); }
+  // the theme, named in the corner, so a change of place is never a guess
+  g.font = "bold 9px ui-monospace, Menlo, Consolas, monospace"; g.textAlign = "right"; g.textBaseline = "top";
+  const tn = "ROUND " + S.round + " \u00b7 " + THEME.name.toUpperCase(), tw = g.measureText(tn).width + 10;
+  g.fillStyle = "rgba(13,15,17,.7)"; g.fillRect(w*T - tw - 4, 4, tw, 14);
+  g.fillStyle = THEME.glow; g.fillText(tn, w*T - 9, 6);
 
   // exits and cover, from the phase row
   for(const e of (p.ExitTiles||[])){
