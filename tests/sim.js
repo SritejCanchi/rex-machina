@@ -22,24 +22,29 @@ G.DT.phases  = G.DT.DT_ArenaPhases.slice().sort((a,b)=>a.PhaseIndex-b.PhaseIndex
 let pass = 0, fail = 0;
 const ok = (c, label) => { if (c) pass++; else { fail++; console.log("  FAIL " + label); } };
 
-// ---- the optimal line: seven right, four down --------------------------
-const OPTIMAL = ["right","right","right","right","right","right","right",
-                 "down","down","down","down"];
+// ---- the winning line: searched, not scripted ---------------------------
+// The robot is deterministic given the dog's moves, so game.js can search
+// for the shortest line to the kid. Pieces are solid, so the old straight
+// line through the robot no longer exists; whatever line the search finds
+// from the gate is the proof the fight is fair.
+const OPTIMAL = "planned";
 
 function play(fails, limping, moves) {
   G.S.totalFails = fails; G.S.limping = limping; G.S.priorAttempt = null;
   G.S.attempts = 0;
   G.beginFight();
-  for (const m of moves) { if (G.S.over) break; G.mv(m); }
+  const line = [];
+  if (moves === "planned") { while (!G.S.over && line.length < 40) { const d = G.autoPlan().dir; line.push(d); G.mv(d); } }
+  else for (const m of moves) { if (G.S.over) break; G.mv(m); }
   return { over: G.S.over, won: G.approach() >= 1, stamina: G.S.stamina,
-           rounds: G.S.round, charge: G.S.charge, band: G.band() };
+           rounds: G.S.round, charge: G.S.charge, band: G.band(), line };
 }
 
 for (const f of [0,1,2,3,6]) {
   const r = play(f, f > 0, OPTIMAL);
-  ok(r.won, "the optimal line wins after " + f + " failed encounters");
-  if (r.won) console.log("    %d fails -> win in %d rounds, %d stamina left, charge %d%%, %s",
-                         f, r.rounds, r.stamina, Math.round(r.charge), r.band);
+  ok(r.won, "a winning line exists after " + f + " failed encounters");
+  if (r.won) console.log("    %d fails -> win in %d rounds, %d stamina left, charge %d%%, %s: %s",
+                         f, r.rounds, r.stamina, Math.round(r.charge), r.band, r.line.join(" "));
 }
 
 // a wandering line must lose, or the fight is not a fight
@@ -51,8 +56,8 @@ ok(!play(0, false, WANDER).won, "a wandering line loses even after a clean journ
 {
   G.S.totalFails = 0; G.beginFight();
   let vetoHeld = true;
-  for (const m of OPTIMAL) {
-    if (G.S.over) break;
+  for (let n = 0; n < 40 && !G.S.over; n++) {
+    const m = G.autoPlan().dir;
     const before = G.man(G.S.rex, G.S.dog);
     G.mv(m);
     if (G.man(G.S.rex, G.S.dog) > before + 1) vetoHeld = false;

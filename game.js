@@ -343,7 +343,7 @@ function drawFight(){
        ["charge", Math.round(S.charge) + "%"], ["register", band()]]);
   const T = BOARD.T;
   let t = "<div class='boardwrap'><canvas id='board' width='" + (w*T) + "' height='" + (h*T) + "'></canvas></div>";
-  t = ctlRow("Act 3 &middot; " + p.ArenaName + " &middot; " + THEME.name) + t;
+  t = ctlRow("Act 3 &middot; " + p.ArenaName) + t;
   t += "<div class='tip' id='tip'>Tap or hover anything on the board to see what it is.</div>";
   t += "<div class='legend'>" +
        "<span><i class='sw you'></i>you, the dog</span>" +
@@ -406,7 +406,7 @@ function stepToward(from, target){
   let best = from, bd = man(from, target);
   for(const d in STEP){
     const c = [from[0]+STEP[d][0], from[1]+STEP[d][1]];
-    if(!inBounds(c)) continue;
+    if(!inBounds(c) || eq(c, S.dog)) continue;   // solid: it stops beside you, not on you
     if(man(c, target) < bd){ best = c; bd = man(c, target); }
   }
   return best;
@@ -484,6 +484,12 @@ function mv(dir){
       // RM-003, found by qa/adversary.js: a rejected move changed nothing at
       // all, so a player holding a key at the edge saw a frozen game.
       say("<span class='sys'>The fence is there. Nothing on that side.</span>");
+      return;
+    }
+    if(eq(t, S.rex)){
+      // Pieces are solid. The old rule let the dog walk through the robot,
+      // which made a straight line the best line and the cut-off a joke.
+      say("<span class='sys'>REX is on that tile. Go round it.</span>");
       return;
     }
     S.dog = t;
@@ -580,7 +586,8 @@ function ctlRow(label){
          "<div class='ctlr'>" + diffSelect() +
          "<button class='" + (AUTO.on ? "primary" : "quiet") + "' onclick='autoToggle()' title='The computer plays from here and says why it does each thing. Any key or button gives you the controls back.'>" +
          (AUTO.on ? "Stop watching" : "Watch the computer") + "</button>" +
-         "<button class='quiet' onclick='location.reload()' title='Back to the first screen'>Reset</button></div></div>";
+         (S.mode === "fight" ? "<button class='quiet' onclick='beginFight()' title='Same journey, new spawn, fresh stamina'>Restart fight</button>" : "") +
+         "<button class='quiet' onclick='location.reload()' title='Back to the first screen'>Restart game</button></div></div>";
 }
 function hintBox(){
   return "<div class='hintbox" + (AUTO.on ? " auto" : "") + "' id='hintbox'><span class='hl'>" + (AUTO.on ? "computer" : "hint") + "</span><span>" + hintFor() + "</span></div>";
@@ -658,15 +665,17 @@ function snapshot(){
            moves: S.moves.slice(), predicted: S.predicted };
 }
 function restore(sn){
-  S.dog = sn.dog; S.rex = sn.rex; S.round = sn.round; S.stamina = sn.stamina; S.charge = sn.charge;
-  S.moves = sn.moves; S.predicted = sn.predicted;
+  // Copies, never the snapshot's own arrays: a later simulated move would
+  // otherwise push into the snapshot and leak into the real game's history.
+  S.dog = sn.dog.slice(); S.rex = sn.rex.slice(); S.round = sn.round; S.stamina = sn.stamina; S.charge = sn.charge;
+  S.moves = sn.moves.slice(); S.predicted = sn.predicted;
 }
 function simMove(dir){
   // the rules of mv() without the words. Grids are all the same size, so
   // the arena advancing changes nothing the planner needs.
   if(dir !== "wait"){
     const t = [S.dog[0]+STEP[dir][0], S.dog[1]+STEP[dir][1]];
-    if(!inBounds(t)) return false;
+    if(!inBounds(t) || eq(t, S.rex)) return false;
     S.dog = t;
   }
   S.moves.push(dir); S.round++;
@@ -674,46 +683,87 @@ function simMove(dir){
   S.stamina = Math.max(0, S.stamina - 1 - (man(S.rex, S.dog) <= 1 ? 1 : 0));
   return true;
 }
+const PLAN = { key: null, rest: [] };
+function stateKey(){ return S.dog + "|" + S.rex + "|" + S.round + "|" + S.stamina + "|" + S.charge + "|" + S.moves.join(","); }
 function autoPlan(){
+  // A line found once holds: REX is deterministic, so as long as the board
+  // is where the line expected it, the next move is already known.
+  if(PLAN.key === stateKey() && PLAN.rest.length){
+    const line = PLAN.rest;
+    return finishPlan(line);
+  }
+  return searchPlan();
+}
+function finishPlan(line){
   const start = snapshot(); QUIET = true;
-  const seen = new Set(); let budget = 60000, best = null;
+  const dir = line[0];
+  simMove(dir); PLAN.key = stateKey(); PLAN.rest = line.slice(1);
+  restore(start); QUIET = false;
+  return explain(dir, true);
+}
+function searchPlan(){
+  // Iterative deepening: the shortest line that reaches the kid, so there
+  // is never a wait or a detour the position did not demand. Among moves
+  // of equal worth, a change of direction is tried before a repeat, so the
+  // line has nothing for REX to read.
+  const start = snapshot(); QUIET = true;
+  let budget = 80000, best = null;
   const options = () => {
     const out = [];
+    const prev = S.moves.length ? S.moves[S.moves.length - 1] : null;
     for(const d in STEP){
       const t = [S.dog[0]+STEP[d][0], S.dog[1]+STEP[d][1]];
-      if(inBounds(t)) out.push([d, man(t, S.kid) + (eq(t, S.rex) ? 2 : 0) + (man(t, S.rex) <= 1 ? 1 : 0)]);
+      if(!inBounds(t) || eq(t, S.rex)) continue;
+      out.push([d, man(t, S.kid) + (man(t, S.rex) <= 1 ? 1 : 0) + (d === prev ? 0.5 : 0)]);
     }
     out.sort((a,b) => a[1] - b[1]);
     out.push(["wait", 99]);
     return out.map(o => o[0]);
   };
-  function dfs(path){
-    if(man(S.dog, S.kid) === 0){ best = path.slice(); return true; }
-    if(S.stamina <= 0 || S.round >= CFG.maxRounds || --budget < 0) return false;
-    const need = man(S.dog, S.kid);
-    if(need > CFG.maxRounds - S.round || need > S.stamina) return false;
-    const key = S.dog + "|" + S.rex + "|" + S.round + "|" + S.stamina + "|" + recentMoves().join(",");
-    if(seen.has(key)) return false;
-    seen.add(key);
-    for(const d of options()){
-      const sn = snapshot();
-      if(simMove(d)){ path.push(d); if(dfs(path)){ restore(sn); return true; } path.pop(); }
-      restore(sn);
-    }
-    return false;
+  const need0 = man(S.dog, S.kid), maxDepth = Math.min(CFG.maxRounds - S.round, S.stamina);
+  for(let limit = need0; limit <= maxDepth && !best && budget > 0; limit++){
+    const seen = new Set();
+    const dfs = (path, left) => {
+      if(man(S.dog, S.kid) === 0){ best = path.slice(); return true; }
+      if(left <= 0 || S.stamina <= 0 || --budget < 0) return false;
+      const need = man(S.dog, S.kid);
+      if(need > left || need > S.stamina) return false;
+      const key = S.dog + "|" + S.rex + "|" + left + "|" + S.stamina + "|" + recentMoves().join(",");
+      if(seen.has(key)) return false;
+      seen.add(key);
+      for(const d of options()){
+        const sn = snapshot();
+        if(simMove(d)){ path.push(d); if(dfs(path, left - 1)){ restore(sn); return true; } path.pop(); }
+        restore(sn);
+      }
+      return false;
+    };
+    dfs([], limit);
+    restore(start);
   }
-  dfs([]);
   restore(start); QUIET = false;
-  let dir = best && best.length ? best[0] : options()[0];
+  if(best && best.length) return finishPlan(best);
+  PLAN.key = null; PLAN.rest = [];
+  return explain(options()[0], false);
+}
+function explain(dir, full){
   // say why, in terms of what is on the board
+  const last = S.moves.length ? S.moves[S.moves.length - 1] : null;
   const t = dir === "wait" ? S.dog : [S.dog[0]+STEP[dir][0], S.dog[1]+STEP[dir][1]];
   const guessed = S.predicted && eq(S.predicted, t);
   let why;
-  if(dir === "wait") why = "Wait. REX has to move anyway and pays charge for it; a round I do not spend walking into its guess.";
-  else if(guessed) why = "Step " + dir + ", onto the \u00d7. It expects this one, but every other tile costs more rounds than I have; the line still ends at her.";
-  else if(man(t, S.kid) < man(S.dog, S.kid)) why = "Step " + dir + ". Closer to her, and not the tile REX is moving to cut off.";
+  if(dir === "wait"){
+    const sn = snapshot(); QUIET = true; simMove("wait"); const pinned = eq(S.rex, sn.rex); restore(sn); QUIET = false;
+    why = pinned
+      ? "Wait. REX is pinned beside me and cannot step. Each wait pushes an old move out of its memory, and the tile it is guarding opens."
+      : "Wait. REX has to move anyway and pays charge for it; a round I do not spend walking into its guess.";
+  }
+  else if(guessed) why = "Step " + dir + ", onto the ×. It expects this one, but every other tile costs more rounds than I have; the line still ends at her.";
+  else if(man(t, S.kid) < man(S.dog, S.kid)) why = dir === last
+    ? "Step " + dir + " again. Still the shortest way to her, and REX is not on it."
+    : "Step " + dir + ". Closer to her, and not the tile REX is moving to cut off.";
   else why = "Step " + dir + ". Sideways for a round, so the next two are not the same way and it has nothing to read.";
-  return { dir, why, full: !!best };
+  return { dir, why, full };
 }
 function ensureWinnable(){
   // A random spawn is only fair if a line to the kid exists. Roll until the
@@ -1069,5 +1119,5 @@ if (typeof module !== "undefined" && module.exports) {
                      predict, stepToward, rexAct, firingCategories, mv, beginFight,
                      drawFight, checkEnd, telegraphTurn, hz, startHazard,
                      dirFreq, periodicity, setSinks, speakRead, fireRetryLine,
-                     namesDirection, dominantDir };
+                     namesDirection, dominantDir, autoPlan };
 }
