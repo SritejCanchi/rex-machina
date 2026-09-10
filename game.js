@@ -37,6 +37,8 @@ function setDiff(name){
   CFG = Object.assign({ name: name }, DIFFS[name]);
   try { localStorage.setItem("rm_diff", name); } catch(e) {}
   if(S.mode === "fight") beginFight();
+  else if(S.mode === "hazard") drawHazard();
+  else if(S.mode === "intro") intro();
 }
 const STEP = {left:[-1,0], right:[1,0], up:[0,-1], down:[0,1]};
 
@@ -108,7 +110,7 @@ function intro(){
       "Act 3: the robot does not chase you. It moves to where it thinks you are about to go, " +
       "and tells you what it measured off your movement.</span>");
   $("stage").innerHTML =
-    "<div class='intro'>" +
+    "<div class='intro'>" + ctlRow() +
     "<div class='btns'>" +
     "<button onclick='startHazard(0)'>Start from the shelter &middot; about 6 minutes</button>" +
     "<button onclick='beginFight()'>Skip to the fight &middot; about 2 minutes</button></div>" +
@@ -155,19 +157,15 @@ function drawHazard(){
   // The window opens the turn AFTER the tell. Breaking on the tell itself is
   // early and is caught, so the hint has to say "hold once more" here, not
   // "break" -- the earlier wording lost five runs in a row for a real player.
-  const hint = S.hzTurn === tt
-    ? "That is the tell. Hold still one more time, then break."
-    : S.hzTurn < tt
-      ? "Hold still until the tell shows in orange. Hold once more after it, then break. " +
-        "Early or late and you are caught."
-      : "Now. Break for it.";
-  body = "<div class='boardwrap'><canvas id='strip' width='440' height='120'></canvas></div>" +
+  body = ctlRow() +
+         "<div class='boardwrap'><canvas id='strip' width='440' height='120'></canvas></div>" +
          "<div class='tip' id='tip'>Tap the strip to see what each figure is.</div>" + body;
   $("stage").innerHTML = body +
     "<div class='btns'><button onclick='hz(\"wait\")'>Hold still</button>" +
     "<button onclick='hz(\"go\")'>Break for it</button>" +
     "<button onclick='beginFight()' style='margin-left:auto;opacity:.7'>Skip to the fight</button></div>" +
-    "<div class='hint'>" + hint + "</div>";
+    "<div class='hint'>Hold still keeps you where you are for a turn. Break for it is the one move that ends the encounter, " +
+    "and it only works on the turn right after the tell.</div>";
   badge("hazard");
   stripSync(h, tt);
 }
@@ -320,9 +318,7 @@ function drawFight(){
        ["charge", Math.round(S.charge) + "%"], ["register", band()]]);
   const T = BOARD.T;
   let t = "<div class='boardwrap'><canvas id='board' width='" + (w*T) + "' height='" + (h*T) + "'></canvas></div>";
-  t = "<div class='ctl'><div class='hintbox' id='hintbox'><span class='hl'>hint</span>" + hintFor() + "</div>" +
-      "<div class='ctlr'>" + diffSelect() +
-      "<button onclick='location.reload()' title='Back to the first screen'>Reset</button></div></div>" + t;
+  t = ctlRow() + t;
   t += "<div class='tip' id='tip'>Tap or hover anything on the board to see what it is.</div>";
   t += "<div class='legend'>" +
        "<span><i class='sw you'></i>you, the dog</span>" +
@@ -511,8 +507,25 @@ function checkEnd(){
 // leaves the move to them. Easy says the most specific true thing; moderate
 // says something general; hard says almost nothing.
 function hintFor(){
-  if(S.mode !== "fight") return "";
   const level = CFG.name;
+  if(S.mode === "intro"){
+    return level === "hard" ? "Hard: no hints, a six-move memory, thirteen rounds."
+         : level === "easy" ? "Easy: the hint says exactly what to do next. Change it here or on any screen."
+         : "Moderate: the hint says what matters, not what to press. Change it here or on any screen.";
+  }
+  if(S.mode === "hazard"){
+    const h = DT.hazards[S.hazard], tt = telegraphTurn(h);
+    if(level === "hard") return "No hints on hard. The strip still shows the tell.";
+    if(S.hzTurn === tt) return level === "easy"
+      ? "That is the tell, in orange. Hold still exactly one more time, then break."
+      : "That is the tell. Hold still one more time, then break.";
+    if(S.hzTurn < tt) return level === "easy"
+      ? "Hold still " + (tt - S.hzTurn) + (tt - S.hzTurn === 1 ? " time" : " times") + " until the strip turns orange. " +
+        "Hold once more after that, then break."
+      : "Hold still until the tell shows in orange. Hold once more after it, then break. Early or late and you are caught.";
+    return "Now. Break for it.";
+  }
+  if(S.mode !== "fight") return "";
   const gap = man(S.rex, S.dog);
   const last3 = S.moves.slice(-3).filter(m => STEP[m]);
   const same3 = last3.length === 3 && last3.every(m => m === last3[0]);
@@ -532,6 +545,12 @@ function hintFor(){
   if(level === "hard") return "No hints on hard. The board is the hint.";
   if(level === "easy") return specific[0] || general[S.round % general.length];
   return specific.length && S.round % 2 === 0 ? specific[0] : general[S.round % general.length];
+}
+
+function ctlRow(){
+  return "<div class='ctl'><div class='hintbox' id='hintbox'><span class='hl'>hint</span>" + hintFor() + "</div>" +
+         "<div class='ctlr'>" + diffSelect() +
+         "<button onclick='location.reload()' title='Back to the first screen'>Reset</button></div></div>";
 }
 
 function diffSelect(){
