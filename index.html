@@ -50,6 +50,24 @@
   .hud b{color:var(--ink);font:700 15px var(--display);letter-spacing:.04em}
   .bar{height:4px;background:#20262c;margin-top:5px;overflow:hidden}
   .bar i{display:block;height:100%;background:var(--teal)}
+  /* HUD bars: stamina is the one that hurts, charge is the one to watch */
+  .hud .hbar{display:block;width:96px;height:5px;background:#132030;margin-top:5px;position:relative;overflow:hidden;
+             box-shadow:inset 0 0 0 1px rgba(200,170,110,.15)}
+  .hud .hbar em{position:absolute;left:0;top:0;bottom:0;background:var(--teal);transition:width .4s cubic-bezier(.2,.8,.2,1)}
+  .hud .hbar.gold em{background:var(--gold)}
+  .hud .hbar.charge em{background:#8fb6d9}
+  .hud .hbar.charge.confident em{background:#e0a34a}
+  .hud .hbar.charge.strained em{background:var(--bad);animation:flicker .22s infinite}
+  .hud .hbar.low em{background:#ff9a3c;animation:pulse .7s ease-in-out infinite}
+  .hud .hbar.empty em{background:var(--bad)}
+  .hud .hbar.empty{animation:shatter .6s ease-out}
+  .hud b .low{color:#ff9a3c;animation:pulse .7s ease-in-out infinite}
+  .hud b .empty{color:var(--bad)}
+  .hud b .reg.confident{color:#e0a34a}
+  .hud b .reg.strained{color:var(--bad);animation:flicker .3s infinite;text-shadow:0 0 8px rgba(232,64,87,.6)}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+  @keyframes flicker{0%,100%{opacity:1}40%{opacity:.55}60%{opacity:.9}80%{opacity:.4}}
+  @keyframes shatter{0%{transform:translateX(0)}20%{transform:translateX(-3px)}40%{transform:translateX(3px)}60%{transform:translateX(-2px)}80%{transform:translateX(2px)}100%{transform:translateX(0)}}
 
   /* the text */
   #say{min-height:66px}
@@ -109,13 +127,14 @@
           background:rgba(1,10,19,.55);padding:8px 10px;max-height:442px}
   .ledger .lt{font:700 10px var(--display);letter-spacing:.2em;text-transform:uppercase;color:var(--gold);
               border-bottom:1px solid var(--gold4);padding-bottom:6px;margin-bottom:6px}
-  .ledger ol{list-style:none;margin:0;padding:0;overflow-y:auto;flex:1;min-height:0}
+  .ledger ol{list-style:none;margin:0;padding:0 4px 0 0;overflow-y:auto;overflow-x:hidden;flex:1;min-height:0;scrollbar-width:thin;scrollbar-color:var(--gold4) transparent}
+  .ledger ol::-webkit-scrollbar{width:5px} .ledger ol::-webkit-scrollbar-thumb{background:var(--gold4)}
   .ledger li{display:grid;grid-template-columns:22px 1fr auto;gap:0 6px;align-items:baseline;padding:5px 0;
              border-bottom:1px dashed rgba(70,55,20,.6);font-size:12px}
   .ledger li .n{color:var(--mute);font-size:10px}
   .ledger li .mv{color:var(--ink);font-weight:600;text-transform:capitalize}
   .ledger li .rt{font:700 9px var(--display);letter-spacing:.1em;text-transform:uppercase}
-  .ledger li .nt{grid-column:1/-1;color:var(--dim);font-size:10.5px;line-height:1.3;margin-top:2px}
+  .ledger li .nt{grid-column:1/-1;color:var(--dim);font-size:10.5px;line-height:1.3;margin-top:2px;overflow-wrap:anywhere}
   .ledger li.excellent .rt{color:var(--teal)}
   .ledger li.good .rt{color:var(--gold2)}
   .ledger li.fine .rt{color:var(--gold)}

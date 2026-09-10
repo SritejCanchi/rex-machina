@@ -290,6 +290,8 @@ function hazardFail(h, why){
 function beginFight(){
   S.act = 3; S.mode = "fight"; S.over = false;
   S.stamina = 17 - Math.min(S.totalFails, 3) + CFG.staminaBonus;   // 17 clean, 14 floor, before difficulty
+  S.staminaMax = S.stamina;
+  FX.list = []; FX.shake = 0; FX.streak = 0; FX.ring = null; FX.lastBand = "clinical"; FX.lowSaid = false;
   S.dog = [0,0]; S.rex = [5,5]; S.kid = [7,4]; S.distMax = 11;
   if(S.randomSpawn) placePieces();
   S.round = 0; S.charge = START_CHARGE;
@@ -338,9 +340,14 @@ function drawFight(){
   if(typeof document === "undefined") return;
   const p = phase();
   const [w,h] = p.GridSpan.toLowerCase().split("x").map(Number);
+  const low = Math.max(3, Math.round((S.staminaMax || 17) * 0.25));
+  const stCls = S.stamina <= 0 ? "empty" : S.stamina <= low ? "low" : "";
+  const bd = band();
   hud([["phase", p.PhaseIndex + "/3 " + p.ArenaName], ["round", S.round + "/" + CFG.maxRounds],
-       ["stamina", S.stamina], ["approach", approach().toFixed(2)],
-       ["charge", Math.round(S.charge) + "%"], ["register", band()]]);
+       ["stamina", "<span class='" + stCls + "'>" + S.stamina + "</span><span class='hbar " + stCls + "'><em style='width:" + Math.round(100 * S.stamina / (S.staminaMax || 17)) + "%'></em></span>"],
+       ["approach", approach().toFixed(2) + "<span class='hbar gold'><em style='width:" + Math.round(100 * approach()) + "%'></em></span>"],
+       ["charge", Math.round(S.charge) + "%<span class='hbar charge " + bd + "'><em style='width:" + Math.round(S.charge) + "%'></em></span>"],
+       ["register", "<span class='reg " + bd + "'>" + bd + "</span>"]]);
   const T = BOARD.T;
   let t = "<div class='boardrow'><div class='boardwrap'><canvas id='board' width='" + (w*T) + "' height='" + (h*T) + "'></canvas></div>" + ledgerHtml() + "</div>";
   t = ctlRow("Act 3 &middot; " + p.ArenaName) + t;
@@ -507,7 +514,9 @@ function mv(dir){
   speakRead();
   // RM-002, found by qa/adversary.js: the adjacency drain could take stamina
   // to -1 and the HUD showed it. Empty is empty.
+  const prevStamina = S.stamina;
   S.stamina = Math.max(0, S.stamina - 1 - (man(S.rex, S.dog) <= 1 ? 1 : 0));
+  if(judge){ fxStamina(prevStamina); fxBand(); }
   if(judge) rateMove(dir, before, { line: man(S.dog, S.kid) === 0 ? [] : searchLine(), dog: S.dog, rex: S.rex, round: S.round });
   checkGate();
   drawFight();
@@ -525,17 +534,20 @@ function checkGate(){
     S.checkpoint = {phase: ix, moves: S.moves.slice(), dog: S.dog.slice()};
     const p = phase();
     say("<span class='sys'>&gt;&gt;&gt; The arena advances. " + p.ArenaName + ".</span>");
+    if(S.randomSpawn) stinger("THE ARENA ADVANCES", "#c8aa6e", { sub: p.ArenaName, life: 2200 });
     say("<span class='sys'>" + p.Light + "</span>");
   }
 }
 function checkEnd(){
   if(approach() >= 1){
     S.over = true;
+    if(S.randomSpawn) fxEnd(true);
     say("<span class='win'>She sees you. The robot goes still.</span>");
     $("stage").innerHTML += "<div class='btns'><button onclick='location.reload()'>Again from the shelter</button></div>";
   } else if(S.stamina <= 0 || S.round >= CFG.maxRounds){
     S.over = true;
     S.priorAttempt = phase().PhaseID.replace("phase_","");
+    if(S.randomSpawn) fxEnd(false);
     say("<span class='lose'>The porch light is still on. You cannot reach it.</span>");
     $("stage").innerHTML += "<div class='btns'><button class='primary' onclick='beginFight()'>Retry from the gate</button>" +
       "<button onclick='autoStart()'>Watch the computer win it</button></div>";
@@ -794,6 +806,7 @@ function rateMove(dir, before, after){
     else { rating = "think better"; note = "That cost " + slack + " rounds against the shortest line."; }
   }
   S.ledger.push({ n: after.round, dir, rating, note });
+  fxGrade(rating);
 }
 function ledgerHtml(){
   const L = S.ledger.slice().reverse();
@@ -955,6 +968,112 @@ function deco(g, w, h, T, now){
 //
 // Nothing here changes the game. S is read, never written; mv() is the only
 // way the board affects the fight, and it is the same mv() the keys call.
+// ------------------------------------------------------------ feedback
+// What the board says back. A grade is a callout in the moment, not a line
+// in a ledger; a stamina threshold is felt before it is read; REX changing
+// state is visible on REX. Everything here is drawn on the board canvas by
+// paint(), from a queue of timed effects.
+const FX = { list: [], shake: 0, streak: 0, ring: null, lastBand: null, lowSaid: false };
+function fx(kind, o){ if(typeof performance === "undefined") return; FX.list.push(Object.assign({ kind, t0: performance.now() }, o)); }
+function stinger(text, colour, o){ fx("stinger", Object.assign({ text, colour, life: 1500, sub: "" }, o || {})); }
+function burst(x, y, colour, n, speed){
+  for(let i = 0; i < n; i++){
+    const a = Math.random() * Math.PI * 2, v = (0.5 + Math.random()) * (speed || 1.6);
+    fx("spark", { x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, colour, life: 500 + Math.random() * 400, size: 1.5 + Math.random() * 2 });
+  }
+}
+const GRADE = {
+  excellent:      { colour: "#0ac8b9", shake: 0,  sparks: 16 },
+  good:           { colour: "#f0e6d2", shake: 0,  sparks: 6 },
+  fine:           { colour: "#c8aa6e", shake: 0,  sparks: 0 },
+  "think better": { colour: "#ff9a3c", shake: 5,  sparks: 0 },
+  danger:         { colour: "#e84057", shake: 9,  sparks: 0 }
+};
+function fxGrade(rating){
+  const gdef = GRADE[rating] || GRADE.fine;
+  const T = BOARD.T, cx = S.dog[0]*T + T/2, cy = S.dog[1]*T + T/2;
+  FX.streak = rating === "excellent" ? FX.streak + 1 : 0;
+  // escalation, the way a multi-kill callout climbs
+  const text = rating === "excellent" ? (["EXCELLENT","CLEAN","UNREADABLE","GHOST"][Math.min(FX.streak, 4) - 1]) : rating.toUpperCase();
+  const sub = FX.streak >= 3 ? FX.streak + " in a row it could not read" : "";
+  stinger(text, gdef.colour, { sub, life: rating === "danger" ? 2000 : 1400 });
+  if(gdef.sparks) burst(cx, cy, gdef.colour, gdef.sparks, rating === "excellent" ? 2.2 : 1.2);
+  FX.shake = Math.max(FX.shake, gdef.shake);
+  FX.ring = { colour: gdef.colour, t0: performance.now() };
+  if(rating === "danger") fx("vignette", { colour: "232,64,87", life: 900 });
+}
+function fxStamina(prev){
+  const low = Math.max(3, Math.round(S.staminaMax * 0.25));
+  if(S.stamina <= 0 && prev > 0){ stinger("OUT OF LEGS", "#e84057", { sub: "stamina is gone", life: 2400 }); fx("vignette", { colour: "232,64,87", life: 1600 }); FX.shake = Math.max(FX.shake, 12); }
+  else if(S.stamina <= low && prev > low){ stinger("LEGS GOING", "#ff9a3c", { sub: S.stamina + " stamina left. Every drain is two.", life: 1800 }); fx("vignette", { colour: "255,154,60", life: 900 }); }
+}
+function fxBand(){
+  const b = band();
+  if(FX.lastBand && b !== FX.lastBand){
+    const T = BOARD.T, cx = S.rex[0]*T + T/2, cy = S.rex[1]*T + T/2;
+    if(b === "strained"){ stinger("REX STRAINED", "#e84057", { sub: "charge under " + BAND_CONF + "%. It holds still more than it moves.", life: 2000 }); burst(cx, cy, "#ff6a3c", 22, 2.4); }
+    else if(b === "confident" && FX.lastBand === "clinical"){ stinger("REX CONFIDENT", "#c8aa6e", { sub: "charge under " + BAND_CLIN + "%. It starts to commit.", life: 1600 }); burst(cx, cy, "#c8aa6e", 8, 1.4); }
+  }
+  FX.lastBand = b;
+}
+function fxEnd(won){
+  const T = BOARD.T;
+  if(won){
+    stinger("SHE SEES YOU", "#f0e6d2", { sub: "the robot goes still", life: 4000 });
+    burst(S.kid[0]*T + T/2, S.kid[1]*T + T/2, "#ffd76a", 40, 3);
+    fx("vignette", { colour: "255,215,106", life: 2200 });
+  } else {
+    stinger(S.stamina <= 0 ? "OUT OF LEGS" : "OUT OF ROUNDS", "#e84057", { sub: "the porch light is still on", life: 4000 });
+    fx("vignette", { colour: "232,64,87", life: 2400 }); FX.shake = Math.max(FX.shake, 10);
+    fx("fade", { life: 1e9 });
+  }
+}
+function paintFx(g, now, W, H){
+  const keep = [];
+  for(const e of FX.list){
+    const age = now - e.t0, k = age / e.life;
+    if(k >= 1) continue;
+    keep.push(e);
+    if(e.kind === "spark"){
+      g.globalAlpha = 1 - k;
+      g.fillStyle = e.colour;
+      const x = e.x + e.vx * age / 16, y = e.y + e.vy * age / 16 + 0.002 * age * age / 16;
+      g.fillRect(x - e.size/2, y - e.size/2, e.size, e.size);
+      g.globalAlpha = 1;
+    } else if(e.kind === "vignette"){
+      const v = g.createRadialGradient(W/2, H/2, W*0.25, W/2, H/2, W*0.75);
+      v.addColorStop(0, "rgba(" + e.colour + ",0)"); v.addColorStop(1, "rgba(" + e.colour + "," + (0.55 * (1 - k)) + ")");
+      g.fillStyle = v; g.fillRect(0, 0, W, H);
+    } else if(e.kind === "fade"){
+      g.fillStyle = "rgba(1,10,19," + Math.min(0.55, age / 1200 * 0.55) + ")"; g.fillRect(0, 0, W, H);
+    }
+  }
+  // stingers stack from the top, newest on top
+  let row = 0;
+  for(const e of keep.slice().reverse()){
+    if(e.kind !== "stinger") continue;
+    const age = now - e.t0, k = age / e.life;
+    const inK = Math.min(1, age / 160), outK = k > 0.75 ? (1 - k) / 0.25 : 1;
+    const scale = 1.35 - 0.35 * ease(inK);
+    g.save();
+    g.globalAlpha = Math.min(inK, outK);
+    g.translate(W/2, 46 + row * 40);
+    g.scale(scale, scale);
+    g.font = "700 22px Cinzel, Georgia, serif"; g.textAlign = "center"; g.textBaseline = "middle";
+    const tw = g.measureText(e.text).width;
+    g.fillStyle = "rgba(1,10,19,.72)"; g.fillRect(-tw/2 - 26, -17, tw + 52, e.sub ? 46 : 34);
+    g.strokeStyle = e.colour; g.lineWidth = 1;
+    g.beginPath(); g.moveTo(-tw/2 - 26, -17); g.lineTo(tw/2 + 26, -17); g.moveTo(-tw/2 - 26, e.sub ? 29 : 17); g.lineTo(tw/2 + 26, e.sub ? 29 : 17); g.stroke();
+    g.shadowColor = e.colour; g.shadowBlur = 14;
+    g.fillStyle = e.colour; g.fillText(e.text, 0, 0);
+    g.shadowBlur = 0;
+    if(e.sub){ g.font = "500 11px Barlow, 'Segoe UI', Arial, sans-serif"; g.fillStyle = "#f0e6d2"; g.fillText(e.sub, 0, 20); }
+    g.restore();
+    row++;
+  }
+  FX.list = keep;
+}
+
 const BOARD = {
   T: 44, running: false, dog: null, rex: null, dogFrom: null, rexFrom: null,
   t0: 0, dur: 220, dogFace: 1, rexFace: -1, bubble: null, bubbleT0: 0, canvas: null
@@ -1006,6 +1125,9 @@ function paint(now){
   const k = ease(Math.min(1, (now - BOARD.t0) / BOARD.dur));
   const dogPos = lerpPos(BOARD.dogFrom, BOARD.dog, k);
   const rexPos = lerpPos(BOARD.rexFrom, BOARD.rex, k);
+  g.setTransform(1, 0, 0, 1, 0, 0);
+  g.clearRect(0, 0, c.width, c.height);
+  if(FX.shake > 0.3){ g.translate((Math.random() - 0.5) * FX.shake, (Math.random() - 0.5) * FX.shake); FX.shake *= 0.86; } else FX.shake = 0;
 
   // floor: the place this round happens in. Two colours, then the set
   // dressing for the theme, then a thin grid so tiles still count.
@@ -1058,7 +1180,14 @@ function paint(now){
     g.fillStyle = "rgba(0,0,10,.45)";
     g.beginPath(); g.ellipse(pos[0]*T + T/2, pos[1]*T + T/2 + 12, T*0.36, T*0.16, 0, 0, Math.PI*2); g.fill();
   }
-  drawRex(g, rexPos[0]*T, rexPos[1]*T, T, BOARD.rexFace);
+  drawRex(g, rexPos[0]*T, rexPos[1]*T, T, BOARD.rexFace, now);
+  // the grade, as a ring around the dog for a second
+  if(FX.ring && now - FX.ring.t0 < 1000){
+    const rk = (now - FX.ring.t0) / 1000;
+    g.strokeStyle = FX.ring.colour; g.globalAlpha = 1 - rk; g.lineWidth = 3;
+    g.beginPath(); g.arc(dogPos[0]*T + T/2, dogPos[1]*T + T/2 + 2, T*0.42 + rk * 16, 0, Math.PI*2); g.stroke();
+    g.globalAlpha = 1;
+  }
   drawDog(g, dogPos[0]*T, dogPos[1]*T, T, BOARD.dogFace);
 
   // labels: the one thing the text grid never managed
@@ -1070,6 +1199,7 @@ function paint(now){
   if(BOARD.bubble && now - BOARD.bubbleT0 < 4200){
     bubble(g, BOARD.bubble, rexPos[0]*T + T/2, rexPos[1]*T, w*T);
   }
+  paintFx(g, now, w*T, h*T);
   requestAnimationFrame(paint);
 }
 
@@ -1136,11 +1266,18 @@ function drawDog(g, x, y, T, face){
   g.restore();
 }
 
-function drawRex(g, x, y, T, face){
+function drawRex(g, x, y, T, face, now){
   // the same body plan, squarer, taller, cold, one red visor. Red glow under it.
+  const bd = S.mode === "fight" ? band() : "clinical";
+  const strained = bd === "strained";
   g.save(); g.translate(x + T/2, y + T/2);
+  if(strained){
+    g.translate((Math.random() - 0.5) * 2.4, (Math.random() - 0.5) * 2.4);
+    if(now && Math.random() < 0.18) fx("spark", { x: x + T/2 + (Math.random()-0.5)*16, y: y + T/2 - 6, vx: (Math.random()-0.5)*1.6, vy: -0.8 - Math.random(), colour: Math.random() < 0.5 ? "#ff6a3c" : "#ffd76a", life: 260 + Math.random()*240, size: 1.5 });
+  }
+  const glowA = strained ? 0.2 + 0.25 * Math.random() : bd === "confident" ? 0.5 : 0.35;
   const glow = g.createRadialGradient(0, 6, 2, 0, 6, T*0.55);
-  glow.addColorStop(0, "rgba(201,86,75,.35)"); glow.addColorStop(1, "rgba(201,86,75,0)");
+  glow.addColorStop(0, "rgba(201,86,75," + glowA + ")"); glow.addColorStop(1, "rgba(201,86,75,0)");
   g.fillStyle = glow; g.fillRect(-T/2, -T/2, T, T);
   g.scale(face || 1, 1);
   g.fillStyle = "#6f7887";
@@ -1149,7 +1286,10 @@ function drawRex(g, x, y, T, face){
   g.fillRect(-12, 7, 4, 8); g.fillRect(-5, 7, 4, 8); g.fillRect(2, 7, 4, 8); g.fillRect(8, 7, 4, 8); // legs
   g.fillRect(-16, -2, 4, 6);                                                  // hip block
   g.fillStyle = "#6f7887"; g.fillRect(8, -13, 12, 10);                       // head
-  g.fillStyle = "#ff3b2a"; g.fillRect(14, -10, 6, 3);                        // visor
+  g.fillStyle = strained ? (Math.random() < 0.7 ? "#ff3b2a" : "#5a1a14") : bd === "confident" ? "#ff5a3c" : "#ff3b2a";
+  if(bd === "confident"){ g.shadowColor = "#ff3b2a"; g.shadowBlur = 8; }
+  g.fillRect(14, -10, 6, 3);                                                  // visor
+  g.shadowBlur = 0;
   g.fillStyle = "#4b535f"; g.fillRect(10, -17, 2, 5);                        // antenna
   g.restore();
 }
