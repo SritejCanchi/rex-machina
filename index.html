@@ -46,7 +46,11 @@
   .prov code{color:#6d7a84}
   td.pred{color:var(--cold);font-weight:700}
   .ctl{display:flex;gap:12px;align-items:flex-start;justify-content:space-between;margin-bottom:10px}
-  .hintbox{flex:1;font-size:12px;color:var(--hot);min-height:18px;line-height:1.5}
+  .hintbox{flex:1;font-size:12px;color:var(--ink);min-height:18px;line-height:1.5;
+           background:#1a2026;border:1px solid #2c3a44;border-left:3px solid var(--hot);
+           border-radius:5px;padding:7px 10px}
+  .hintbox .hl{color:var(--hot);font-weight:700;font-size:10px;letter-spacing:.12em;
+               text-transform:uppercase;margin-right:8px}
   .ctlr{display:flex;gap:8px;align-items:center;flex-shrink:0}
   .diff{font-size:12px;color:var(--dim)}
   .diff select{background:#1b2126;color:var(--ink);border:1px solid var(--line);border-radius:5px;

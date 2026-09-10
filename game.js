@@ -320,7 +320,7 @@ function drawFight(){
        ["charge", Math.round(S.charge) + "%"], ["register", band()]]);
   const T = BOARD.T;
   let t = "<div class='boardwrap'><canvas id='board' width='" + (w*T) + "' height='" + (h*T) + "'></canvas></div>";
-  t = "<div class='ctl'><div class='hintbox' id='hintbox'>" + hintFor() + "</div>" +
+  t = "<div class='ctl'><div class='hintbox' id='hintbox'><span class='hl'>hint</span>" + hintFor() + "</div>" +
       "<div class='ctlr'>" + diffSelect() +
       "<button onclick='location.reload()' title='Back to the first screen'>Reset</button></div></div>" + t;
   t += "<div class='tip' id='tip'>Tap or hover anything on the board to see what it is.</div>";
@@ -334,10 +334,11 @@ function drawFight(){
   t += "<div class='pad'>" +
        "<button class='key' style='grid-area:1/2' onclick=\"mv('up')\">&uarr;</button>" +
        "<button class='key' style='grid-area:2/1' onclick=\"mv('left')\">&larr;</button>" +
-       "<button class='key' style='grid-area:2/2' onclick=\"mv('wait')\">wait</button>" +
+       "<button class='key' style='grid-area:2/2' onclick=\"mv('wait')\" title='Stay on your tile for a round. REX still moves and still spends charge, so a wait can make it come to you or tire. Two waits in four moves is a pattern it will name.'>wait</button>" +
        "<button class='key' style='grid-area:2/3' onclick=\"mv('right')\">&rarr;</button>" +
        "<button class='key' style='grid-area:3/2' onclick=\"mv('down')\">&darr;</button></div>";
-  t += "<div class='hint'>Tap a tile next to the dog, or use the arrows. " +
+  t += "<div class='hint'>Tap a tile next to the dog, or use the arrows. <b>wait</b> holds your tile for a round: " +
+       "REX still moves and still spends charge, so a wait can pull it onto a wrong tile or tire it. " +
        "It speaks only when it has measured something.</div>";
   $("stage").innerHTML = t;
   badge("fight");
@@ -528,7 +529,7 @@ function hintFor(){
     "Distance to the kid is the score. Distance to the robot is the cost.",
     "It forgets. An old trick works again once it is out of the window."
   ];
-  if(level === "hard") return specific.length ? "" : "";
+  if(level === "hard") return "No hints on hard. The board is the hint.";
   if(level === "easy") return specific[0] || general[S.round % general.length];
   return specific.length && S.round % 2 === 0 ? specific[0] : general[S.round % general.length];
 }
@@ -543,7 +544,7 @@ function diffSelect(){
 // this says what they do to you.
 function describe(t){
   const p = phase();
-  if(eq(t, S.dog)) return "You. Tap a neighbouring tile or use the arrows. Every move is one round.";
+  if(eq(t, S.dog)) return "You. Tap a neighbouring tile or use the arrows; tap your own tile to wait. Waiting is a round where only REX moves and spends charge.";
   if(eq(t, S.rex)) return "REX. It moves after you, to the tile it predicts you will take. Next to you it doubles your stamina cost.";
   if(eq(t, S.kid)) return "The kid. Stand on her tile to win. The approach meter is your distance to here.";
   if(S.predicted && eq(t, S.predicted)) return "The prediction. REX expects you to step here next, and will move to cut it off.";
@@ -557,18 +558,20 @@ function describe(t){
 // does not look like one still image and the round count is felt as well as
 // read. The pieces keep their colours; only the ground moves.
 const THEMES = [
-  { name: "night yard",   a: "#1b2025", b: "#161a1f", line: "#0e1114" },
-  { name: "sodium",       a: "#2a2418", b: "#211d14", line: "#141109" },
-  { name: "moonlit",      a: "#1c2330", b: "#171d28", line: "#0d1119" },
-  { name: "rust",         a: "#2a1e1a", b: "#221815", line: "#140d0b" },
-  { name: "concrete",     a: "#24262a", b: "#1d1f23", line: "#111214" },
-  { name: "grass, dusk",  a: "#1d261c", b: "#171f16", line: "#0d120c" }
+  { name: "night yard",   a: "#243038", b: "#182027", line: "#0e1418", glow: "#3d5a6e" },
+  { name: "sodium floods",a: "#3a2c14", b: "#26200f", line: "#15110a", glow: "#8a6420" },
+  { name: "moonlit",      a: "#262c48", b: "#1a1f36", line: "#0f1224", glow: "#4a5490" },
+  { name: "rust and ballast", a: "#3a2620", b: "#281a16", line: "#160e0c", glow: "#7a3e2e" },
+  { name: "wet concrete", a: "#2e3236", b: "#212427", line: "#121415", glow: "#5a6066" },
+  { name: "grass at dusk",a: "#243422", b: "#182417", line: "#0e150d", glow: "#3f6a3a" },
+  { name: "porch light",  a: "#3b3320", b: "#282316", line: "#16130c", glow: "#9a7a2a" }
 ];
 let THEME = THEMES[0];
 function rollTheme(){
   let t = THEME;
   while(t === THEME) t = THEMES[Math.floor(Math.random() * THEMES.length)];
   THEME = t;
+  const tp = $("tip"); if(tp) tp.textContent = "Round " + S.round + ". " + THEME.name + ".";
 }
 
 // ------------------------------------------------------------ the board
@@ -640,6 +643,10 @@ function paint(now){
     g.fillStyle = (x+y)%2 ? THEME.a : THEME.b;
     g.fillRect(x*T, y*T, T, T);
   }
+  const wash = g.createRadialGradient(w*T/2, h*T/2, 20, w*T/2, h*T/2, w*T*0.75);
+  wash.addColorStop(0, "rgba(255,255,255,0)"); wash.addColorStop(1, "rgba(0,0,0,.42)");
+  g.fillStyle = wash; g.fillRect(0, 0, w*T, h*T);
+  c.style.borderColor = THEME.glow; c.style.boxShadow = "0 0 24px " + THEME.glow + "55";
   g.strokeStyle = THEME.line; g.lineWidth = 1;
   for(let i=0;i<=w;i++){ g.beginPath(); g.moveTo(i*T+.5,0); g.lineTo(i*T+.5,h*T); g.stroke(); }
   for(let i=0;i<=h;i++){ g.beginPath(); g.moveTo(0,i*T+.5); g.lineTo(w*T,i*T+.5); g.stroke(); }
