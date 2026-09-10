@@ -74,6 +74,11 @@
   button.primary:hover:not(:disabled){box-shadow:0 0 14px rgba(10,200,185,.35);border-image:linear-gradient(180deg,#cdfafa,#0ac8b9) 1;color:#fff}
   button.quiet{color:var(--dim);border-image:linear-gradient(180deg,#5b5a56,#3c3c41) 1;font-size:11px}
   button.key{min-width:56px;padding:10px 6px;font-size:14px;letter-spacing:.04em}
+  button small{display:block;font:500 10.5px/1.2 var(--body);letter-spacing:.01em;text-transform:none;color:var(--dim);margin-top:3px}
+  button.primary small{color:#9fd9d3}
+  .hintbox.auto{border-color:rgba(200,170,110,.5);border-left-color:var(--gold);
+                background:linear-gradient(180deg,rgba(200,170,110,.1),rgba(200,170,110,.02))}
+  .hintbox.auto .hl{color:var(--gold)}
   .btns{display:flex;flex-wrap:wrap;gap:8px;margin-top:0}
   .btns.col{flex-direction:column;flex-shrink:0;min-width:200px}
   .btns.col button{width:100%}
@@ -114,7 +119,8 @@
   .prov code{color:var(--dim);font-family:var(--body)}
   .intro h2{font:700 12px var(--display);letter-spacing:.2em;text-transform:uppercase;margin:0 0 8px;color:var(--gold)}
   .intro p{margin:0 0 10px}
-  .intro ul{margin:0 0 4px;padding-left:18px;color:var(--dim);font-size:13px}
+  .intro ul,.intro ol{margin:0 0 4px;padding-left:18px;color:var(--dim);font-size:13px}
+  .intro ol li{margin-bottom:6px}
   .intro li{margin-bottom:3px}
   .intro li b{color:var(--ink);font-weight:600}
   @media (max-width:560px){ .padrow{flex-direction:column} .btns.col{min-width:0} .pad{align-self:center} }
