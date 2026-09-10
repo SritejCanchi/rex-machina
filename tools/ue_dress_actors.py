@@ -1,4 +1,4 @@
-"""Put the Kenney meshes on the five actors, and give Rex a lit head.
+"""Put the Kenney indicator meshes on the marker, and make the shared palette.
 
     D:/Side Projects/AI Game Dev Course/rex-machina/tools/ue_dress_actors.py
 
@@ -13,9 +13,11 @@ Kenney's factory kit is authored on a 100cm grid. TileSize here is 200, so the
 kit scale is almost always 2.0 and the two indicator decals land exactly on a
 tile with no fudging.
 
-The dog and the kid are the same creature at different sizes and colours. That
-is the fiction: you are running to your person, not to a marker. Rex is the
-magnet crane, which is the only thing in either kit that looms.
+The three characters used to be dressed here too, out of the same kits. They
+are not any more: neither kit has an animal or a person in it, so the dog and
+the kid were the same round mascot at two sizes and Rex was a crane, and the
+whole board read as placeholder. ue_build_characters.py builds those three out
+of primitives instead. This script now owns the marker and the palette.
 """
 import unreal
 
@@ -43,10 +45,9 @@ EXTRA_MI = [
 
 #  asset, kit mesh, scale, z, yaw, material override (None keeps the kit palette)
 DRESS = [
-    ("BP_Marker", "indicator-special-cross", (2.0, 2.0, 2.0),   7.0,  0.0, "MI_Marker"),
-    ("BP_Dog",    "oopi",                    (2.4, 2.4, 2.4),   5.0,  0.0, "MI_Dog"),
-    ("BP_Kid",    "oopi",                    (1.5, 1.5, 1.5),   5.0, 180.0, "MI_Kid"),
-    ("BP_Rex",    "crane-magnet",            (2.6, 2.6, 2.6),   5.0,  0.0, "MI_Rex"),
+    # The kit's indicator decals are exactly 100 units square, so at scale 2
+    # the cross lands on one 200-unit tile with nothing to fudge.
+    ("BP_Marker", "indicator-special-cross", (2.0, 2.0, 2.0), 7.0, 0.0, "MI_Marker"),
 ]
 
 
@@ -153,63 +154,6 @@ def dress(name, mesh_name, scale, z, yaw, mat_name):
       % (name, mesh_name, str(scale), z, mat_name or "(kit palette)"))
 
 
-def named(have, prefix):
-    """Look a component up by prefix -- see body_mesh for why not by name."""
-    for cname, (h, obj) in have.items():
-        if cname.startswith(prefix):
-            return obj
-    return None
-
-
-def light_rex():
-    """A red lamp in the magnet head, and a sphere so it reads when unlit.
-
-    Rex is the only thing on the board that is dangerous and the only thing
-    the player never controls, so it needs to be the only thing that emits.
-    The point light is not for illumination -- it is so the tile Rex is
-    standing on goes red before you look at it.
-    """
-    bp = unreal.load_asset("%s/BP_Rex.BP_Rex" % PKG)
-    if bp is None:
-        E("RM_DRESS | BP_Rex missing")
-        return
-    have = components(bp)
-    root_handle = SDS.k2_gather_subobject_data_for_blueprint(bp)[0]
-
-    eye = named(have, "Eye")
-    if eye is None:
-        eye = add_component(bp, root_handle, unreal.StaticMeshComponent, "Eye")
-    if eye is not None:
-        sphere = unreal.load_asset(SHAPES % ("Sphere", "Sphere"))
-        eye.set_editor_property("static_mesh", sphere)
-        eye.set_editor_property("relative_scale3d", unreal.Vector(0.28, 0.28, 0.28))
-        eye.set_editor_property("relative_location", unreal.Vector(0.0, 0.0, 215.0))
-        mi = unreal.load_asset("%s/MI_RexHot.MI_RexHot" % MATS)
-        eye.set_editor_property("override_materials", [mi] if mi else [])
-        try:
-            eye.set_collision_profile_name("NoCollision")
-        except Exception:
-            pass
-
-    lamp = named(have, "Lamp")
-    if lamp is None:
-        lamp = add_component(bp, root_handle, unreal.PointLightComponent, "Lamp")
-    if lamp is not None:
-        lamp.set_editor_property("relative_location", unreal.Vector(0.0, 0.0, 215.0))
-        lamp.set_editor_property("intensity", 9000.0)
-        lamp.set_editor_property("attenuation_radius", 420.0)
-        # unreal.Color takes B, G, R, A positionally -- FColor's own field
-        # order -- so the keywords are not optional. Passed positionally,
-        # this red lamp came out blue and Rex glowed like the marker.
-        lamp.set_editor_property("light_color",
-                                 unreal.Color(r=255, g=44, b=26, a=255))
-        lamp.set_editor_property("cast_shadows", False)
-
-    BEL.compile_blueprint(bp)
-    unreal.EditorAssetLibrary.save_asset("%s/BP_Rex" % PKG)
-    L("RM_DRESS | BP_Rex    Eye + Lamp at z=215")
-
-
 def verify():
     L("RM_DRESS | ---- verify ----")
     bad = 0
@@ -225,9 +169,6 @@ def verify():
         L("RM_DRESS |   %-10s mesh=%-24s %s"
           % (name, m.get_name() if m else "None", "OK" if ok else "MISMATCH"))
         bad += 0 if ok else 1
-    rex = unreal.load_asset("%s/BP_Rex.BP_Rex" % PKG)
-    names = sorted(components(rex).keys()) if rex else []
-    L("RM_DRESS |   BP_Rex components: %s" % ", ".join(names))
     L("RM_DRESS | %s" % ("all dressed" if not bad else "%d problem(s)" % bad))
 
 
@@ -236,7 +177,6 @@ def main():
     make_extra_materials()
     for d in DRESS:
         dress(*d)
-    light_rex()
     verify()
 
 

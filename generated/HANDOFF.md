@@ -498,6 +498,28 @@ compatible.
 
 ---
 
+## The three characters
+
+`ue_build_characters.py` builds the dog, Rex and the kid as small trees of
+engine primitives hanging off each Blueprint's `Mesh` component. Neither
+Kenney kit has an animal or a person in it, so the dog and the kid were the
+same round mascot at two sizes and Rex was a crane -- which is what made the
+board read as placeholder.
+
+Three things it is easy to get wrong there, all of them found the hard way:
+
+- **Everything hangs off `Mesh`.** The motion graph eases that one component
+  toward the actor, so a part parented to the root teleports while the body
+  slides. Rex's lamp did exactly that for a pass.
+- **`Mesh` keeps its name, its rest height of 5, and stops drawing.** It is
+  the pivot now, not a mesh.
+- **Yaw matters more than the modelling.** Parts are authored facing +X, the
+  camera looks along +Y, so +X is screen-left; a piece left at yaw 0 shows the
+  camera its flank or its back. Rex read as a dark box for a whole pass
+  because its visor was on the far side.
+
+---
+
 ## Two maps
 
     L_Arena     the fight
@@ -517,7 +539,8 @@ In this order, each from the editor's Python console:
     ue_make_materials.py     M_Greybox and the instances
     ue_make_actors.py        the five Blueprints, engine primitives
     ue_import_kits.py        29 Kenney meshes out of RawAssets
-    ue_dress_actors.py       kit meshes onto those Blueprints, Rex's lamp
+    ue_dress_actors.py       the marker's decal, and the shared palette
+    ue_build_characters.py   the dog, the robot dog and the kid, out of cubes
     ue_build_arena.py        the grid, the pieces, the camera, the manager
     ue_dress_arena.py        fence, cover, floods, skyline, exposure, camera
     ue_make_hud.py           BP_FightHUD, BP_FightGameMode, GameModeOverride

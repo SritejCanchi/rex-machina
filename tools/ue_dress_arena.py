@@ -113,8 +113,8 @@ def fix_exposure(eas):
             # These two are EV100, not a multiplier: 1.0 is a dim room and
             # pinning both there is what made a floodlit yard read as white.
             # 9 is roughly "outdoors under lights".
-            ("override_auto_exposure_min_brightness", "auto_exposure_min_brightness", 9.7),
-            ("override_auto_exposure_max_brightness", "auto_exposure_max_brightness", 9.7),
+            ("override_auto_exposure_min_brightness", "auto_exposure_min_brightness", 10.4),
+            ("override_auto_exposure_max_brightness", "auto_exposure_max_brightness", 10.4),
             ("override_bloom_intensity", "bloom_intensity", 0.55),
             ("override_vignette_intensity", "vignette_intensity", 0.45),
             ("override_film_slope", "film_slope", 0.85),
@@ -151,17 +151,20 @@ def tune_lights(eas):
             c = a.get_component_by_class(unreal.SkyLightComponent)
             if c:
                 c.set_editor_property("mobility", unreal.ComponentMobility.MOVABLE)
-                c.set_editor_property("intensity", 0.18)
+                c.set_editor_property("intensity", 0.55)
                 c.set_editor_property("light_color",
                                       unreal.Color(r=74, g=96, b=160, a=255))
         elif kind == "CameraActor":
             # Closer and a little lower than the greybox framing: the fence and
             # the flatcars now give the board an edge, so it can be filled.
-            a.set_actor_location(unreal.Vector(MID, MID - 2500.0, 2350.0), False, False)
-            a.set_actor_rotation(unreal.Rotator(0.0, -43.0, 90.0), False)
+            # Low enough to see the sides of things. At -43 the board was
+            # legible and the pieces were plan views of themselves: a dog from
+            # directly above is four dots and a rectangle.
+            a.set_actor_location(unreal.Vector(MID, MID - 2750.0, 1980.0), False, False)
+            a.set_actor_rotation(unreal.Rotator(0.0, -35.0, 90.0), False)
             comp = a.get_component_by_class(unreal.CameraComponent)
             if comp:
-                comp.set_editor_property("field_of_view", 58.0)
+                comp.set_editor_property("field_of_view", 55.0)
     L("RM_YARD | sun dimmed to dusk, every light Movable, camera pulled in")
 
 
@@ -243,7 +246,7 @@ def main():
     crate2 = mesh(FAC, "box-wide")
     for i, (tx, ty) in enumerate(cover_tiles):
         m = crate if i % 2 == 0 else crate2
-        place(eas, m, tx * TILE, ty * TILE, 5.0, (1.6, 1.6, 1.6),
+        place(eas, m, tx * TILE, ty * TILE, 5.0, (1.25, 1.25, 1.25),
               25.0 * i, "Cover_%d_%d" % (tx, ty))
     L("RM_YARD | cover: %d crates on the phase's own tiles" % len(cover_tiles))
 
@@ -274,7 +277,7 @@ def main():
             # Movable, because a baked light needs a lighting build and an
             # unbuilt one prints a red banner over the game.
             c.set_editor_property("mobility", unreal.ComponentMobility.MOVABLE)
-            c.set_editor_property("intensity", 26000.0)
+            c.set_editor_property("intensity", 24000.0)
             c.set_editor_property("light_color",
                                   unreal.Color(r=255, g=176, b=94, a=255))
             c.set_editor_property("attenuation_radius", 3200.0)
