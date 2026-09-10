@@ -30,8 +30,8 @@ PARENT = "M_Greybox"
 
 #  instance name, base colour RGB, emissive RGB, what it is
 INSTANCES = [
-    ("MI_Tile",    (0.16, 0.15, 0.13), (0.0, 0.0, 0.0),   "floor, dark"),
-    ("MI_TileAlt", (0.22, 0.21, 0.18), (0.0, 0.0, 0.0),   "floor, light - checker"),
+    ("MI_Tile",    (0.12, 0.11, 0.10), (0.0, 0.0, 0.0),   "floor, dark"),
+    ("MI_TileAlt", (0.27, 0.26, 0.22), (0.0, 0.0, 0.0),   "floor, light - checker"),
     ("MI_Dog",     (0.62, 0.34, 0.16), (0.0, 0.0, 0.0),   "the dog, warm"),
     ("MI_Rex",     (0.26, 0.30, 0.36), (0.02, 0.05, 0.07), "the robot, cold"),
     ("MI_Kid",     (0.88, 0.78, 0.42), (0.10, 0.08, 0.03), "the kid, lit"),
