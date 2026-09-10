@@ -20,6 +20,24 @@ const S = {
 
 const MAXROUNDS = 15, START_CHARGE = 100, PURSUIT = 8, HOLD = 1, SOLAR = 2;
 const BAND_CLIN = 60, BAND_CONF = 30, WINDOW = 4, FREQ = 20;
+
+// Difficulty is three settings of the same four knobs. The defaults are the
+// tuned, tested fight; the headless tests never touch this and get exactly
+// that. Easy makes the machine forget sooner and tire faster and gives you
+// legs; hard does the reverse. What it never changes is the prediction
+// itself, because the prediction is the game.
+const DIFFS = {
+  easy:     { label: "easy",     window: 3, maxRounds: 18, pursuit: 12, staminaBonus: 4 },
+  moderate: { label: "moderate", window: 4, maxRounds: 15, pursuit: 8,  staminaBonus: 0 },
+  hard:     { label: "hard",     window: 6, maxRounds: 13, pursuit: 6,  staminaBonus: -2 }
+};
+let CFG = Object.assign({ name: "moderate" }, DIFFS.moderate);
+function setDiff(name){
+  if(!DIFFS[name]) return;
+  CFG = Object.assign({ name: name }, DIFFS[name]);
+  try { localStorage.setItem("rm_diff", name); } catch(e) {}
+  if(S.mode === "fight") beginFight();
+}
 const STEP = {left:[-1,0], right:[1,0], up:[0,-1], down:[0,1]};
 
 const man = (a,b) => Math.abs(a[0]-b[0]) + Math.abs(a[1]-b[1]);
@@ -80,6 +98,8 @@ async function boot(){
 function intro(){
   S.mode = "intro";
   if(typeof document === "undefined") return;
+  S.randomSpawn = true;
+  try { const d = localStorage.getItem("rm_diff"); if(d && DIFFS[d]) CFG = Object.assign({ name: d }, DIFFS[d]); } catch(e) {}
   hud([["day", 0], ["act", "-"], ["condition", "sound"]]);
   clearSay();
   say("<span class='sys'>A shelter dog walks nine days home to the family that gave her away, " +
@@ -132,18 +152,85 @@ function drawHazard(){
   if(S.hzTurn === tt) body = "<div class='rex' style='font-size:16px'>&gt; " + h.Telegraph + "</div>" + body;
   // What holding still is for. Without this a first click on Break is a loss
   // with no idea why, which is a bad first thirty seconds.
+  // The window opens the turn AFTER the tell. Breaking on the tell itself is
+  // early and is caught, so the hint has to say "hold once more" here, not
+  // "break" -- the earlier wording lost five runs in a row for a real player.
   const hint = S.hzTurn === tt
-    ? "That is the tell. Break for it on this next turn."
+    ? "That is the tell. Hold still one more time, then break."
     : S.hzTurn < tt
-      ? "Hold still until the tell appears in orange, then break on the very next turn. " +
-        "Too early or too late and you are caught."
-      : "The tell has passed. Break now or lose the window.";
+      ? "Hold still until the tell shows in orange. Hold once more after it, then break. " +
+        "Early or late and you are caught."
+      : "Now. Break for it.";
+  body = "<div class='boardwrap'><canvas id='strip' width='440' height='120'></canvas></div>" +
+         "<div class='tip' id='tip'>Tap the strip to see what each figure is.</div>" + body;
   $("stage").innerHTML = body +
     "<div class='btns'><button onclick='hz(\"wait\")'>Hold still</button>" +
     "<button onclick='hz(\"go\")'>Break for it</button>" +
     "<button onclick='beginFight()' style='margin-left:auto;opacity:.7'>Skip to the fight</button></div>" +
     "<div class='hint'>" + hint + "</div>";
   badge("hazard");
+  stripSync(h, tt);
+}
+
+// ------------------------------------------------------------ the strip
+// Acts 1 and 2 in one picture: something closing on you from the left, you on
+// the right, and the moment it shows its hand. The pursuer advances a step
+// per turn; on the tell turn it flares. What the buttons do is now something
+// you can see the shape of before you read a word.
+const STRIP = { running: false, t0: 0 };
+function stripSync(h, tt){
+  const c = $("strip");
+  if(!c) return;
+  STRIP.h = h; STRIP.tt = tt; STRIP.t0 = performance.now();
+  if(STRIP.canvas !== c){
+    STRIP.canvas = c;
+    c.addEventListener("click", ev => {
+      const r = c.getBoundingClientRect();
+      const x = (ev.clientX - r.left) / r.width * c.width;
+      const tp = $("tip");
+      if(!tp) return;
+      tp.textContent = x > 330 ? "You. Hold still while it commits to its pattern; break on the turn right after the tell."
+                     : x > 40 + (S.hzTurn / h.WindowTurns) * 250 - 30 && x < 40 + (S.hzTurn / h.WindowTurns) * 250 + 30
+                       ? "The pursuer: " + h.PursuerType + ". It telegraphs before it commits."
+                       : "The ground between you. Each turn it closes one step.";
+    });
+  }
+  if(!STRIP.running){ STRIP.running = true; requestAnimationFrame(paintStrip); }
+}
+function paintStrip(now){
+  const c = $("strip");
+  if(!c || S.mode !== "hazard"){ STRIP.running = false; return; }
+  const g = c.getContext("2d"), h = STRIP.h, W = c.width, H = c.height;
+  g.fillStyle = THEME.b; g.fillRect(0, 0, W, H);
+  g.fillStyle = THEME.a; g.fillRect(0, H - 34, W, 34);
+  g.strokeStyle = THEME.line; g.beginPath(); g.moveTo(0, H - 34.5); g.lineTo(W, H - 34.5); g.stroke();
+  // turn ticks
+  for(let i = 0; i <= h.WindowTurns; i++){
+    const x = 40 + i / h.WindowTurns * 250;
+    g.fillStyle = i <= S.hzTurn ? "#8b97a2" : "#2b333b";
+    g.fillRect(x - 1, H - 30, 2, 8);
+  }
+  // pursuer, advancing
+  const px = 40 + Math.min(S.hzTurn, h.WindowTurns) / h.WindowTurns * 250;
+  const tell = S.hzTurn === STRIP.tt;
+  const open = S.hzTurn === STRIP.tt + 1;
+  const pulse = 0.5 + 0.5 * Math.sin(now / 180);
+  if(tell){
+    const glow = g.createRadialGradient(px, H - 52, 4, px, H - 52, 46);
+    glow.addColorStop(0, "rgba(224,163,74," + (0.25 + 0.3 * pulse) + ")"); glow.addColorStop(1, "rgba(224,163,74,0)");
+    g.fillStyle = glow; g.fillRect(px - 50, H - 100, 100, 70);
+  }
+  g.fillStyle = tell ? "#e0a34a" : "#5b6673";
+  g.beginPath(); g.ellipse(px, H - 50, 16, 10, 0, 0, Math.PI * 2); g.fill();      // body
+  g.beginPath(); g.arc(px + 16, H - 58, 7, 0, Math.PI * 2); g.fill();            // head
+  g.fillRect(px - 12, H - 44, 4, 10); g.fillRect(px - 4, H - 44, 4, 10); g.fillRect(px + 4, H - 44, 4, 10); g.fillRect(px + 12, H - 44, 4, 10);
+  g.fillStyle = "#111"; g.beginPath(); g.arc(px + 18, H - 60, 1.5, 0, Math.PI * 2); g.fill();
+  if(tell){ g.fillStyle = "#e0a34a"; g.font = "bold 14px ui-monospace, Menlo, Consolas, monospace"; g.textAlign = "center"; g.fillText("!", px + 16, H - 70); }
+  // you, at the right
+  drawDog(g, W - 88, H - 78, 44, -1);
+  label(g, "YOU", W - 66, H - 80, "#7fb069");
+  label(g, tell ? "THE TELL. HOLD ONCE MORE" : open ? "NOW. BREAK" : "turn " + S.hzTurn + " of " + h.WindowTurns, px, H - 72 - (tell || open ? 14 : 0), tell ? "#e0a34a" : open ? "#7fb069" : "#8b97a2");
+  requestAnimationFrame(paintStrip);
 }
 
 function hz(choice){
@@ -181,8 +268,10 @@ function hazardFail(h, why){
 // ------------------------------------------------------------------- ACT 3
 function beginFight(){
   S.act = 3; S.mode = "fight"; S.over = false;
-  S.stamina = 17 - Math.min(S.totalFails, 3);   // 17 clean, 14 floor
-  S.dog = [0,0]; S.rex = [5,5]; S.round = 0; S.charge = START_CHARGE;
+  S.stamina = 17 - Math.min(S.totalFails, 3) + CFG.staminaBonus;   // 17 clean, 14 floor, before difficulty
+  S.dog = [0,0]; S.rex = [5,5]; S.kid = [7,4]; S.distMax = 11;
+  if(S.randomSpawn) placePieces();
+  S.round = 0; S.charge = START_CHARGE;
   S.moves = []; S.lastCat = null; S.phaseIx = 0; S.attempts++; S.spoken = []; S.log = [];
   S.checkpoint = null; S.predicted = null;
   clearSay();
@@ -197,6 +286,26 @@ function beginFight(){
 }
 
 function phase(){ return DT.phases[S.phaseIx]; }
+
+// A different board every fight. Only the browser asks for this; the headless
+// tests keep the canonical layout so their numbers stay meaningful. The kid is
+// kept at least eight tiles from the dog so there is a fight to have, and the
+// robot starts closer to the kid than to you, which is where a guard would be.
+function placePieces(){
+  const p = DT.phases[0];
+  const [w,h] = p.GridSpan.toLowerCase().split("x").map(Number);
+  const cover = p.CoverTiles || [];
+  const rnd = n => Math.floor(Math.random() * n);
+  const free = t => !cover.some(c => eq(c, t));
+  for(let tries = 0; tries < 500; tries++){
+    const dog = [rnd(w), rnd(h)], kid = [rnd(w), rnd(h)], rex = [rnd(w), rnd(h)];
+    if(!free(dog) || !free(kid) || !free(rex)) continue;
+    if(man(dog, kid) < 8) continue;
+    if(man(rex, dog) < 3 || man(rex, kid) < 2 || man(rex, kid) > man(rex, dog)) continue;
+    S.dog = dog; S.kid = kid; S.rex = rex; S.distMax = man(dog, kid);
+    return;
+  }
+}
 function approach(){ return Math.max(0, Math.min(1, 1 - man(S.dog, S.kid) / S.distMax)); }
 function band(){ return S.charge > BAND_CLIN ? "clinical" : (S.charge >= BAND_CONF ? "confident" : "strained"); }
 function inBounds(t){ const p = phase(); const [w,h] = p.GridSpan.toLowerCase().split("x").map(Number);
@@ -206,11 +315,15 @@ function drawFight(){
   if(typeof document === "undefined") return;
   const p = phase();
   const [w,h] = p.GridSpan.toLowerCase().split("x").map(Number);
-  hud([["phase", p.PhaseIndex + "/3 " + p.ArenaName], ["round", S.round + "/" + MAXROUNDS],
+  hud([["phase", p.PhaseIndex + "/3 " + p.ArenaName], ["round", S.round + "/" + CFG.maxRounds],
        ["stamina", S.stamina], ["approach", approach().toFixed(2)],
        ["charge", Math.round(S.charge) + "%"], ["register", band()]]);
   const T = BOARD.T;
   let t = "<div class='boardwrap'><canvas id='board' width='" + (w*T) + "' height='" + (h*T) + "'></canvas></div>";
+  t = "<div class='ctl'><div class='hintbox' id='hintbox'>" + hintFor() + "</div>" +
+      "<div class='ctlr'>" + diffSelect() +
+      "<button onclick='location.reload()' title='Back to the first screen'>Reset</button></div></div>" + t;
+  t += "<div class='tip' id='tip'>Tap or hover anything on the board to see what it is.</div>";
   t += "<div class='legend'>" +
        "<span><i class='sw you'></i>you, the dog</span>" +
        "<span><i class='sw rex'></i>REX, the robot</span>" +
@@ -225,10 +338,7 @@ function drawFight(){
        "<button class='key' style='grid-area:2/3' onclick=\"mv('right')\">&rarr;</button>" +
        "<button class='key' style='grid-area:3/2' onclick=\"mv('down')\">&darr;</button></div>";
   t += "<div class='hint'>Tap a tile next to the dog, or use the arrows. " +
-       "REX moves to the tile it thinks you will step on next; repeat a direction and it will be " +
-       "waiting there. Stamina drops faster while it is next to you.<br>" +
-       "It speaks only when it has measured something. To hear it: go left three times, " +
-       "wait twice, or stand on cover.</div>";
+       "It speaks only when it has measured something.</div>";
   $("stage").innerHTML = t;
   badge("fight");
   boardSync();
@@ -240,7 +350,7 @@ function hud(pairs){
 }
 
 // --- the dog's observables, ported from game/rex/dog.py ---
-function recentMoves(){ return S.moves.slice(-WINDOW); }
+function recentMoves(){ return S.moves.slice(-CFG.window); }
 function dirFreq(){
   const span = S.moves.slice(-FREQ).filter(m => STEP[m]);
   const out = {left:0,right:0,up:0,down:0};
@@ -287,7 +397,7 @@ function rexAct(){
   const moved = !eq(move, S.rex);
   S.rex = move;
   S.predicted = predicted;   // drawn on the grid, so the guess is visible
-  S.charge = Math.max(0, Math.min(START_CHARGE, S.charge - (moved ? PURSUIT : HOLD) + SOLAR));
+  S.charge = Math.max(0, Math.min(START_CHARGE, S.charge - (moved ? CFG.pursuit : HOLD) + SOLAR));
   return predicted;
 }
 function firingCategories(){
@@ -386,12 +496,79 @@ function checkEnd(){
     S.over = true;
     say("<span class='win'>She sees you. The robot goes still.</span>");
     $("stage").innerHTML += "<div class='btns'><button onclick='location.reload()'>Again from the shelter</button></div>";
-  } else if(S.stamina <= 0 || S.round >= MAXROUNDS){
+  } else if(S.stamina <= 0 || S.round >= CFG.maxRounds){
     S.over = true;
     S.priorAttempt = phase().PhaseID.replace("phase_","");
     say("<span class='lose'>The porch light is still on. You cannot reach it.</span>");
     $("stage").innerHTML += "<div class='btns'><button onclick='beginFight()'>Retry from the gate</button></div>";
   }
+}
+
+// ------------------------------------------------------------ hints
+// A hint is a reading of the board, not an instruction. It names the thing
+// the player is not looking at -- the drain, the meter, the pattern -- and
+// leaves the move to them. Easy says the most specific true thing; moderate
+// says something general; hard says almost nothing.
+function hintFor(){
+  if(S.mode !== "fight") return "";
+  const level = CFG.name;
+  const gap = man(S.rex, S.dog);
+  const last3 = S.moves.slice(-3).filter(m => STEP[m]);
+  const same3 = last3.length === 3 && last3.every(m => m === last3[0]);
+  const a = approach();
+  const specific = [];
+  if(gap <= 1) specific.push("It is beside you. Every round spent here costs two stamina instead of one.");
+  if(S.predicted && !eq(S.predicted, S.dog) && man(S.predicted, S.dog) === 1)
+    specific.push("The \u00d7 is a guess about your next step. A guess is only right if you make it right.");
+  if(same3) specific.push("Three moves the same way. It has a window of " + CFG.window + " and you have filled it.");
+  if(S.charge < 45) specific.push("Its charge is dropping. A tired machine holds still more than it moves.");
+  if(S.round >= 4 && a < 0.2) specific.push("The meter fills only when the path to the kid gets shorter. Sideways is a round it gets for free.");
+  const general = [
+    "It goes where it thinks you are going. Being predictable is the only way to lose.",
+    "Distance to the kid is the score. Distance to the robot is the cost.",
+    "It forgets. An old trick works again once it is out of the window."
+  ];
+  if(level === "hard") return specific.length ? "" : "";
+  if(level === "easy") return specific[0] || general[S.round % general.length];
+  return specific.length && S.round % 2 === 0 ? specific[0] : general[S.round % general.length];
+}
+
+function diffSelect(){
+  return "<label class='diff'>difficulty <select onchange='setDiff(this.value)'>" +
+    Object.keys(DIFFS).map(k => "<option value='" + k + "'" + (k === CFG.name ? " selected" : "") + ">" +
+                                DIFFS[k].label + "</option>").join("") + "</select></label>";
+}
+
+// What a thing on the board is, for a tap or a hover. The legend names them;
+// this says what they do to you.
+function describe(t){
+  const p = phase();
+  if(eq(t, S.dog)) return "You. Tap a neighbouring tile or use the arrows. Every move is one round.";
+  if(eq(t, S.rex)) return "REX. It moves after you, to the tile it predicts you will take. Next to you it doubles your stamina cost.";
+  if(eq(t, S.kid)) return "The kid. Stand on her tile to win. The approach meter is your distance to here.";
+  if(S.predicted && eq(t, S.predicted)) return "The prediction. REX expects you to step here next, and will move to cut it off.";
+  if((p.CoverTiles||[]).some(c => eq(c, t))) return "Cover. You can stand here. REX reads it as a habit if you keep doing it.";
+  if((p.ExitTiles||[]).some(e => eq(e, t))) return "An exit from this arena. Loitering near one is something REX notices and names.";
+  return "Open ground. Tile " + t[0] + "," + t[1] + ".";
+}
+
+// ------------------------------------------------------------ themes
+// The floor changes every round. Same board, different light, so a long fight
+// does not look like one still image and the round count is felt as well as
+// read. The pieces keep their colours; only the ground moves.
+const THEMES = [
+  { name: "night yard",   a: "#1b2025", b: "#161a1f", line: "#0e1114" },
+  { name: "sodium",       a: "#2a2418", b: "#211d14", line: "#141109" },
+  { name: "moonlit",      a: "#1c2330", b: "#171d28", line: "#0d1119" },
+  { name: "rust",         a: "#2a1e1a", b: "#221815", line: "#140d0b" },
+  { name: "concrete",     a: "#24262a", b: "#1d1f23", line: "#111214" },
+  { name: "grass, dusk",  a: "#1d261c", b: "#171f16", line: "#0d120c" }
+];
+let THEME = THEMES[0];
+function rollTheme(){
+  let t = THEME;
+  while(t === THEME) t = THEMES[Math.floor(Math.random() * THEMES.length)];
+  THEME = t;
 }
 
 // ------------------------------------------------------------ the board
@@ -415,7 +592,8 @@ function boardSync(){
   // the next paint can slide them from there to where the state says they are.
   const c = $("board");
   if(!c) return;
-  if(!BOARD.dog){ BOARD.dog = S.dog.slice(); BOARD.rex = S.rex.slice(); }
+  if(BOARD.lastRound !== S.round){ BOARD.lastRound = S.round; if(S.round > 0) rollTheme(); }
+  if(!BOARD.dog || S.round === 0){ BOARD.dog = S.dog.slice(); BOARD.rex = S.rex.slice(); BOARD.dogFrom = BOARD.rexFrom = null; }
   if(!eq(BOARD.dog, S.dog) || !eq(BOARD.rex, S.rex)){
     BOARD.dogFrom = BOARD.dog.slice(); BOARD.rexFrom = BOARD.rex.slice();
     if(S.dog[0] !== BOARD.dog[0]) BOARD.dogFace = Math.sign(S.dog[0] - BOARD.dog[0]);
@@ -425,11 +603,16 @@ function boardSync(){
   }
   if(BOARD.canvas !== c){
     BOARD.canvas = c;
-    c.addEventListener("click", ev => {
+    const tileAt = ev => {
       const r = c.getBoundingClientRect();
-      const x = Math.floor((ev.clientX - r.left) / r.width  * c.width  / BOARD.T);
-      const y = Math.floor((ev.clientY - r.top)  / r.height * c.height / BOARD.T);
+      return [Math.floor((ev.clientX - r.left) / r.width  * c.width  / BOARD.T),
+              Math.floor((ev.clientY - r.top)  / r.height * c.height / BOARD.T)];
+    };
+    c.addEventListener("mousemove", ev => { const tp = $("tip"); if(tp) tp.textContent = describe(tileAt(ev)); });
+    c.addEventListener("click", ev => {
+      const [x, y] = tileAt(ev);
       const dx = x - S.dog[0], dy = y - S.dog[1];
+      const tp = $("tip"); if(tp) tp.textContent = describe([x, y]);
       if(dx === 0 && dy === 0) mv("wait");
       else if(Math.abs(dx) + Math.abs(dy) === 1) mv(dx === 1 ? "right" : dx === -1 ? "left" : dy === 1 ? "down" : "up");
     });
@@ -454,10 +637,10 @@ function paint(now){
 
   // floor: a yard at night, two greys, a hair of grid
   for(let y=0;y<h;y++) for(let x=0;x<w;x++){
-    g.fillStyle = (x+y)%2 ? "#1b2025" : "#161a1f";
+    g.fillStyle = (x+y)%2 ? THEME.a : THEME.b;
     g.fillRect(x*T, y*T, T, T);
   }
-  g.strokeStyle = "#0e1114"; g.lineWidth = 1;
+  g.strokeStyle = THEME.line; g.lineWidth = 1;
   for(let i=0;i<=w;i++){ g.beginPath(); g.moveTo(i*T+.5,0); g.lineTo(i*T+.5,h*T); g.stroke(); }
   for(let i=0;i<=h;i++){ g.beginPath(); g.moveTo(0,i*T+.5); g.lineTo(w*T,i*T+.5); g.stroke(); }
 
