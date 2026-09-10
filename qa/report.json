@@ -2,7 +2,7 @@
  "game": "Rex Machina",
  "target": "game.js, the capstone build served at index.html",
  "agent": "qa/adversary.js",
- "run_at": "2026-09-10T03:11:07.456Z",
+ "run_at": "2026-09-10T03:13:19.538Z",
  "strategy": [
   "GDD 3 exploit 4 approach ratchet",
   "GDD 3 exploit 2 the leash",
