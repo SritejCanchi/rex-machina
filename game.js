@@ -15,7 +15,10 @@ const S = {
   // act 3
   dog: [0,0], rex: [5,5], kid: [7,4], distMax: 11,
   stamina: 15, round: 0, charge: 100, moves: [], lastCat: null,
-  priorAttempt: null, attempts: 0, checkpoint: null, spoken: [], log: [], hzState: "play", ledger: []
+  priorAttempt: null, attempts: 0, checkpoint: null, spoken: [], log: [], hzState: "play", ledger: [],
+  // The ledger's judge used to be gated on the presence of a document, which
+  // put it out of reach of qa/adversary.js. A flag can be turned on headlessly.
+  judge: typeof document !== "undefined"
 };
 
 const MAXROUNDS = 15, START_CHARGE = 100, PURSUIT = 8, HOLD = 1, SOLAR = 2;
@@ -509,7 +512,7 @@ function mv(dir){
     }
     S.dog = t;
   }
-  const judge = typeof document !== "undefined" && S.randomSpawn;
+  const judge = S.judge && S.randomSpawn;
   let before = null;
   if(judge){
     const held = S.dog; S.dog = dir === "wait" ? held : [held[0]-STEP[dir][0], held[1]-STEP[dir][1]];
@@ -1327,5 +1330,6 @@ if (typeof module !== "undefined" && module.exports) {
                      predict, stepToward, rexAct, firingCategories, mv, beginFight,
                      drawFight, checkEnd, telegraphTurn, hz, startHazard,
                      dirFreq, periodicity, setSinks, speakRead, fireRetryLine,
-                     namesDirection, dominantDir, autoPlan };
+                     namesDirection, dominantDir, autoPlan, searchLine, rateMove,
+                     setDiff, DIFFS, placePieces, phase, getCfg: () => CFG };
 }

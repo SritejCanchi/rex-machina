@@ -2,7 +2,7 @@
  "game": "Rex Machina",
  "target": "game.js, the capstone build served at index.html",
  "agent": "qa/adversary.js",
- "run_at": "2026-09-10T03:52:56.776Z",
+ "run_at": "2026-09-10T22:43:19.905Z",
  "strategy": [
   "GDD 3 exploit 4 approach ratchet",
   "GDD 3 exploit 2 the leash",
@@ -12,9 +12,65 @@
   "randomised invariant fuzz",
   "boundary probing",
   "per-encounter winnability and loseability",
-  "journey to fight handoff"
+  "journey to fight handoff",
+  "closed exploits at every difficulty",
+  "solid pieces and the second refusal path",
+  "random spawn fairness",
+  "the planner as its own oracle",
+  "ledger grades versus the search",
+  "independent oracle over the game's own search"
  ],
- "checks_run": 1519,
+ "checks_run": 3096,
  "findings_count": 0,
- "findings": []
+ "findings": [],
+ "measurements": {
+  "spawn_fairness": {
+   "sampled_per_row": 40,
+   "rows": [
+    {
+     "difficulty": "easy",
+     "failed_encounters": 0,
+     "raw_spawn_winnable": "40/40",
+     "after_fairness_roll": "40/40"
+    },
+    {
+     "difficulty": "easy",
+     "failed_encounters": 3,
+     "raw_spawn_winnable": "38/40",
+     "after_fairness_roll": "40/40"
+    },
+    {
+     "difficulty": "moderate",
+     "failed_encounters": 0,
+     "raw_spawn_winnable": "35/40",
+     "after_fairness_roll": "40/40"
+    },
+    {
+     "difficulty": "moderate",
+     "failed_encounters": 3,
+     "raw_spawn_winnable": "32/40",
+     "after_fairness_roll": "40/40"
+    },
+    {
+     "difficulty": "hard",
+     "failed_encounters": 0,
+     "raw_spawn_winnable": "30/40",
+     "after_fairness_roll": "40/40"
+    },
+    {
+     "difficulty": "hard",
+     "failed_encounters": 3,
+     "raw_spawn_winnable": "26/40",
+     "after_fairness_roll": "40/40"
+    }
+   ],
+   "note": "ensureWinnable() rerolls a random board until its own search proves a win exists. The left column is what the player would have got without it."
+  },
+  "oracle_cross_check": {
+   "suspect_positions": 10,
+   "oracle_disagreed": 0,
+   "oracle_budget_exhausted": 0,
+   "note": "positions the game called dead while the dog still had four or more rounds and stamina in hand, re-searched independently"
+  }
+ }
 }
