@@ -40,12 +40,22 @@
          border-radius:5px;padding:9px 15px;font:inherit;font-size:13px;cursor:pointer}
   button:hover:not(:disabled){border-color:#3a4650;background:#222a30}
   button:disabled{opacity:.35;cursor:default}
-  button.key{min-width:46px}
-  .pad{display:grid;grid-template-columns:repeat(3,46px);gap:6px;margin-top:12px}
-  .pad button:nth-child(1){grid-column:2}
+  button.key{min-width:62px;padding:9px 6px}
+  .pad{display:grid;grid-template-columns:repeat(3,62px);gap:6px;margin:12px auto 0;width:198px}
   .prov{color:#5b666f;font-size:11px;margin-top:14px;text-align:center}
   .prov code{color:#6d7a84}
   td.pred{color:var(--cold);font-weight:700}
+  .boardwrap{display:flex;justify-content:center;margin:2px 0 8px}
+  canvas#board{max-width:100%;height:auto;border:1px solid var(--line);border-radius:4px;
+               cursor:pointer;image-rendering:auto}
+  .legend{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:11px;color:var(--dim);
+          justify-content:center;margin-bottom:6px}
+  .legend .sw{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+  .legend .you{background:#8a5a2b;box-shadow:0 0 0 2px rgba(127,176,105,.9)}
+  .legend .rex{background:#6f7887;box-shadow:0 0 6px rgba(201,86,75,.8)}
+  .legend .pred{background:transparent;border:2px solid var(--cold)}
+  .legend .kid{background:#c9564b;box-shadow:0 0 0 2px rgba(224,163,74,.5)}
+  .legend .cover{background:#4a3a26;border:1px solid #7a5f3a}
   .hint{color:var(--dim);font-size:12px;margin-top:10px}
   .badge{color:#6d7a84;font-size:11px;line-height:1.5;border-top:1px dashed var(--line);
          margin-top:12px;padding-top:8px}

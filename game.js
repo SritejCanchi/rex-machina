@@ -31,6 +31,11 @@ function say(html, cls){
   const p = document.createElement("p");
   if(cls) p.className = cls;
   p.innerHTML = html;
+  if(html.indexOf("class='rex'") >= 0 && S.mode === "fight"){
+    BOARD.bubble = String(html).replace(/<[^>]*>/g, "").replace(/^REX:\s*/, "")
+      .replace(/&ldquo;|&rdquo;/g, "“").replace(/&amp;/g, "&");
+    BOARD.bubbleT0 = performance.now();
+  }
   $("say").appendChild(p);
   while($("say").children.length > 4) $("say").removeChild($("say").firstChild);
 }
@@ -204,37 +209,29 @@ function drawFight(){
   hud([["phase", p.PhaseIndex + "/3 " + p.ArenaName], ["round", S.round + "/" + MAXROUNDS],
        ["stamina", S.stamina], ["approach", approach().toFixed(2)],
        ["charge", Math.round(S.charge) + "%"], ["register", band()]]);
-  let t = "<table class='grid'>";
-  for(let y=0;y<h;y++){
-    t += "<tr>";
-    for(let x=0;x<w;x++){
-      const c=[x,y]; let cls="", ch="&middot;";
-      if(eq(c,S.dog)){cls="dog";ch="DOG";}
-      else if(eq(c,S.rex)){cls="rexT";ch="REX";}
-      else if(eq(c,S.kid)){cls="kid";ch="KID";}
-      // The tile REX predicted you would step on. This is the One Wow made
-      // visible: without it the robot just looks like it is walking toward you.
-      else if(S.predicted && eq(c,S.predicted)){cls="pred";ch="&times;";}
-      else if((p.CoverTiles||[]).some(e=>eq(e,c))){cls="cover";ch="#";}
-      else if((p.ExitTiles||[]).some(e=>eq(e,c))){cls="exit";ch="=";}
-      t += "<td class='"+cls+"'>"+ch+"</td>";
-    }
-    t += "</tr>";
-  }
-  t += "</table>";
+  const T = BOARD.T;
+  let t = "<div class='boardwrap'><canvas id='board' width='" + (w*T) + "' height='" + (h*T) + "'></canvas></div>";
+  t += "<div class='legend'>" +
+       "<span><i class='sw you'></i>you, the dog</span>" +
+       "<span><i class='sw rex'></i>REX, the robot</span>" +
+       "<span><i class='sw pred'></i>where REX thinks you will step</span>" +
+       "<span><i class='sw kid'></i>the kid: reach her</span>" +
+       "<span><i class='sw cover'></i>cover</span></div>";
+  // Explicit grid areas: auto-placement put the left arrow in the top row.
   t += "<div class='pad'>" +
-       "<button class='key' onclick=\"mv('up')\">W</button>" +
-       "<button class='key' onclick=\"mv('left')\">A</button>" +
-       "<button class='key' onclick=\"mv('wait')\">E</button>" +
-       "<button class='key' onclick=\"mv('right')\">D</button>" +
-       "<button class='key' onclick=\"mv('down')\" style='grid-column:2'>S</button></div>";
-  t += "<div class='hint'>Reach <b>KID</b>. <b>REX</b> moves to where it thinks you will step next; " +
-       "<b>&times;</b> marks that guess. Repeat a direction and it will be waiting there. " +
-       "Stamina drops faster while it is next to you.<br>" +
-       "It speaks only when it has measured something. To hear it: go <b>left</b> three times, " +
-       "wait (<b>E</b>) twice, or stand on cover (<b>#</b>).</div>";
+       "<button class='key' style='grid-area:1/2' onclick=\"mv('up')\">&uarr;</button>" +
+       "<button class='key' style='grid-area:2/1' onclick=\"mv('left')\">&larr;</button>" +
+       "<button class='key' style='grid-area:2/2' onclick=\"mv('wait')\">wait</button>" +
+       "<button class='key' style='grid-area:2/3' onclick=\"mv('right')\">&rarr;</button>" +
+       "<button class='key' style='grid-area:3/2' onclick=\"mv('down')\">&darr;</button></div>";
+  t += "<div class='hint'>Tap a tile next to the dog, or use the arrows. " +
+       "REX moves to the tile it thinks you will step on next; repeat a direction and it will be " +
+       "waiting there. Stamina drops faster while it is next to you.<br>" +
+       "It speaks only when it has measured something. To hear it: go left three times, " +
+       "wait twice, or stand on cover.</div>";
   $("stage").innerHTML = t;
   badge("fight");
+  boardSync();
 }
 
 function hud(pairs){
@@ -395,6 +392,204 @@ function checkEnd(){
     say("<span class='lose'>The porch light is still on. You cannot reach it.</span>");
     $("stage").innerHTML += "<div class='btns'><button onclick='beginFight()'>Retry from the gate</button></div>";
   }
+}
+
+// ------------------------------------------------------------ the board
+// Drawn, not tabulated. The text grid told you which cell said DOG; it did not
+// tell you that the dog was you, that the robot was hunting, or that the ×
+// was a prediction rather than a wall. Everything below exists so a stranger
+// reads the board before reading a word: the piece with the ring is you, the
+// grey angular one with the red eye is the machine, the small figure on the
+// lit square is where you are going. Pieces slide between tiles so a move is
+// something you watch, and the robot's line comes out of the robot.
+//
+// Nothing here changes the game. S is read, never written; mv() is the only
+// way the board affects the fight, and it is the same mv() the keys call.
+const BOARD = {
+  T: 44, running: false, dog: null, rex: null, dogFrom: null, rexFrom: null,
+  t0: 0, dur: 220, dogFace: 1, rexFace: -1, bubble: null, bubbleT0: 0, canvas: null
+};
+
+function boardSync(){
+  // Called after every redraw. Remembers where the pieces were drawn last so
+  // the next paint can slide them from there to where the state says they are.
+  const c = $("board");
+  if(!c) return;
+  if(!BOARD.dog){ BOARD.dog = S.dog.slice(); BOARD.rex = S.rex.slice(); }
+  if(!eq(BOARD.dog, S.dog) || !eq(BOARD.rex, S.rex)){
+    BOARD.dogFrom = BOARD.dog.slice(); BOARD.rexFrom = BOARD.rex.slice();
+    if(S.dog[0] !== BOARD.dog[0]) BOARD.dogFace = Math.sign(S.dog[0] - BOARD.dog[0]);
+    if(S.rex[0] !== BOARD.rex[0]) BOARD.rexFace = Math.sign(S.rex[0] - BOARD.rex[0]);
+    BOARD.dog = S.dog.slice(); BOARD.rex = S.rex.slice();
+    BOARD.t0 = performance.now();
+  }
+  if(BOARD.canvas !== c){
+    BOARD.canvas = c;
+    c.addEventListener("click", ev => {
+      const r = c.getBoundingClientRect();
+      const x = Math.floor((ev.clientX - r.left) / r.width  * c.width  / BOARD.T);
+      const y = Math.floor((ev.clientY - r.top)  / r.height * c.height / BOARD.T);
+      const dx = x - S.dog[0], dy = y - S.dog[1];
+      if(dx === 0 && dy === 0) mv("wait");
+      else if(Math.abs(dx) + Math.abs(dy) === 1) mv(dx === 1 ? "right" : dx === -1 ? "left" : dy === 1 ? "down" : "up");
+    });
+  }
+  if(!BOARD.running){ BOARD.running = true; requestAnimationFrame(paint); }
+}
+
+function lerpPos(from, to, k){
+  if(!from) return to;
+  return [from[0] + (to[0]-from[0]) * k, from[1] + (to[1]-from[1]) * k];
+}
+function ease(k){ return k < 0.5 ? 2*k*k : 1 - Math.pow(-2*k+2, 2)/2; }
+
+function paint(now){
+  const c = $("board");
+  if(!c || S.mode !== "fight"){ BOARD.running = false; return; }
+  const g = c.getContext("2d"), T = BOARD.T, p = phase();
+  const [w,h] = p.GridSpan.toLowerCase().split("x").map(Number);
+  const k = ease(Math.min(1, (now - BOARD.t0) / BOARD.dur));
+  const dogPos = lerpPos(BOARD.dogFrom, BOARD.dog, k);
+  const rexPos = lerpPos(BOARD.rexFrom, BOARD.rex, k);
+
+  // floor: a yard at night, two greys, a hair of grid
+  for(let y=0;y<h;y++) for(let x=0;x<w;x++){
+    g.fillStyle = (x+y)%2 ? "#1b2025" : "#161a1f";
+    g.fillRect(x*T, y*T, T, T);
+  }
+  g.strokeStyle = "#0e1114"; g.lineWidth = 1;
+  for(let i=0;i<=w;i++){ g.beginPath(); g.moveTo(i*T+.5,0); g.lineTo(i*T+.5,h*T); g.stroke(); }
+  for(let i=0;i<=h;i++){ g.beginPath(); g.moveTo(0,i*T+.5); g.lineTo(w*T,i*T+.5); g.stroke(); }
+
+  // exits and cover, from the phase row
+  for(const e of (p.ExitTiles||[])){
+    g.strokeStyle = "#3f6f86"; g.setLineDash([4,3]); g.lineWidth = 2;
+    g.strokeRect(e[0]*T+5, e[1]*T+5, T-10, T-10); g.setLineDash([]);
+  }
+  for(const cv of (p.CoverTiles||[])) drawCrate(g, cv[0]*T, cv[1]*T, T);
+
+  // the kid's tile, lit
+  const kx = S.kid[0]*T, ky = S.kid[1]*T;
+  const grad = g.createRadialGradient(kx+T/2, ky+T/2, 4, kx+T/2, ky+T/2, T*0.9);
+  grad.addColorStop(0, "rgba(224,163,74,.35)"); grad.addColorStop(1, "rgba(224,163,74,0)");
+  g.fillStyle = grad; g.fillRect(kx-T/2, ky-T/2, T*2, T*2);
+  drawKid(g, kx, ky, T);
+
+  // the prediction, pulsing so it reads as a guess and not as a wall
+  if(S.predicted && !eq(S.predicted, S.rex)){
+    const pulse = 0.55 + 0.45 * Math.sin(now / 260);
+    const px = S.predicted[0]*T, py = S.predicted[1]*T;
+    g.strokeStyle = "rgba(111,168,199," + (0.35 + 0.5*pulse) + ")"; g.lineWidth = 2;
+    g.strokeRect(px+4, py+4, T-8, T-8);
+    g.beginPath(); g.moveTo(px+13, py+13); g.lineTo(px+T-13, py+T-13);
+    g.moveTo(px+T-13, py+13); g.lineTo(px+13, py+T-13); g.stroke();
+  }
+
+  drawRex(g, rexPos[0]*T, rexPos[1]*T, T, BOARD.rexFace);
+  drawDog(g, dogPos[0]*T, dogPos[1]*T, T, BOARD.dogFace);
+
+  // labels: the one thing the text grid never managed
+  label(g, "YOU", dogPos[0]*T + T/2, dogPos[1]*T - 3, "#7fb069");
+  label(g, "REX", rexPos[0]*T + T/2, rexPos[1]*T - 3, "#c9564b");
+  label(g, "KID", kx + T/2, ky - 3, "#e0a34a");
+
+  // the read, out of the robot's mouth, for a few seconds
+  if(BOARD.bubble && now - BOARD.bubbleT0 < 4200){
+    bubble(g, BOARD.bubble, rexPos[0]*T + T/2, rexPos[1]*T, w*T);
+  }
+  requestAnimationFrame(paint);
+}
+
+function label(g, text, x, y, colour){
+  // Above the piece, unless the piece is on the top row, where above is off
+  // the canvas and the label vanished with it.
+  if(y < 16) y += BOARD.T + 16;
+  g.font = "bold 10px ui-monospace, Menlo, Consolas, monospace";
+  g.textAlign = "center"; g.textBaseline = "bottom";
+  g.fillStyle = "rgba(13,15,17,.75)";
+  const wdt = g.measureText(text).width + 8;
+  g.fillRect(x - wdt/2, y - 12, wdt, 12);
+  g.fillStyle = colour; g.fillText(text, x, y - 1);
+}
+
+function bubble(g, text, x, y, boardW){
+  g.font = "12px ui-monospace, Menlo, Consolas, monospace";
+  const pad = 8, maxW = 230;
+  // wrap
+  const words = text.split(" "), lines = []; let cur = "";
+  for(const wd of words){
+    const t = cur ? cur + " " + wd : wd;
+    if(g.measureText(t).width > maxW - pad*2 && cur){ lines.push(cur); cur = wd; } else cur = t;
+  }
+  if(cur) lines.push(cur);
+  const bw = Math.min(maxW, Math.max(...lines.map(l => g.measureText(l).width)) + pad*2);
+  const bh = lines.length * 15 + pad*2;
+  let bx = x - bw/2, by = y - bh - 22;
+  bx = Math.max(4, Math.min(boardW - bw - 4, bx));
+  if(by < 4) by = y + 48;
+  g.fillStyle = "rgba(20,24,28,.96)"; g.strokeStyle = "#e0a34a"; g.lineWidth = 1;
+  roundRect(g, bx, by, bw, bh, 5); g.fill(); g.stroke();
+  g.fillStyle = "#e0a34a"; g.textAlign = "left"; g.textBaseline = "top";
+  lines.forEach((l, i) => g.fillText(l, bx + pad, by + pad + i*15));
+}
+
+function roundRect(g, x, y, w, h, r){
+  g.beginPath(); g.moveTo(x+r, y); g.lineTo(x+w-r, y); g.quadraticCurveTo(x+w, y, x+w, y+r);
+  g.lineTo(x+w, y+h-r); g.quadraticCurveTo(x+w, y+h, x+w-r, y+h); g.lineTo(x+r, y+h);
+  g.quadraticCurveTo(x, y+h, x, y+h-r); g.lineTo(x, y+r); g.quadraticCurveTo(x, y, x+r, y); g.closePath();
+}
+
+function drawCrate(g, x, y, T){
+  g.fillStyle = "#4a3a26"; g.fillRect(x+6, y+8, T-12, T-14);
+  g.strokeStyle = "#7a5f3a"; g.lineWidth = 1.5; g.strokeRect(x+6.5, y+8.5, T-13, T-15);
+  g.beginPath(); g.moveTo(x+6, y+8); g.lineTo(x+T-6, y+T-6); g.moveTo(x+T-6, y+8); g.lineTo(x+6, y+T-6); g.stroke();
+}
+
+function drawDog(g, x, y, T, face){
+  // a low, long body, a head with two ears, a tail. Warm brown, green ring.
+  g.save(); g.translate(x + T/2, y + T/2); g.scale(face || 1, 1);
+  g.strokeStyle = "rgba(127,176,105,.9)"; g.lineWidth = 2;
+  g.beginPath(); g.arc(0, 2, T*0.42, 0, Math.PI*2); g.stroke();
+  g.fillStyle = "#8a5a2b";
+  g.beginPath(); g.ellipse(-2, 4, 12, 7, 0, 0, Math.PI*2); g.fill();          // body
+  g.fillRect(-11, 8, 3, 6); g.fillRect(-5, 8, 3, 6); g.fillRect(3, 8, 3, 6); g.fillRect(8, 8, 3, 6); // legs
+  g.beginPath(); g.arc(11, -2, 6, 0, Math.PI*2); g.fill();                    // head
+  g.beginPath(); g.moveTo(7, -7); g.lineTo(9, -13); g.lineTo(12, -6); g.fill(); // ear
+  g.beginPath(); g.moveTo(11, -7); g.lineTo(14, -12); g.lineTo(16, -5); g.fill();
+  g.strokeStyle = "#8a5a2b"; g.lineWidth = 2.5; g.lineCap = "round";
+  g.beginPath(); g.moveTo(-13, 2); g.lineTo(-18, -5); g.stroke();             // tail
+  g.fillStyle = "#c9956a"; g.beginPath(); g.arc(15, 0, 2.6, 0, Math.PI*2); g.fill(); // snout
+  g.fillStyle = "#111"; g.beginPath(); g.arc(13, -3, 1.2, 0, Math.PI*2); g.fill();   // eye
+  g.restore();
+}
+
+function drawRex(g, x, y, T, face){
+  // the same body plan, squarer, taller, cold, one red visor. Red glow under it.
+  g.save(); g.translate(x + T/2, y + T/2);
+  const glow = g.createRadialGradient(0, 6, 2, 0, 6, T*0.55);
+  glow.addColorStop(0, "rgba(201,86,75,.35)"); glow.addColorStop(1, "rgba(201,86,75,0)");
+  g.fillStyle = glow; g.fillRect(-T/2, -T/2, T, T);
+  g.scale(face || 1, 1);
+  g.fillStyle = "#6f7887";
+  g.fillRect(-13, -4, 24, 11);                                                // body
+  g.fillStyle = "#4b535f";
+  g.fillRect(-12, 7, 4, 8); g.fillRect(-5, 7, 4, 8); g.fillRect(2, 7, 4, 8); g.fillRect(8, 7, 4, 8); // legs
+  g.fillRect(-16, -2, 4, 6);                                                  // hip block
+  g.fillStyle = "#6f7887"; g.fillRect(8, -13, 12, 10);                       // head
+  g.fillStyle = "#ff3b2a"; g.fillRect(14, -10, 6, 3);                        // visor
+  g.fillStyle = "#4b535f"; g.fillRect(10, -17, 2, 5);                        // antenna
+  g.restore();
+}
+
+function drawKid(g, x, y, T){
+  g.save(); g.translate(x + T/2, y + T/2);
+  g.fillStyle = "#e0a34a"; g.globalAlpha = .25; g.fillRect(-T/2+2, -T/2+2, T-4, T-4); g.globalAlpha = 1;
+  g.fillStyle = "#2b2b2b"; g.fillRect(-5, 6, 4, 9); g.fillRect(1, 6, 4, 9);   // legs
+  g.fillStyle = "#c9564b"; g.fillRect(-7, -6, 14, 13);                        // jacket
+  g.fillRect(-11, -5, 4, 9); g.fillRect(7, -5, 4, 9);                          // arms
+  g.fillStyle = "#e8b48a"; g.beginPath(); g.arc(0, -12, 6, 0, Math.PI*2); g.fill(); // head
+  g.fillStyle = "#2b2b2b"; g.fillRect(-6, -19, 12, 5);                        // hair
+  g.restore();
 }
 
 if (typeof document !== "undefined") document.addEventListener("keydown", e => {
