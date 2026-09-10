@@ -110,10 +110,11 @@ function intro(){
       "Act 3: the robot does not chase you. It moves to where it thinks you are about to go, " +
       "and tells you what it measured off your movement.</span>");
   $("stage").innerHTML =
-    "<div class='intro'>" + ctlRow() +
-    "<div class='btns'>" +
-    "<button onclick='startHazard(0)'>Start from the shelter &middot; about 6 minutes</button>" +
-    "<button onclick='beginFight()'>Skip to the fight &middot; about 2 minutes</button></div>" +
+    "<div class='intro'>" + ctlRow("Nine days home") +
+    "<div class='padrow'>" + hintBox() +
+    "<div class='btns col'>" +
+    "<button class='primary' onclick='startHazard(0)'>Start from the shelter &middot; 6 min</button>" +
+    "<button onclick='beginFight()'>Skip to the fight &middot; 2 min</button></div></div>" +
     "<div class='hint'>Arrow keys or WASD in the fight, E to wait. Everything else is a button.</div>" +
     "<h2 style='margin-top:16px'>What made this</h2>" +
     "<ul>" +
@@ -134,6 +135,7 @@ function intro(){
 function telegraphTurn(h){ return Math.max(1, h.WindowTurns - 1); }
 
 function startHazard(i){
+  if(i === 0 && typeof document !== "undefined") rollTheme();
   S.act = i < 4 ? 1 : 2;
   S.hazard = i; S.hzTurn = 0; S.hzFails = 0; S.mode = "hazard";
   const h = DT.hazards[i];
@@ -157,13 +159,14 @@ function drawHazard(){
   // The window opens the turn AFTER the tell. Breaking on the tell itself is
   // early and is caught, so the hint has to say "hold once more" here, not
   // "break" -- the earlier wording lost five runs in a row for a real player.
-  body = ctlRow() +
+  body = ctlRow("Day " + h.Day + " &middot; encounter " + (S.hazard+1) + " of " + DT.hazards.length) +
          "<div class='boardwrap'><canvas id='strip' width='440' height='120'></canvas></div>" +
          "<div class='tip' id='tip'>Tap the strip to see what each figure is.</div>" + body;
   $("stage").innerHTML = body +
-    "<div class='btns'><button onclick='hz(\"wait\")'>Hold still</button>" +
+    "<div class='padrow'>" + hintBox() +
+    "<div class='btns col'><button class='primary' onclick='hz(\"wait\")'>Hold still</button>" +
     "<button onclick='hz(\"go\")'>Break for it</button>" +
-    "<button onclick='beginFight()' style='margin-left:auto;opacity:.7'>Skip to the fight</button></div>" +
+    "<button class='quiet' onclick='beginFight()'>Skip to the fight</button></div></div>" +
     "<div class='hint'>Hold still keeps you where you are for a turn. Break for it is the one move that ends the encounter, " +
     "and it only works on the turn right after the tell.</div>";
   badge("hazard");
@@ -223,7 +226,7 @@ function paintStrip(now){
   g.beginPath(); g.arc(px + 16, H - 58, 7, 0, Math.PI * 2); g.fill();            // head
   g.fillRect(px - 12, H - 44, 4, 10); g.fillRect(px - 4, H - 44, 4, 10); g.fillRect(px + 4, H - 44, 4, 10); g.fillRect(px + 12, H - 44, 4, 10);
   g.fillStyle = "#111"; g.beginPath(); g.arc(px + 18, H - 60, 1.5, 0, Math.PI * 2); g.fill();
-  if(tell){ g.fillStyle = "#e0a34a"; g.font = "bold 14px ui-monospace, Menlo, Consolas, monospace"; g.textAlign = "center"; g.fillText("!", px + 16, H - 70); }
+  if(tell){ g.fillStyle = "#e0a34a"; g.font = "bold 14px Barlow, 'Segoe UI', Arial, sans-serif"; g.textAlign = "center"; g.fillText("!", px + 16, H - 70); }
   // you, at the right
   drawDog(g, W - 88, H - 78, 44, -1);
   label(g, "YOU", W - 66, H - 80, "#7fb069");
@@ -272,6 +275,7 @@ function beginFight(){
   S.round = 0; S.charge = START_CHARGE;
   S.moves = []; S.lastCat = null; S.phaseIx = 0; S.attempts++; S.spoken = []; S.log = [];
   S.checkpoint = null; S.predicted = null;
+  if(typeof document !== "undefined") rollTheme();
   clearSay();
   const p = DT.phases[0];
   say("<span class='sys'>Act 3. " + p.ArenaName + ". " + p.Light + "</span>");
@@ -318,7 +322,7 @@ function drawFight(){
        ["charge", Math.round(S.charge) + "%"], ["register", band()]]);
   const T = BOARD.T;
   let t = "<div class='boardwrap'><canvas id='board' width='" + (w*T) + "' height='" + (h*T) + "'></canvas></div>";
-  t = ctlRow() + t;
+  t = ctlRow("Act 3 &middot; " + p.ArenaName + " &middot; " + THEME.name) + t;
   t += "<div class='tip' id='tip'>Tap or hover anything on the board to see what it is.</div>";
   t += "<div class='legend'>" +
        "<span><i class='sw you'></i>you, the dog</span>" +
@@ -327,12 +331,12 @@ function drawFight(){
        "<span><i class='sw kid'></i>the kid: reach her</span>" +
        "<span><i class='sw cover'></i>cover</span></div>";
   // Explicit grid areas: auto-placement put the left arrow in the top row.
-  t += "<div class='pad'>" +
+  t += "<div class='padrow'>" + hintBox() + "<div class='pad'>" +
        "<button class='key' style='grid-area:1/2' onclick=\"mv('up')\">&uarr;</button>" +
        "<button class='key' style='grid-area:2/1' onclick=\"mv('left')\">&larr;</button>" +
        "<button class='key' style='grid-area:2/2' onclick=\"mv('wait')\" title='Stay on your tile for a round. REX still moves and still spends charge, so a wait can make it come to you or tire. Two waits in four moves is a pattern it will name.'>wait</button>" +
        "<button class='key' style='grid-area:2/3' onclick=\"mv('right')\">&rarr;</button>" +
-       "<button class='key' style='grid-area:3/2' onclick=\"mv('down')\">&darr;</button></div>";
+       "<button class='key' style='grid-area:3/2' onclick=\"mv('down')\">&darr;</button></div></div>";
   t += "<div class='hint'>Tap a tile next to the dog, or use the arrows. <b>wait</b> holds your tile for a round: " +
        "REX still moves and still spends charge, so a wait can pull it onto a wrong tile or tire it. " +
        "It speaks only when it has measured something.</div>";
@@ -343,7 +347,7 @@ function drawFight(){
 
 function hud(pairs){
   if(typeof document === "undefined") return;
-  $("hud").innerHTML = pairs.map(([k,v]) => "<span>" + k + " <b>" + v + "</b></span>").join("");
+  $("hud").innerHTML = pairs.map(([k,v]) => "<span><i>" + k + "</i><b>" + v + "</b></span>").join("");
 }
 
 // --- the dog's observables, ported from game/rex/dog.py ---
@@ -547,10 +551,13 @@ function hintFor(){
   return specific.length && S.round % 2 === 0 ? specific[0] : general[S.round % general.length];
 }
 
-function ctlRow(){
-  return "<div class='ctl'><div class='hintbox' id='hintbox'><span class='hl'>hint</span>" + hintFor() + "</div>" +
+function ctlRow(label){
+  return "<div class='ctl'><div class='ctll'>" + (label || "") + "</div>" +
          "<div class='ctlr'>" + diffSelect() +
          "<button onclick='location.reload()' title='Back to the first screen'>Reset</button></div></div>";
+}
+function hintBox(){
+  return "<div class='hintbox' id='hintbox'><span class='hl'>hint</span><span>" + hintFor() + "</span></div>";
 }
 
 function diffSelect(){
@@ -597,10 +604,11 @@ const THEMES = [
 ];
 let THEME = THEMES[0];
 function rollTheme(){
+  // One place per match. A new fight or a new run from the shelter rolls a
+  // new one; a round does not.
   let t = THEME;
   while(t === THEME) t = THEMES[Math.floor(Math.random() * THEMES.length)];
   THEME = t;
-  const tp = $("tip"); if(tp) tp.textContent = "Round " + S.round + ". " + THEME.name + ".";
 }
 // a tiny seeded generator so the set dressing does not jitter every frame
 function seeded(seed){ let x = seed | 0 || 1; return () => { x ^= x << 13; x ^= x >>> 17; x ^= x << 5; return ((x >>> 0) % 10000) / 10000; }; }
@@ -675,7 +683,6 @@ function boardSync(){
   // the next paint can slide them from there to where the state says they are.
   const c = $("board");
   if(!c) return;
-  if(BOARD.lastRound !== S.round){ BOARD.lastRound = S.round; rollTheme(); }
   if(!BOARD.dog || S.round === 0){ BOARD.dog = S.dog.slice(); BOARD.rex = S.rex.slice(); BOARD.dogFrom = BOARD.rexFrom = null; }
   if(!eq(BOARD.dog, S.dog) || !eq(BOARD.rex, S.rex)){
     BOARD.dogFrom = BOARD.dog.slice(); BOARD.rexFrom = BOARD.rex.slice();
@@ -734,8 +741,8 @@ function paint(now){
   for(let i=0;i<=w;i++){ g.beginPath(); g.moveTo(i*T+.5,0); g.lineTo(i*T+.5,h*T); g.stroke(); }
   for(let i=0;i<=h;i++){ g.beginPath(); g.moveTo(0,i*T+.5); g.lineTo(w*T,i*T+.5); g.stroke(); }
   // the theme, named in the corner, so a change of place is never a guess
-  g.font = "bold 9px ui-monospace, Menlo, Consolas, monospace"; g.textAlign = "right"; g.textBaseline = "top";
-  const tn = "ROUND " + S.round + " \u00b7 " + THEME.name.toUpperCase(), tw = g.measureText(tn).width + 10;
+  g.font = "700 10px Cinzel, Georgia, serif"; g.textAlign = "right"; g.textBaseline = "top";
+  const tn = THEME.name.toUpperCase(), tw = g.measureText(tn).width + 10;
   g.fillStyle = "rgba(13,15,17,.7)"; g.fillRect(w*T - tw - 4, 4, tw, 14);
   g.fillStyle = THEME.glow; g.fillText(tn, w*T - 9, 6);
 
@@ -782,7 +789,7 @@ function label(g, text, x, y, colour){
   // Above the piece, unless the piece is on the top row, where above is off
   // the canvas and the label vanished with it.
   if(y < 16) y += BOARD.T + 16;
-  g.font = "bold 10px ui-monospace, Menlo, Consolas, monospace";
+  g.font = "700 10px Cinzel, Georgia, serif";
   g.textAlign = "center"; g.textBaseline = "bottom";
   g.fillStyle = "rgba(13,15,17,.75)";
   const wdt = g.measureText(text).width + 8;
@@ -791,7 +798,7 @@ function label(g, text, x, y, colour){
 }
 
 function bubble(g, text, x, y, boardW){
-  g.font = "12px ui-monospace, Menlo, Consolas, monospace";
+  g.font = "500 13px Barlow, 'Segoe UI', Arial, sans-serif";
   const pad = 8, maxW = 230;
   // wrap
   const words = text.split(" "), lines = []; let cur = "";

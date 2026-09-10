@@ -4,84 +4,125 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Rex Machina</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
+  /* Hextech: deep navy, worn gold, one cold teal for the thing that matters. */
   :root{
-    --bg:#0d0f11; --panel:#14181c; --line:#232a31; --ink:#dfe5ea;
-    --dim:#8b97a2; --hot:#e0a34a; --cold:#6fa8c7; --bad:#c9564b; --good:#7fb069;
+    --bg:#010a13; --bg2:#0a1428; --panel:#0a1428; --panel2:#0b1a30;
+    --gold:#c8aa6e; --gold2:#f0e6d2; --gold3:#785a28; --gold4:#463714;
+    --ink:#f0e6d2; --dim:#a09b8c; --mute:#5b5a56;
+    --teal:#0ac8b9; --teal2:#cdfafa; --bad:#e84057; --good:#0ac8b9; --hot:#c8aa6e;
+    --display:Cinzel,Georgia,"Times New Roman",serif;
+    --body:Barlow,"Segoe UI",Arial,sans-serif;
   }
   *{box-sizing:border-box}
-  body{margin:0;background:var(--bg);color:var(--ink);
-       font:15px/1.55 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
-       display:flex;justify-content:center;padding:16px}
+  html{background:var(--bg)}
+  body{margin:0;color:var(--ink);
+       background:radial-gradient(ellipse at 50% -10%,#0f2440 0%,#0a1428 40%,#010a13 100%) fixed;
+       font:15px/1.5 var(--body);
+       display:flex;justify-content:center;padding:18px 16px 24px}
   #app{width:100%;max-width:760px}
-  h1{font-size:19px;letter-spacing:.14em;margin:0 0 2px;font-weight:600}
-  .sub{color:var(--dim);font-size:12px;margin-bottom:14px}
-  .panel{background:var(--panel);border:1px solid var(--line);border-radius:6px;
-         padding:14px 16px;margin-bottom:12px}
-  .hud{display:flex;flex-wrap:wrap;gap:8px 20px;font-size:13px;color:var(--dim)}
-  .hud b{color:var(--ink);font-weight:600}
-  .bar{height:4px;background:#20262c;border-radius:2px;margin-top:5px;overflow:hidden}
-  .bar i{display:block;height:100%;background:var(--cold)}
+
+  /* title */
+  .head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;
+        border-bottom:1px solid var(--gold4);padding-bottom:10px;margin-bottom:14px;position:relative}
+  .head:after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:1px;
+              background:linear-gradient(90deg,var(--gold) 0,rgba(200,170,110,0) 60%)}
+  h1{font:700 22px/1 var(--display);letter-spacing:.32em;margin:0;
+     background:linear-gradient(180deg,#f0e6d2 0%,#c8aa6e 55%,#785a28 100%);
+     -webkit-background-clip:text;background-clip:text;color:transparent}
+  .sub{color:var(--dim);font-size:12px;letter-spacing:.08em;text-transform:uppercase}
+
+  /* panels: square, gold-lined, a faint inner light like the client's frames */
+  .panel{background:linear-gradient(180deg,var(--panel2),var(--panel));
+         border:1px solid var(--gold3);box-shadow:inset 0 0 0 1px rgba(200,170,110,.07),0 6px 18px rgba(0,0,0,.45);
+         padding:14px 18px;margin-bottom:12px;position:relative}
+  .panel:before,.panel:after{content:"";position:absolute;width:7px;height:7px;border:1px solid var(--gold);pointer-events:none}
+  .panel:before{left:-1px;top:-1px;border-right:0;border-bottom:0}
+  .panel:after{right:-1px;bottom:-1px;border-left:0;border-top:0}
+
+  /* hud: label small gold caps, value cream */
+  .hud{display:flex;flex-wrap:wrap;gap:6px 26px}
+  .hud span{display:flex;flex-direction:column;line-height:1.15}
+  .hud i{font-style:normal;color:var(--gold);font-size:10px;letter-spacing:.16em;text-transform:uppercase}
+  .hud b{color:var(--ink);font:700 15px var(--display);letter-spacing:.04em}
+  .bar{height:4px;background:#20262c;margin-top:5px;overflow:hidden}
+  .bar i{display:block;height:100%;background:var(--teal)}
+
+  /* the text */
   #say{min-height:66px}
   #say p{margin:0 0 8px}
   #say p:last-child{margin-bottom:0}
-  .rex{color:var(--hot)}
-  .sys{color:var(--dim);font-size:13px}
-  .win{color:var(--good)} .lose{color:var(--bad)}
-  table.grid{border-collapse:collapse;margin:2px auto}
-  table.grid td{width:30px;height:30px;text-align:center;vertical-align:middle;
-                font-size:12px;color:#39424b;border:1px solid #191e23}
-  td.dog{color:var(--good);font-weight:700}
-  td.rexT{color:var(--bad);font-weight:700}
-  td.kid{color:var(--hot);font-weight:700}
-  td.cover{color:#4a545e} td.exit{color:#3d4a55}
-  .btns{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
-  button{background:#1b2126;color:var(--ink);border:1px solid var(--line);
-         border-radius:5px;padding:9px 15px;font:inherit;font-size:13px;cursor:pointer}
-  button:hover:not(:disabled){border-color:#3a4650;background:#222a30}
+  .rex{color:var(--gold);font-weight:600}
+  .sys{color:var(--dim);font-size:13.5px}
+  .win{color:var(--teal);font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+  .lose{color:var(--bad);font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+
+  /* buttons: dark fill, gold gradient edge, caps, the primary one lit */
+  button{background:linear-gradient(180deg,#1e2328 0%,#0a1428 100%);color:var(--gold);
+         border:1px solid transparent;border-image:linear-gradient(180deg,#c8aa6e,#785a28) 1;
+         padding:10px 18px;font:700 12px/1.2 var(--display);letter-spacing:.12em;text-transform:uppercase;
+         cursor:pointer;transition:color .12s,box-shadow .12s;position:relative}
+  button:hover:not(:disabled){color:var(--gold2);border-image:linear-gradient(180deg,#f0e6d2,#c8aa6e) 1;
+         box-shadow:0 0 12px rgba(200,170,110,.28),inset 0 0 10px rgba(200,170,110,.08)}
+  button:active:not(:disabled){color:var(--gold3)}
   button:disabled{opacity:.35;cursor:default}
-  button.key{min-width:62px;padding:9px 6px}
-  .pad{display:grid;grid-template-columns:repeat(3,62px);gap:6px;margin:12px auto 0;width:198px}
-  .prov{color:#5b666f;font-size:11px;margin-top:14px;text-align:center}
-  .prov code{color:#6d7a84}
-  td.pred{color:var(--cold);font-weight:700}
-  .ctl{display:flex;gap:12px;align-items:flex-start;justify-content:space-between;margin-bottom:10px}
-  .hintbox{flex:1;font-size:12px;color:var(--ink);min-height:18px;line-height:1.5;
-           background:#1a2026;border:1px solid #2c3a44;border-left:3px solid var(--hot);
-           border-radius:5px;padding:7px 10px}
-  .hintbox .hl{color:var(--hot);font-weight:700;font-size:10px;letter-spacing:.12em;
-               text-transform:uppercase;margin-right:8px}
+  button.primary{background:linear-gradient(180deg,#1e2328 0%,#0a1428 100%);color:var(--teal2);
+         border-image:linear-gradient(180deg,#0ac8b9,#0a5c58) 1}
+  button.primary:hover:not(:disabled){box-shadow:0 0 14px rgba(10,200,185,.35);border-image:linear-gradient(180deg,#cdfafa,#0ac8b9) 1;color:#fff}
+  button.quiet{color:var(--dim);border-image:linear-gradient(180deg,#5b5a56,#3c3c41) 1;font-size:11px}
+  button.key{min-width:56px;padding:10px 6px;font-size:14px;letter-spacing:.04em}
+  .btns{display:flex;flex-wrap:wrap;gap:8px;margin-top:0}
+  .btns.col{flex-direction:column;flex-shrink:0;min-width:200px}
+  .btns.col button{width:100%}
+
+  /* control rows */
+  .ctl{display:flex;gap:12px;align-items:center;justify-content:space-between;margin-bottom:10px;
+       border-bottom:1px solid var(--gold4);padding-bottom:8px}
+  .ctll{font:600 11px var(--display);letter-spacing:.18em;text-transform:uppercase;color:var(--gold)}
   .ctlr{display:flex;gap:8px;align-items:center;flex-shrink:0}
-  .diff{font-size:12px;color:var(--dim)}
-  .diff select{background:#1b2126;color:var(--ink);border:1px solid var(--line);border-radius:5px;
-               padding:6px 8px;font:inherit;font-size:12px;margin-left:4px}
-  .tip{font-size:11px;color:var(--dim);text-align:center;min-height:16px;margin:4px 0 6px}
+  .diff{font-size:10px;color:var(--gold);letter-spacing:.16em;text-transform:uppercase;font-family:var(--display)}
+  .diff select{background:linear-gradient(180deg,#1e2328,#0a1428);color:var(--gold2);border:1px solid var(--gold3);
+               padding:7px 10px;font:700 11px var(--display);letter-spacing:.1em;text-transform:uppercase;margin-left:6px;cursor:pointer}
+  .padrow{display:flex;gap:14px;align-items:stretch;justify-content:space-between;margin-top:12px}
+  .hintbox{flex:1;display:flex;flex-direction:column;gap:4px;font-size:13.5px;color:var(--ink);line-height:1.45;
+           background:linear-gradient(180deg,rgba(10,200,185,.08),rgba(10,200,185,.02));
+           border:1px solid rgba(10,200,185,.35);border-left:3px solid var(--teal);padding:10px 12px}
+  .hintbox .hl{color:var(--teal);font:700 10px var(--display);letter-spacing:.2em;text-transform:uppercase}
+  .pad{display:grid;grid-template-columns:repeat(3,56px);grid-auto-rows:44px;gap:5px;flex-shrink:0;align-self:center}
+  .tip{font-size:12px;color:var(--dim);text-align:center;min-height:16px;margin:4px 0 6px}
+  .hint{color:var(--dim);font-size:12.5px;margin-top:10px}
+  .hint b{color:var(--gold)}
+
+  /* the boards */
   .boardwrap{display:flex;justify-content:center;margin:2px 0 8px}
-  canvas#board,canvas#strip{max-width:100%;height:auto;border:1px solid var(--line);border-radius:4px;
-               cursor:pointer;image-rendering:auto}
-  .legend{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:11px;color:var(--dim);
-          justify-content:center;margin-bottom:6px}
-  .legend .sw{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+  canvas#board,canvas#strip{max-width:100%;height:auto;border:1px solid var(--gold3);cursor:pointer;image-rendering:auto}
+  .legend{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:11.5px;color:var(--dim);justify-content:center;margin-bottom:6px}
+  .legend .sw{display:inline-block;width:10px;height:10px;margin-right:5px;vertical-align:-1px}
   .legend .you{background:#8a5a2b;box-shadow:0 0 0 2px rgba(127,176,105,.9)}
   .legend .rex{background:#6f7887;box-shadow:0 0 6px rgba(201,86,75,.8)}
-  .legend .pred{background:transparent;border:2px solid var(--cold)}
+  .legend .pred{background:transparent;border:2px solid #6fa8c7}
   .legend .kid{background:#c9564b;box-shadow:0 0 0 2px rgba(224,163,74,.5)}
   .legend .cover{background:#4a3a26;border:1px solid #7a5f3a}
-  .hint{color:var(--dim);font-size:12px;margin-top:10px}
-  .badge{color:#6d7a84;font-size:11px;line-height:1.5;border-top:1px dashed var(--line);
-         margin-top:12px;padding-top:8px}
-  .badge b{color:#8b97a2;font-weight:600}
-  .intro h2{font-size:14px;margin:0 0 6px;color:var(--ink)}
+
+  /* the small print */
+  .badge{color:var(--mute);font-size:11.5px;line-height:1.5;border-top:1px solid var(--gold4);margin-top:12px;padding-top:8px}
+  .badge b{color:var(--dim);font-weight:600}
+  .prov{color:var(--mute);font-size:11px;margin-top:12px;text-align:center;letter-spacing:.04em}
+  .prov code{color:var(--dim);font-family:var(--body)}
+  .intro h2{font:700 12px var(--display);letter-spacing:.2em;text-transform:uppercase;margin:0 0 8px;color:var(--gold)}
   .intro p{margin:0 0 10px}
-  .intro ul{margin:0 0 4px;padding-left:18px;color:var(--dim);font-size:12px}
+  .intro ul{margin:0 0 4px;padding-left:18px;color:var(--dim);font-size:13px}
   .intro li{margin-bottom:3px}
   .intro li b{color:var(--ink);font-weight:600}
+  @media (max-width:560px){ .padrow{flex-direction:column} .btns.col{min-width:0} .pad{align-self:center} }
 </style>
 </head>
 <body>
 <div id="app">
-  <h1>REX MACHINA</h1>
-  <div class="sub">A shelter dog walks home. Nine days, then the thing they replaced her with.</div>
+  <div class="head"><h1>REX MACHINA</h1><div class="sub">Nine days home</div></div>
   <div class="panel" id="hudBox"><div class="hud" id="hud"></div></div>
   <div class="panel" id="say"></div>
   <div class="panel" id="stage"></div>
