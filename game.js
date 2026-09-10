@@ -15,7 +15,7 @@ const S = {
   // act 3
   dog: [0,0], rex: [5,5], kid: [7,4], distMax: 11,
   stamina: 15, round: 0, charge: 100, moves: [], lastCat: null,
-  priorAttempt: null, attempts: 0, checkpoint: null, spoken: [], log: [], hzState: "play"
+  priorAttempt: null, attempts: 0, checkpoint: null, spoken: [], log: [], hzState: "play", ledger: []
 };
 
 const MAXROUNDS = 15, START_CHARGE = 100, PURSUIT = 8, HOLD = 1, SOLAR = 2;
@@ -293,7 +293,7 @@ function beginFight(){
   S.dog = [0,0]; S.rex = [5,5]; S.kid = [7,4]; S.distMax = 11;
   if(S.randomSpawn) placePieces();
   S.round = 0; S.charge = START_CHARGE;
-  S.moves = []; S.lastCat = null; S.phaseIx = 0; S.attempts++; S.spoken = []; S.log = [];
+  S.moves = []; S.lastCat = null; S.phaseIx = 0; S.attempts++; S.spoken = []; S.log = []; S.ledger = [];
   S.checkpoint = null; S.predicted = null;
   if(S.randomSpawn) ensureWinnable();
   if(typeof document !== "undefined") rollTheme();
@@ -342,7 +342,7 @@ function drawFight(){
        ["stamina", S.stamina], ["approach", approach().toFixed(2)],
        ["charge", Math.round(S.charge) + "%"], ["register", band()]]);
   const T = BOARD.T;
-  let t = "<div class='boardwrap'><canvas id='board' width='" + (w*T) + "' height='" + (h*T) + "'></canvas></div>";
+  let t = "<div class='boardrow'><div class='boardwrap'><canvas id='board' width='" + (w*T) + "' height='" + (h*T) + "'></canvas></div>" + ledgerHtml() + "</div>";
   t = ctlRow("Act 3 &middot; " + p.ArenaName) + t;
   t += "<div class='tip' id='tip'>Tap or hover anything on the board to see what it is.</div>";
   t += "<div class='legend'>" +
@@ -494,6 +494,13 @@ function mv(dir){
     }
     S.dog = t;
   }
+  const judge = typeof document !== "undefined" && S.randomSpawn;
+  let before = null;
+  if(judge){
+    const held = S.dog; S.dog = dir === "wait" ? held : [held[0]-STEP[dir][0], held[1]-STEP[dir][1]];
+    before = { line: searchLine(), predicted: S.predicted, dist: man(S.dog, S.kid) };
+    S.dog = held;
+  }
   S.moves.push(dir);
   S.round++;
   rexAct();
@@ -501,6 +508,7 @@ function mv(dir){
   // RM-002, found by qa/adversary.js: the adjacency drain could take stamina
   // to -1 and the HUD showed it. Empty is empty.
   S.stamina = Math.max(0, S.stamina - 1 - (man(S.rex, S.dog) <= 1 ? 1 : 0));
+  if(judge) rateMove(dir, before, { line: man(S.dog, S.kid) === 0 ? [] : searchLine(), dog: S.dog, rex: S.rex, round: S.round });
   checkGate();
   drawFight();
   checkEnd();
@@ -702,10 +710,24 @@ function finishPlan(line){
   return explain(dir, true);
 }
 function searchPlan(){
+  const best = searchLine();
+  if(best && best.length) return finishPlan(best);
+  PLAN.key = null; PLAN.rest = [];
+  return explain(legalMoves()[0] || "wait", false);
+}
+function legalMoves(){
+  const out = [];
+  for(const d in STEP){
+    const t = [S.dog[0]+STEP[d][0], S.dog[1]+STEP[d][1]];
+    if(inBounds(t) && !eq(t, S.rex)) out.push(d);
+  }
+  return out;
+}
+function searchLine(){
   // Iterative deepening: the shortest line that reaches the kid, so there
   // is never a wait or a detour the position did not demand. Among moves
   // of equal worth, a change of direction is tried before a repeat, so the
-  // line has nothing for REX to read.
+  // line has nothing for REX to read. Returns the line, or null.
   const start = snapshot(); QUIET = true;
   let budget = 80000, best = null;
   const options = () => {
@@ -742,9 +764,47 @@ function searchPlan(){
     restore(start);
   }
   restore(start); QUIET = false;
-  if(best && best.length) return finishPlan(best);
-  PLAN.key = null; PLAN.rest = [];
-  return explain(options()[0], false);
+  return best;
+}
+
+// ------------------------------------------------------------ the ledger
+// Every move the player makes, judged after the fact by the same search
+// the computer plays with: did it stay on a shortest line to the kid, and
+// what did it pay for the privilege.
+function rateMove(dir, before, after){
+  const Lb = before.line ? before.line.length : null;
+  const La = after.line ? after.line.length : null;
+  const ontoX = before.predicted && dir !== "wait" && eq(after.dog, before.predicted);
+  const drained = man(after.rex, after.dog) <= 1;
+  let rating, note;
+  if(La === null && Lb === null){
+    const closer = man(after.dog, S.kid) < before.dist;
+    if(closer && !drained){ rating = "good"; note = "Closer, and clear of it. No line to her remains at this stamina, but this is the way to go down."; }
+    else if(closer){ rating = "fine"; note = "Closer, but it is beside you. No line to her remains at this stamina."; }
+    else { rating = "think better"; note = "No line to her remains, and this did not bring you closer."; }
+  }
+  else if(La === null){ rating = "danger"; note = "That move closed the last line to her at this stamina."; }
+  else if(La === 0){ rating = "excellent"; note = "Home."; }
+  else {
+    const slack = La - (Lb === null ? La : Lb - 1);
+    if(slack <= 0 && !ontoX && !drained){ rating = "excellent"; note = "On the shortest line, off its guess, out of its reach."; }
+    else if(slack <= 0){ rating = "good"; note = ontoX ? "Shortest line, but you stepped onto the tile it guessed." : "Shortest line, but it is beside you now and that costs double."; }
+    else if(slack === 1 && !ontoX && !drained){ rating = "fine"; note = "A round given away, but safely. It read nothing."; }
+    else if(slack === 1){ rating = "think better"; note = ontoX ? "A round lost, and onto its guess." : "A round lost, and it is beside you."; }
+    else { rating = "think better"; note = "That cost " + slack + " rounds against the shortest line."; }
+  }
+  S.ledger.push({ n: after.round, dir, rating, note });
+}
+function ledgerHtml(){
+  const L = S.ledger.slice().reverse();
+  const counts = {};
+  for(const e of S.ledger) counts[e.rating] = (counts[e.rating] || 0) + 1;
+  const sum = ["excellent","good","fine","think better","danger"].filter(k => counts[k]).map(k => counts[k] + " " + k).join(" &middot; ");
+  return "<div class='ledger' id='ledger'><div class='lt'>Ledger</div>" +
+    (L.length ? "<ol>" + L.map((e, i) => "<li class='" + e.rating.replace(" ", "-") + (i === 0 ? " new" : "") + "'>" +
+      "<span class='n'>" + e.n + "</span><span class='mv'>" + e.dir + "</span><span class='rt'>" + e.rating + "</span>" +
+      "<div class='nt'>" + e.note + "</div></li>").join("") + "</ol>" : "<div class='nt'>Your moves, judged as you make them.</div>") +
+    (sum ? "<div class='ls'>" + sum + "</div>" : "") + "</div>";
 }
 function explain(dir, full){
   // say why, in terms of what is on the board
@@ -1016,7 +1076,7 @@ function paint(now){
 function label(g, text, x, y, colour){
   // Above the piece, unless the piece is on the top row, where above is off
   // the canvas and the label vanished with it.
-  if(y < 16) y += BOARD.T + 16;
+  if(y < 16) y += BOARD.T + 1;
   g.font = "700 10px Cinzel, Georgia, serif";
   g.textAlign = "center"; g.textBaseline = "bottom";
   g.fillStyle = "rgba(13,15,17,.75)";
