@@ -133,6 +133,9 @@ def dress(name, mesh_name, scale, z, yaw, mat_name):
         return
 
     comp.set_editor_property("static_mesh", mesh)
+    # The motion graph eases this component's world location every Tick, and a
+    # Static component refuses to move at all -- silently, in a shipping build.
+    comp.set_editor_property("mobility", unreal.ComponentMobility.MOVABLE)
     comp.set_editor_property("relative_scale3d", unreal.Vector(*scale))
     comp.set_editor_property("relative_location", unreal.Vector(0.0, 0.0, z))
     comp.set_editor_property("relative_rotation", unreal.Rotator(0.0, 0.0, yaw))

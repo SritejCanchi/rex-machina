@@ -386,6 +386,101 @@ class ArrayAdd:
         ])
 
 
+HUD_CLASS = "/Script/CoreUObject.Class'/Script/Engine.HUD'"
+T_FLOAT = ('PinType.PinCategory="real",PinType.PinSubCategory="float",'
+           'PinType.PinSubCategoryObject=None')
+T_LINCOLOR = ('PinType.PinCategory="struct",PinType.PinSubCategory="",'
+              'PinType.PinSubCategoryObject='
+              '"/Script/CoreUObject.ScriptStruct\'/Script/CoreUObject.LinearColor\'"')
+T_WILDCARD_OBJ = ('PinType.PinCategory="wildcard",PinType.PinSubCategory="",'
+                  'PinType.PinSubCategoryObject='
+                  '"/Script/CoreUObject.Class\'/Script/CoreUObject.Object\'"')
+
+
+def bp_class_ref(asset):
+    """The object-pin form of a Blueprint's generated class.
+
+    Different from bp_class(), which is the bare path a *class* pin wants.
+    An object pin -- a cast's output, a variable get's target -- wants the
+    wrapped BlueprintGeneratedClass form.
+    """
+    return ("/Script/Engine.BlueprintGeneratedClass'"
+            "/Game/Blueprints/%s.%s_C'" % (asset, asset))
+
+
+class Cast:
+    """K2Node_DynamicCast. Captured, because one pin name is unguessable.
+
+    The output is called "AsBP Fight Manager" -- the class name with the
+    underscores turned into spaces -- and a link to any other spelling is
+    dropped on paste with no error anywhere.
+    """
+
+    def __init__(self, name, asset, x, y):
+        self.name, self.asset, self.x, self.y = name, asset, x, y
+        self.out_name = "As" + asset.replace("_", " ")
+        self.exec_in, self.exec_out, self.failed = [], [], []
+        self.obj_links, self.out_links = [], []
+
+    def pid(self, pinname):
+        return guid(self.name + "::" + pinname)
+
+    def render(self):
+        cls = bp_class_ref(self.asset)
+        obj_type = ('PinType.PinCategory="object",PinType.PinSubCategory="",'
+                    'PinType.PinSubCategoryObject="%s"' % cls)
+        return "\n".join([
+            'Begin Object Class=/Script/BlueprintGraph.K2Node_DynamicCast Name="%s"' % self.name,
+            '   TargetType="%s"' % cls,
+            '   NodePosX=%d' % self.x,
+            '   NodePosY=%d' % self.y,
+            '   NodeGuid=%s' % guid(self.name),
+            _pin_text(self, "execute", "in", T_EXEC, None, self.exec_in),
+            _pin_text(self, "then", "out", T_EXEC, None, self.exec_out),
+            _pin_text(self, "CastFailed", "out", T_EXEC, None, self.failed),
+            _pin_text(self, "Object", "in", T_WILDCARD_OBJ, None, self.obj_links),
+            _pin_text(self, self.out_name, "out", obj_type, None, self.out_links),
+            _pin_text(self, "bSuccess", "out", T_BOOL, None, ()),
+            'End Object',
+        ])
+
+
+class OtherVarGet:
+    """Read a variable off somebody else's Blueprint.
+
+    The ordinary VarGet is bSelfContext with no target pin. This one names the
+    owning class and carries a visible `self`, which is what the cast output
+    plugs into.
+    """
+
+    def __init__(self, name, asset, var, typefrag, x, y, tail=None):
+        self.name, self.asset, self.var = name, asset, var
+        self.typefrag, self.x, self.y, self.tail = typefrag, x, y, tail
+        self.self_links, self.links = [], []
+
+    def pid(self, pinname):
+        return guid(self.name + "::" + pinname)
+
+    def out_pin(self):
+        return self.pid(self.var)
+
+    def render(self):
+        cls = bp_class_ref(self.asset)
+        return "\n".join([
+            'Begin Object Class=/Script/BlueprintGraph.K2Node_VariableGet Name="%s"' % self.name,
+            '   VariableReference=(MemberParent="%s",MemberName="%s")' % (cls, self.var),
+            '   NodePosX=%d' % self.x,
+            '   NodePosY=%d' % self.y,
+            '   NodeGuid=%s' % guid(self.name),
+            _pin_text(self, self.var, "out", self.typefrag, None, self.links, self.tail),
+            _pin_text(self, "self", "in",
+                      'PinType.PinCategory="object",PinType.PinSubCategory="",'
+                      'PinType.PinSubCategoryObject="%s"' % cls, None, self.self_links, None,
+                      'PinFriendlyName=NSLOCTEXT("K2Node", "Target", "Target")'),
+            'End Object',
+        ])
+
+
 class ArrayClear:
     """Array_Clear -- empty an array in place.
 
@@ -453,9 +548,12 @@ class MemberCall:
     different actor into it.
     """
 
-    def __init__(self, name, member, parent, x, y, pure=False):
+    def __init__(self, name, member, parent, x, y, pure=False, self_type=None):
         self.name, self.member, self.parent = name, member, parent
         self.x, self.y, self.pure = x, y, pure
+        # The target is not always an Actor. A call on a component wants the
+        # component's own type here, and an Actor pin will not accept the wire.
+        self.self_type = self_type or T_ACTOR
         self.self_links = []
         self.pins = []
 
@@ -476,7 +574,7 @@ class MemberCall:
         ]
         if self.pure:
             out.insert(1, '   bDefaultsToPureFunc=True')
-        out.append(_pin_text(self, "self", "in", T_ACTOR, None, self.self_links, None,
+        out.append(_pin_text(self, "self", "in", self.self_type, None, self.self_links, None,
                              'PinFriendlyName=NSLOCTEXT("K2Node", "Target", "Target")'))
         for pn, d, tf, dv, lk, tl in _padded(self.pins):
             out.append(_pin_text(self, pn, d, tf, dv, lk, tl))
@@ -485,10 +583,21 @@ class MemberCall:
 
 
 class GetAllActors:
-    """GetAllActorsOfClass. WorldContextObject is hidden and UE fills it in."""
+    """GetAllActorsOfClass. WorldContextObject is hidden and UE fills it in.
 
-    def __init__(self, name, asset, x, y):
+    Impure, despite looking like a lookup: it has exec pins and an unconnected
+    one gets the whole node pruned, with the downstream value silently read as
+    its default instead.
+
+    `elem` exists because the output array is typed to whatever the ActorClass
+    pin names, not to Actor. Declaring it as Actor and reading it with an Actor
+    array meant the two pins disagreed after the reconstruct and the wire was
+    dropped -- reported as "the Array pin is invalid", several nodes away.
+    """
+
+    def __init__(self, name, asset, x, y, elem=None):
         self.name, self.asset, self.x, self.y = name, asset, x, y
+        self.elem = elem or T_ACTOR
         self.exec_in, self.exec_out, self.out_links = [], [], []
 
     def pid(self, pinname):
@@ -517,7 +626,7 @@ class GetAllActors:
             _pin_text(self, "ActorClass", "in", T_ACTOR_CLASS, None, (),
                       TAIL_CLASS).replace(
                 'PersistentGuid=', 'DefaultObject="%s",PersistentGuid=' % bp_class(self.asset)),
-            _pin_text(self, "OutActors", "out", T_ACTOR, None, self.out_links, TAIL_ARRAY),
+            _pin_text(self, "OutActors", "out", self.elem, None, self.out_links, TAIL_ARRAY),
             'End Object',
         ])
 
@@ -647,8 +756,11 @@ class EventNode:
     default stubs -- emitting that would produce an event that never fires.
     """
 
-    def __init__(self, name, member, x, y):
+    def __init__(self, name, member, x, y, parent=None):
         self.name, self.member, self.x, self.y = name, member, x, y
+        # ReceiveDrawHUD belongs to HUD, not Actor, and an EventReference that
+        # names the wrong parent pastes as a node that never fires.
+        self.parent = parent or "/Script/CoreUObject.Class'/Script/Engine.Actor'"
         self.pins = []
 
     def pin(self, pinname, direction, typefrag, default=None, links=()):
@@ -661,8 +773,7 @@ class EventNode:
     def render(self):
         out = [
             'Begin Object Class=/Script/BlueprintGraph.K2Node_Event Name="%s"' % self.name,
-            '   EventReference=(MemberParent="/Script/CoreUObject.Class\'/Script/Engine.Actor\'",'
-            'MemberName="%s")' % self.member,
+            '   EventReference=(MemberParent="%s",MemberName="%s")' % (self.parent, self.member),
             '   bOverrideFunction=True',
             '   NodePosX=%d' % self.x,
             '   NodePosY=%d' % self.y,
@@ -2641,6 +2752,346 @@ def speakread():
     return nodes
 
 
+SCENE_COMP = "/Script/CoreUObject.Class'/Script/Engine.SceneComponent'"
+SMC_CLASS = "/Script/CoreUObject.Class'/Script/Engine.StaticMeshComponent'"
+T_SMC = ('PinType.PinCategory="object",PinType.PinSubCategory="",'
+         'PinType.PinSubCategoryObject="%s"' % SMC_CLASS)
+
+
+def piecemotion(rest_z=5.0):
+    """Event Tick on a piece: let the mesh catch up to the actor it belongs to.
+
+    The round loop teleports. SyncActors reads DogTile, RexTile and the
+    predicted tile and calls SetActorLocation, and a tile is 200cm, so every
+    move is an instant two-metre jump. The fight is legible that way and it
+    looks like a spreadsheet.
+
+    This does not change the logic by one node. The *actor* still teleports --
+    every distance, every InBounds test, every Manhattan call is unchanged --
+    and only the mesh component lags behind and eases in. Movement becomes
+    something you watch instead of something you infer, and Rex arriving reads
+    as a lunge, because it covers the same distance in the same time whether
+    the tile is next door or across the board.
+
+    Doing it the other way round, interpolating the actor and letting the
+    logic read the interpolated position, would have made Manhattan return
+    fractions mid-slide and the veto fire on a tile nobody was standing on.
+
+    `rest_z` is the mesh's own height above the actor origin, which is 5 for
+    the three pieces and 7 for the marker so it clears the tile it sits on.
+    The whole graph pastes with no hand wiring at all: the Tick event is
+    inside it.
+    """
+    nodes = []
+
+    def n(node):
+        nodes.append(node)
+        return node
+
+    tick = n(EventNode("RM_MoTick", "ReceiveTick", -1300, -300))
+
+    mesh = n(VarGet("RM_MoMesh", "Mesh", T_SMC, -1300, -80))
+
+    cur = n(MemberCall("RM_MoCur", "K2_GetComponentLocation", SCENE_COMP,
+                       -1050, -80, pure=True, self_type=T_SMC))
+    cur.pin("ReturnValue", "out", T_VEC)
+    cur.self_links.append((mesh.name, mesh.out_pin()))
+    mesh.links.append((cur.name, cur.pid("self")))
+
+    here = n(Node("RM_MoHere", "K2_GetActorLocation", -1050, 60, lib=SELF_CTX))
+    here.pin("ReturnValue", "out", T_VEC)
+
+    off = n(Node("RM_MoOff", "MakeVector", -1050, 200))
+    off.pin("X", "in", T_DOUBLE, "0.0")
+    off.pin("Y", "in", T_DOUBLE, "0.0")
+    off.pin("Z", "in", T_DOUBLE, "%.6f" % rest_z)
+    off.pin("ReturnValue", "out", T_VEC)
+
+    lift = n(Node("RM_MoLift", "Add_VectorVector", -850, 60))
+    lift.pin("A", "in", T_VEC)
+    lift.pin("B", "in", T_VEC)
+    lift.pin("ReturnValue", "out", T_VEC)
+
+    def link(a, apin, b, bpin):
+        for node, pinname, other, otherpin in ((a, apin, b, bpin), (b, bpin, a, apin)):
+            for i, t in enumerate(node.pins):
+                if t[0] == pinname:
+                    node.pins[i] = (t[:4] + (list(t[4]) + [(other.name, other.pid(otherpin))],)
+                                    + t[5:])
+                    break
+
+    link(here, "ReturnValue", lift, "A")
+    link(off, "ReturnValue", lift, "B")
+
+    ease = n(Node("RM_MoEase", "VInterpTo", -650, -80))
+    ease.pin("Current", "in", T_VEC)
+    ease.pin("Target", "in", T_VEC)
+    ease.pin("DeltaTime", "in", T_DOUBLE, "0.0")
+    # 9 is about a sixth of a second to cover a tile: fast enough that the next
+    # key press never queues behind it, slow enough to see which way it went.
+    ease.pin("InterpSpeed", "in", T_DOUBLE, "9.0")
+    ease.pin("ReturnValue", "out", T_VEC)
+    link(cur, "ReturnValue", ease, "Current")
+    link(lift, "ReturnValue", ease, "Target")
+
+    # Tick's DeltaSeconds is a C++ float and this pin is a Blueprint double.
+    # The reconstruct on paste rewrites the type and keeps the link, because
+    # links are matched by pin name.
+    tick.pin("DeltaSeconds", "out", T_DOUBLE, None,
+             [(ease.name, ease.pid("DeltaTime"))])
+    for i, t in enumerate(ease.pins):
+        if t[0] == "DeltaTime":
+            ease.pins[i] = t[:4] + ([(tick.name, tick.pid("DeltaSeconds"))],) + t[5:]
+
+    put = n(MemberCall("RM_MoPut", "K2_SetWorldLocation", SCENE_COMP,
+                       -420, -300, self_type=T_SMC))
+    put.pin("execute", "in", T_EXEC, None, [(tick.name, tick.pid("then"))])
+    put.pin("then", "out", T_EXEC)
+    put.pin("NewLocation", "in", T_VEC, None, [(ease.name, ease.pid("ReturnValue"))])
+    put.pin("bSweep", "in", T_BOOL, "false")
+    put.pin("bTeleport", "in", T_BOOL, "true")
+    # SweepHitResult is deliberately not declared. It is an out struct whose
+    # exact type text is easy to get wrong, and the reconstruct on paste adds
+    # any pin the function has that the text left out.
+    put.self_links.append((mesh.name, mesh.out_pin()))
+    mesh.links.append((put.name, put.pid("self")))
+    for i, t in enumerate(ease.pins):
+        if t[0] == "ReturnValue":
+            ease.pins[i] = (t[:4] + (list(t[4]) + [(put.name, put.pid("NewLocation"))],)
+                            + t[5:])
+    tick.pin("then", "out", T_EXEC, None, [(put.name, put.pid("execute"))])
+    return nodes
+
+
+def fighthud():
+    """BP_FightHUD's EventGraph: charge, round, stamina, and what Rex just said.
+
+    Four numbers and one sentence, and the sentence is the point. Everything
+    else on screen exists to make the read land: you see the charge fall, you
+    see the band it falls into, and then the robot names something you did.
+    Without the bar the reads arrive out of nowhere; without the reads the bar
+    is a bar.
+
+    The manager is found by GetAllActorsOfClass and cast, every frame. That is
+    a full actor iteration per draw and it is not free, but the level holds
+    about a hundred and seventy actors and the alternative -- caching it in a
+    HUD variable behind an IsValid branch -- is six more nodes guarding
+    against a cost that does not exist at this size.
+
+    Nothing here writes. The HUD reads the fight and draws it; if this whole
+    Blueprint were deleted the fight would still play, which is the property
+    that keeps a HUD from quietly becoming game logic.
+    """
+    ASSET = "BP_FightManager"
+    nodes = []
+
+    def n(node):
+        nodes.append(node)
+        return node
+
+    def call(name, member, x, y, lib=MATH, pure=True):
+        return n(Node(name, member, x, y, lib=lib, pure=pure))
+
+    def link(a, apin, b, bpin):
+        for node, pinname, other, otherpin in ((a, apin, b, bpin), (b, bpin, a, apin)):
+            for i, t in enumerate(node.pins):
+                if t[0] == pinname:
+                    node.pins[i] = (t[:4] + (list(t[4]) + [(other.name, other.pid(otherpin))],)
+                                    + t[5:])
+                    break
+
+    # ---- find the fight ----------------------------------------------------
+    hud = n(EventNode("RM_HdDraw", "ReceiveDrawHUD", -2400, -600, parent=HUD_CLASS))
+    hud.pin("then", "out", T_EXEC)
+    hud.pin("SizeX", "out", T_INT)
+    hud.pin("SizeY", "out", T_INT)
+
+    # No cast. GetAllActorsOfClass types its output array from the class pin,
+    # so the element already is a BP_FightManager -- the compiler says so, in
+    # as many words, if you put a cast in anyway.
+    MGR = ('PinType.PinCategory="object",PinType.PinSubCategory="",'
+           'PinType.PinSubCategoryObject="%s"' % bp_class_ref(ASSET))
+    findall = n(GetAllActors("RM_HdAll", ASSET, -2400, -600, elem=MGR))
+    findall.exec_in.append((hud.name, hud.pid("then")))
+    for i, t in enumerate(hud.pins):
+        if t[0] == "then":
+            hud.pins[i] = t[:4] + ([(findall.name, findall.pid("execute"))],) + t[5:]
+
+    first = n(ArrayGet("RM_HdFirst", -2150, -380, elem_cat=MGR))
+    first.array_links.append((findall.name, findall.pid("OutActors")))
+    findall.out_links.append((first.name, first.pid("Array")))
+
+    def read(tag, var, typefrag, x, y):
+        """One variable off the manager the array handed back."""
+        g = n(OtherVarGet("RM_Hd" + tag, ASSET, var, typefrag, x, y))
+        g.self_links.append((first.name, first.pid("Output")))
+        first.out_links.append((g.name, g.pid("self")))
+        return g
+
+    charge = read("Charge", "Charge", T_DOUBLE, -1700, -200)
+    stam = read("Stam", "Stamina", T_INT, -1700, -80)
+    rnd = read("Round", "Round", T_INT, -1700, 40)
+    maxr = read("Max", "MaxRounds", T_INT, -1700, 160)
+    said = read("Said", "PendingLine", T_STR, -1700, 280)
+
+    def vlink(vnode, b, bpin):
+        vnode.links.append((b.name, b.pid(bpin)))
+        for i, t in enumerate(b.pins):
+            if t[0] == bpin:
+                b.pins[i] = (t[:4] + (list(t[4]) + [(vnode.name, vnode.out_pin())],) + t[5:])
+                break
+
+    # ---- the strings -------------------------------------------------------
+    def joins(tag, parts, x, y):
+        """Concat a list of (literal or (node, pin)) into one string."""
+        prev = None
+        for i, part in enumerate(parts):
+            c = call("RM_HdJ%s%d" % (tag, i), "Concat_StrStr", x + i * 150, y, lib=STR)
+            c.pin("A", "in", T_STR, None if prev else (part if isinstance(part, str) else None))
+            c.pin("B", "in", T_STR)
+            c.pin("ReturnValue", "out", T_STR)
+            if prev is not None:
+                link(prev, "ReturnValue", c, "A")
+            if isinstance(part, str):
+                if prev is not None:
+                    c.pins[1] = ("B", "in", T_STR, part, [], None)
+            else:
+                link(part[0], part[1], c, "B")
+            prev = c
+        return prev
+
+    # charge, rounded, because a double prints as 94.000000
+    chint = call("RM_HdChInt", "Round", -1500, -200)
+    chint.pin("A", "in", T_DOUBLE, "0.0")
+    chint.pin("ReturnValue", "out", T_INT)
+    vlink(charge, chint, "A")
+    chstr = call("RM_HdChStr", "Conv_IntToString", -1350, -200, lib=STR)
+    chstr.pin("InInt", "in", T_INT, "0")
+    chstr.pin("ReturnValue", "out", T_STR)
+    link(chint, "ReturnValue", chstr, "InInt")
+
+    stamstr = call("RM_HdStStr", "Conv_IntToString", -1350, -80, lib=STR)
+    stamstr.pin("InInt", "in", T_INT, "0")
+    stamstr.pin("ReturnValue", "out", T_STR)
+    vlink(stam, stamstr, "InInt")
+
+    rndstr = call("RM_HdRnStr", "Conv_IntToString", -1350, 40, lib=STR)
+    rndstr.pin("InInt", "in", T_INT, "0")
+    rndstr.pin("ReturnValue", "out", T_STR)
+    vlink(rnd, rndstr, "InInt")
+
+    maxstr = call("RM_HdMxStr", "Conv_IntToString", -1350, 160, lib=STR)
+    maxstr.pin("InInt", "in", T_INT, "0")
+    maxstr.pin("ReturnValue", "out", T_STR)
+    vlink(maxr, maxstr, "InInt")
+
+    line_charge = joins("C", ["CHARGE  ", (chstr, "ReturnValue")], -1150, -260)
+    line_stam = joins("S", ["STAMINA  ", (stamstr, "ReturnValue")], -1150, -100)
+    line_round = joins("R", ["ROUND  ", (rndstr, "ReturnValue"), "  /  ",
+                             (maxstr, "ReturnValue")], -1150, 60)
+
+    # ---- the bar -----------------------------------------------------------
+    # Charge is 0..100 and the bar is 360 wide, so the fill is Charge * 3.6.
+    fill = call("RM_HdFill", "Multiply_DoubleDouble", -1500, -320)
+    fill.pin("A", "in", T_DOUBLE, "0.0")
+    fill.pin("B", "in", T_DOUBLE, "3.6")
+    fill.pin("ReturnValue", "out", T_DOUBLE)
+    vlink(charge, fill, "A")
+
+    # The read sits near the bottom of whatever window this is, so it follows
+    # SizeY rather than a pixel that only happens to be right at one size.
+    sizey = call("RM_HdSizeY", "Conv_IntToDouble", -1500, 400)
+    sizey.pin("InInt", "in", T_INT, "0")
+    sizey.pin("ReturnValue", "out", T_DOUBLE)
+    for i, t in enumerate(hud.pins):
+        if t[0] == "SizeY":
+            hud.pins[i] = t[:4] + ([(sizey.name, sizey.pid("InInt"))],) + t[5:]
+    sizey.pins[0] = sizey.pins[0][:4] + ([(hud.name, hud.pid("SizeY"))],) + sizey.pins[0][5:]
+    lowy = call("RM_HdLowY", "Multiply_DoubleDouble", -1350, 400)
+    lowy.pin("A", "in", T_DOUBLE, "0.0")
+    lowy.pin("B", "in", T_DOUBLE, "0.86")
+    lowy.pin("ReturnValue", "out", T_DOUBLE)
+    link(sizey, "ReturnValue", lowy, "InInt" if False else "A")
+
+    # ---- draw --------------------------------------------------------------
+    chain = [findall]
+
+    def after(node, in_pin="execute"):
+        prev = chain[-1]
+        if isinstance(prev, GetAllActors):
+            prev.exec_out.append((node.name, node.pid(in_pin)))
+            src = (prev.name, prev.pid("then"))
+        else:
+            for i, t in enumerate(prev.pins):
+                if t[0] == "then":
+                    prev.pins[i] = (t[:4] + (list(t[4]) + [(node.name, node.pid(in_pin))],)
+                                    + t[5:])
+                    break
+            src = (prev.name, prev.pid("then"))
+        for i, t in enumerate(node.pins):
+            if t[0] == in_pin:
+                node.pins[i] = t[:4] + ([src],) + t[5:]
+                break
+        chain.append(node)
+        return node
+
+    def rect(tag, colour, x, y, w, h, w_link=None):
+        r = call("RM_HdR" + tag, "DrawRect", 0, 0, lib=SELF_CTX, pure=False)
+        r.pin("execute", "in", T_EXEC)
+        r.pin("then", "out", T_EXEC)
+        r.pin("RectColor", "in", T_LINCOLOR, colour)
+        r.pin("ScreenX", "in", T_FLOAT, "%.1f" % x)
+        r.pin("ScreenY", "in", T_FLOAT, "%.1f" % y)
+        r.pin("ScreenW", "in", T_FLOAT, "%.1f" % w)
+        r.pin("ScreenH", "in", T_FLOAT, "%.1f" % h)
+        after(r)
+        if w_link is not None:
+            link(w_link[0], w_link[1], r, "ScreenW")
+        return r
+
+    def text(tag, colour, x, y, scale, literal=None, src=None, y_link=None):
+        t = call("RM_HdT" + tag, "DrawText", 0, 0, lib=SELF_CTX, pure=False)
+        t.pin("execute", "in", T_EXEC)
+        t.pin("then", "out", T_EXEC)
+        t.pin("Text", "in", T_STR, literal)
+        t.pin("TextColor", "in", T_LINCOLOR, colour)
+        t.pin("ScreenX", "in", T_FLOAT, "%.1f" % x)
+        t.pin("ScreenY", "in", T_FLOAT, "%.1f" % y)
+        t.pin("Scale", "in", T_FLOAT, "%.2f" % scale)
+        after(t)
+        if src is not None:
+            # OtherVarGet keeps its links in a list rather than a pins table,
+            # so it goes through vlink; everything else through link.
+            if isinstance(src[0], OtherVarGet):
+                vlink(src[0], t, "Text")
+            else:
+                link(src[0], src[1], t, "Text")
+        if y_link is not None:
+            link(y_link[0], y_link[1], t, "ScreenY")
+        return t
+
+    DIM = "(R=0.02,G=0.02,B=0.03,A=0.72)"
+    WARM = "(R=1.0,G=0.62,B=0.22,A=1.0)"
+    PALE = "(R=0.92,G=0.90,B=0.86,A=1.0)"
+    CYAN = "(R=0.35,G=0.85,B=1.0,A=1.0)"
+
+    rect("Panel", DIM, 32.0, 28.0, 380.0, 132.0)
+    rect("BarBg", "(R=0.10,G=0.09,B=0.08,A=1.0)", 46.0, 44.0, 352.0, 22.0)
+    rect("BarFill", WARM, 46.0, 44.0, 0.0, 22.0, w_link=(fill, "ReturnValue"))
+    text("Charge", PALE, 46.0, 72.0, 1.15, src=(line_charge, "ReturnValue"))
+    text("Stam", PALE, 46.0, 100.0, 1.15, src=(line_stam, "ReturnValue"))
+    text("Round", PALE, 46.0, 128.0, 1.15, src=(line_round, "ReturnValue"))
+    # The read, last and lowest, in Rex's own colour -- drawn twice, a dark
+    # copy two pixels right and then the cyan one over it. The line lands on
+    # whatever the floods are lighting at that moment, and cyan on a sodium
+    # floor is the one combination that disappears.
+    text("SaidShadow", "(R=0.0,G=0.0,B=0.0,A=0.85)", 48.0, 0.0, 1.5,
+         src=(said, "PendingLine"), y_link=(lowy, "ReturnValue"))
+    text("Said", CYAN, 46.0, 0.0, 1.5, src=(said, "PendingLine"),
+         y_link=(lowy, "ReturnValue"))
+    return nodes
+
+
 MANHATTAN_GUID = "ED02AD0F4DA7F45E772004BAD7F4BC10"
 
 
@@ -3225,6 +3676,9 @@ GRAPHS = {"manhattan": manhattan, "band": band, "inbounds": inbounds,
           "syncactors": syncactors, "beginplay": beginplay,
           "onplayermove": onplayermove, "inputkeys": inputkeys,
           "checkend": checkend, "speakread": speakread,
+          "fighthud": fighthud,
+          "motion": lambda: piecemotion(5.0),
+          "motionmarker": lambda: piecemotion(7.0),
           "selftest": selftest}
 
 if __name__ == "__main__":

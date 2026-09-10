@@ -80,6 +80,26 @@ def _links(body):
     return out
 
 
+def _compatible(a, b):
+    """Do these two pins agree closely enough for UE to make the wire?
+
+    Two cases are legal and are not the linter's business:
+
+    A wildcard pin takes anything -- K2Node_DynamicCast declares its Object
+    input as wildcard, and the actor reference that plugs into it is an
+    ordinary object pin.
+
+    A real/double and a real/float connect, and the compiler inserts the
+    conversion. Blueprint maths returns doubles; AHUD's DrawText and DrawRect
+    take floats, because they are C++ floats.
+    """
+    if "wildcard" in (a["cat"], b["cat"]):
+        return True
+    if a["cat"] == b["cat"] == "real":
+        return True
+    return (a["cat"], a["sub"], a["obj"]) == (b["cat"], b["sub"], b["obj"])
+
+
 def lint(nodes):
     problems, notes = [], []
 
@@ -140,7 +160,7 @@ def lint(nodes):
                 if p["dir"] == op["dir"]:
                     bad("%s.%s and %s.%s are both %sputs",
                         n["name"], p["name"], on["name"], op["name"], p["dir"])
-                if (p["cat"], p["sub"], p["obj"]) != (op["cat"], op["sub"], op["obj"]):
+                if not _compatible(p, op):
                     bad("type mismatch %s.%s (%s/%s) -> %s.%s (%s/%s)",
                         n["name"], p["name"], p["cat"], p["sub"],
                         on["name"], op["name"], op["cat"], op["sub"])
