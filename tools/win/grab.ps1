@@ -4,10 +4,18 @@
 #
 #   .\grab.ps1                     -> the main editor
 #   .\grab.ps1 -Title BP_Fight     -> the Blueprint editor
+#   .\grab.ps1 -Process UnrealGame-Win64-Shipping -Title RexMachina -Scale 1
+#                                  -> the packaged game
+#
+# The packaged game is a different process from the editor, and for a
+# Blueprint-only project it is not even named after the project: the launcher
+# at the archive root is a shim, and the window belongs to the engine's
+# prebuilt UnrealGame binary.
 #
 # Prints the mapping needed to turn PNG pixels into computer-use coordinates.
 param(
   [string]$Title = "Unreal Editor",
+  [string]$Process = "UnrealEditor",
   [string]$Out = "$PSScriptRoot\ue.png",
   [int]$Scale = 2
 )
@@ -26,7 +34,14 @@ public class PW2 {
 }
 "@
 
-$ue = (Get-Process -Name UnrealEditor -ErrorAction Stop).Id
+$proc = Get-Process -Name $Process -ErrorAction SilentlyContinue | Select-Object -First 1
+if (-not $proc) {
+  "no process named '$Process'. Unreal-ish processes running:"
+  Get-Process | Where-Object { $_.ProcessName -match "Unreal|RexMachina" } |
+    ForEach-Object { "  {0}  (pid {1})  '{2}'" -f $_.ProcessName, $_.Id, $_.MainWindowTitle }
+  exit 1
+}
+$ue = $proc.Id
 $script:hits = @()
 $cb = [PW2+EnumProc]{ param($h,$p)
   $q=0; [void][PW2]::GetWindowThreadProcessId($h,[ref]$q)

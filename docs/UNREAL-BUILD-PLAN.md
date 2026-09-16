@@ -305,8 +305,29 @@ L_Arena open, is the first thing to do.
 
 Blueprint-only projects package against the engine's precompiled binaries -- no
 Visual Studio, so the MSVC toolset that started all this stays irrelevant.
-Platforms > Windows > Package Project, then ship the zip on itch as a download
-beside the browser build.
+Platforms > Windows > Package Project from the editor does it, but the editor
+is slow to drive and leaves no log worth keeping, so there is a script:
+
+    powershell -ExecutionPolicy Bypass -File tools\ue_package.ps1
+
+Two things about this machine that cost time the first time round:
+
+- **The engine is not in `C:\Program Files\Epic Games`.** It is at
+  `D:\Software\UE_5.5`, which is what the Epic launcher manifest at
+  `C:\ProgramData\Epic\UnrealEngineLauncher\LauncherInstalled.dat` says. Only
+  UE 5.0 sits in the default location, and pointing a 5.5 project at that
+  would fail.
+- **Quote every argument that carries a variable.** `-clientconfig=$Config`
+  unquoted reaches UAT as the literal string `$Config`, and UAT then parses a
+  configuration that does not exist. `-clientconfig="$Config"` expands. The
+  log's `Parsing command line:` line is where to check this, and it prints
+  within a minute, long before the cook commits to anything.
+
+Output lands in `RexMachinaUE/Packaged/`, gitignored, because a packaged build
+is a build product and that repo already carries its assets in LFS. The log is
+written beside it as `package.log`.
+
+Then ship the zip on itch as a download beside the browser build.
 
 ## 10. Order of work
 
