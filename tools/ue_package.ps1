@@ -15,9 +15,11 @@ $ErrorActionPreference = "Stop"
 $uat = Join-Path $Engine "Engine\Build\BatchFiles\RunUAT.bat"
 foreach ($p in @($uat, $Project)) { if (-not (Test-Path $p)) { throw "missing: $p" } }
 
-$log = Join-Path (Split-Path $Out -Parent) "package.log"
-Remove-Item $log -ErrorAction SilentlyContinue
+# The log goes inside the archive directory, which is gitignored. Beside it,
+# in the project root, it is an untracked file in a repo that is otherwise clean.
 New-Item -ItemType Directory -Force -Path $Out | Out-Null
+$log = Join-Path $Out "package.log"
+Remove-Item $log -ErrorAction SilentlyContinue
 
 "packaging $Config to $Out"
 "log: $log"
