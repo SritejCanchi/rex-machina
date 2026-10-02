@@ -27,7 +27,7 @@ ROWS = [
     ("RM-13", "Bug",  "Content",          "&ldquo;Same exit&rdquo; lines claim two approaches, the trigger fires on one", "todo", None),
     ("RM-14", "Bug",  "Content",          "A trigger threshold is 0.6 in the code and 0.65 in the table", "todo", None),
     ("RM-15", "Task", "QA",               "A human-scored set to calibrate the style judge", "todo", None),
-    ("RM-16", "Task", "QA",               "Run every check on each push: CI workflow written and validated, not yet live", "prog", None),
+    ("RM-16", "Task", "QA",               "Run every check on each push and pull request (GitHub Actions)", "done", None),
     ("RM-17", "Task", "Unreal port",      "Unreal 5.5 build driven by the same tables", "prog", None),
     ("RM-17.1", "Sub-task", "Unreal port", "18 Blueprint graphs generated as text, linted, self-tested", "done", "RM-17"),
     ("RM-17.2", "Sub-task", "Unreal port", "Windows package built from a script", "done", "RM-17"),
@@ -112,7 +112,7 @@ section = f'''
 
 <h2 id="tracker">Task tracker</h2>
 <div class="tracker-head">
-  <p class="headline"><mark>{cnt["done"]} of {n} items done, {cnt["prog"]} in progress, {cnt["todo"]} to do.</mark> All ten course assignments and the browser release are complete. The open work is the two ports, three bugs, and switching on CI.</p>
+  <p class="headline"><mark>{cnt["done"]} of {n} items done, {cnt["prog"]} in progress, {cnt["todo"]} to do.</mark> All ten course assignments and the browser release are complete. The open work is the two ports and three bugs.</p>
   <div class="bar" role="img" aria-label="{cnt['done']} done, {cnt['prog']} in progress, {cnt['todo']} to do">
     <span class="b-done" style="width:{pct('done')}%"></span><span class="b-prog" style="width:{pct('prog')}%"></span><span class="b-todo" style="width:{pct('todo')}%"></span>
   </div>
