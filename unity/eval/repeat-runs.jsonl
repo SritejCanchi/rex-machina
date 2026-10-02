@@ -1,0 +1,10 @@
+{"run":"skill_r1","skill":true,"credits":19,"rows_ok":true,"runtime_ok":true,"simulated":true,"exit_flag":true,"approx_min":5,"note":"earlier session run"}
+{"run":"nos_r1","skill":false,"credits":11,"rows_ok":true,"runtime_ok":false,"simulated":false,"exit_flag":false,"approx_min":4,"note":"earlier run; assumed left is swapped for right"}
+{"run":"skill_r2","skill":true,"credits":12,"rows_ok":true,"runtime_ok":true,"simulated":true,"exit_flag":true,"approx_min":3.5,"note":"verified label said no (misread instruction)"}
+{"run":"skill_r3","skill":true,"credits":13,"rows_ok":true,"runtime_ok":true,"simulated":false,"exit_flag":true,"approx_min":2.5,"note":"read the C# and traced it; claimed Verified by simulation: yes without executing code"}
+{"run":"skill_r4","skill":true,"credits":11,"rows_ok":true,"runtime_ok":true,"simulated":true,"exit_flag":false,"approx_min":3.5,"note":"executed code, but its sim log printed Line: None on turns 4-5 while the answer said lines were spoken; did not flag exit_fixation"}
+{"run":"skill_r5","skill":true,"credits":9,"rows_ok":true,"runtime_ok":true,"simulated":false,"exit_flag":false,"approx_min":1.5,"note":"no execution; judged the exit_fixation line true for this sequence (two steps in range)"}
+{"run":"nos_r2","skill":false,"credits":7,"rows_ok":true,"runtime_ok":false,"simulated":false,"exit_flag":false,"approx_min":1.5,"note":"named periodicity only, missed the turn-5 exit_fixation line; did not claim a swap"}
+{"run":"nos_r3","skill":false,"credits":10,"rows_ok":true,"runtime_ok":false,"simulated":false,"exit_flag":false,"approx_min":2.5,"note":"read the C#, got RM-001 right, named periodicity only, missed exit_fixation"}
+{"run":"nos_r4","skill":false,"credits":10,"rows_ok":true,"runtime_ok":false,"simulated":false,"exit_flag":false,"approx_min":2.5,"note":"said Rex would speak the left line (wrong, RM-001 holds it back)"}
+{"run":"nos_r5","skill":false,"credits":8,"rows_ok":true,"runtime_ok":false,"simulated":false,"exit_flag":false,"approx_min":1.5,"note":"listed both categories, said the line depends on charge band, never said what Rex actually says; no RM-001"}
