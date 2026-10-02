@@ -103,7 +103,7 @@
 
 <div class="top"><div class="wide">
   <span>Sritej Canchi</span>
-  <span><a class="hide" href="#cost">Cost model</a><a class="hide" href="#lessons">Lessons</a><a class="hide" href="#unity">Unity AI</a><a href="https://sritej.itch.io/rex-machina">Play</a><a href="https://github.com/SritejCanchi/rex-machina">Source</a></span>
+  <span><a class="hide" href="#cost">Cost model</a><a class="hide" href="#lessons">Lessons</a><a class="hide" href="#unity">Unity AI</a><a class="hide" href="#checks">Checks</a><a href="https://sritej.itch.io/rex-machina">Play</a><a href="https://github.com/SritejCanchi/rex-machina">Source</a></span>
 </div></div>
 
 <header class="col">
@@ -123,7 +123,7 @@
       <li><mark>$0.25 total model spend, $0 per play.</mark> Generation runs at authoring time, so the shipped game makes no model calls. Haiku 4.5 was chosen on a cost model, below.</li>
       <li>Verified against the running game, not the spec: <mark>an adversarial QA agent runs about 3,000 checks per build</mark> and found 3 real bugs.</li>
       <li><mark>Ported to Unreal 5.5</mark>: Blueprint graphs generated as text, linted, self-tested, and packaged for Windows.</li>
-      <li><mark>Ported to Unity 6.6 with Unity AI</mark>, using Ask, Plan, Agent, generators, skills and MCP for 353 credits ($3.53). An independent replay caught the Agent's port disagreeing with the game, and it now matches 48 of 48 turns.</li>
+      <li><mark>Ported to Unity 6.6 with Unity AI</mark>, using Ask, Plan, Agent, generators, skills and MCP for 433 credits ($4.33). An independent replay caught the Agent's port disagreeing with the game, and it now matches 48 of 48 turns.</li>
     </ul>
   </div>
 </header>
@@ -218,7 +218,7 @@ Opus 5.5, 4× the price
 </div>
 <div class="lesson">
   <h3>5. A rule in context beats a bigger model</h3>
-  <p>A 34-line project skill in <code>Assets</code> told the Assistant to simulate before answering. With it, the cheapest tier (19 credits) matched the top tier (38 credits), down to the same false line in the shipped game. Haiku was picked for the content pipeline on the same logic. <mark>Encode the team's rules once, and the small model does the job.</mark></p>
+  <p>A 34-line project skill in <code>Assets</code> told the Assistant to simulate before answering. With it, the cheapest tier got the answer right in 5 of 5 runs, against 0 of 5 without it, and one run matched the top tier down to the same false line in the shipped game. Haiku was picked for the content pipeline on the same logic. <mark>Encode the team's rules once, and the small model does the job.</mark></p>
 </div>
 <div class="lesson">
   <h3>6. The agent has to survive the editor</h3>
@@ -287,14 +287,14 @@ browser build  ·  Unreal 5.5 build</pre>
 </table>
 
 <h2 id="unity">Unity 6.6 and Unity AI, used on the capstone</h2>
-<p>The same data contract opens in <strong>Unity 6.6 (6000.6.2f1)</strong>, and the boss turn was ported to C# with Unity AI on a trial plan. Every surface was used on real Rex Machina work: Ask, Plan and Agent modes, the generators, project skills, the MCP server and Unity's Claude Code plugin. <mark>Total spend: 353 credits, about $3.53.</mark></p>
+<p>The same data contract opens in <strong>Unity 6.6 (6000.6.2f1)</strong>, and the boss turn was ported to C# with Unity AI on a trial plan. Every surface was used on real Rex Machina work: Ask, Plan and Agent modes, the generators, project skills, the MCP server and Unity's Claude Code plugin. <mark>Total spend: 433 credits, about $4.33.</mark></p>
 
 <div class="summary">
   <h2>What held up</h2>
   <ul>
     <li><mark>Plan mode worked through the 1,335-line <code>game.js</code> function by function, and every constant in its plan matched the source.</mark> It runs read-only by construction.</li>
     <li><mark>Agent mode reported 7/7 tests passed, yet only 17 of 48 turns matched the shipped game.</mark> Its tests checked its own reading of the spec. After one bug report it fixed the port, and an independent replay now matches <mark>48 of 48</mark>.</li>
-    <li><mark>A 19-credit run on the cheapest tier, plus a project skill, matched the 38-credit top tier.</mark> Both simulated the turn instead of guessing, and both found a false line in the shipped game.</li>
+    <li><mark>With a short project skill, the cheapest tier described the boss turn correctly in 5 of 5 runs. Without it, 0 of 5.</mark> A single run with the skill matched the top tier and found a false line in the shipped game.</li>
   </ul>
 </div>
 
@@ -389,7 +389,7 @@ browser build  ·  Unreal 5.5 build</pre>
          alt="Unity Lite's answer with the project skill: a turn-by-turn simulation, a summary table, a note on the exit_fixation trigger mismatch, and the closing line Verified by simulation: yes. Cost 19 credits.">
     <figcaption>Lite with the project skill, 19 credits.</figcaption>
   </figure>
-<p><mark>The same conclusion as the Haiku decision above: a small model with the right rule beats a large model without it.</mark> The project skill is 34 lines of instructions in <code>Assets</code>, and it turned the cheapest tier into one that runs the game before it answers.</p>
+<p><mark>The same conclusion as the Haiku decision above: a small model with the right rule beats a large model without it.</mark> The project skill is 34 lines of instructions in <code>Assets</code>. Whether that holds beyond one run is tested in <a href="#checks">How the work was checked</a>.</p>
 
 <h4>Generators: one prompt, three image models</h4>
 <figure class="wide">
@@ -465,7 +465,7 @@ browser build  ·  Unreal 5.5 build</pre>
 <figure class="wide">
   <img src="assets/unity-ai-menu.webp" width="1230" height="480" loading="lazy"
        alt="The Unity AI toolbar menu showing the credit balance, In Beta, and a Generate New submenu with 3D Object, Animation, Material, Sound, Sprite, Texture and Cubemap.">
-  <figcaption>The AI menu at the start, 984 of 1,000 credits, and the seven generator types. It read 631 at the end.</figcaption>
+  <figcaption>The AI menu at the start, 984 of 1,000 credits, and the seven generator types. It read 551 at the end.</figcaption>
 </figure>
 <p class="note">Trial: 1,000 credits for 14 days. Personal plan: $10 a month for 1,000 credits, so one credit is about $0.01. Balances were read from the editor before and after each run.</p>
 <div class="scroll">
@@ -480,12 +480,65 @@ browser build  ·  Unreal 5.5 build</pre>
     <tr><td>Ask, Ultra</td><td class="n">38</td><td class="n">$0.38</td></tr>
     <tr><td>Three sprites</td><td class="n">8</td><td class="n">$0.08</td></tr>
     <tr><td>Ask, Lite with the project skill</td><td class="n">19</td><td class="n">$0.19</td></tr>
-    <tr class="pick"><td>Total</td><td class="n">353</td><td class="n">$3.53</td></tr>
+    <tr><td>Ten-run repeat check, eight new runs</td><td class="n">80</td><td class="n">$0.80</td></tr>
+    <tr class="pick"><td>Total</td><td class="n">433</td><td class="n">$4.33</td></tr>
     <tr class="ship"><td>Per play, shipped build</td><td class="n">0</td><td class="n">$0</td></tr>
   </tbody>
 </table>
 </div>
 <p>Ultra cost 38 credits, well under the 150 to 1,500+ Unity publishes for it, because the question was small. <mark>The boss-turn port took 255 credits, about $2.55, and its cost ends at authoring time.</mark> The shipped game still spends nothing per play.</p>
+
+<h2 id="checks">How the work was checked</h2>
+<p>Most of the course was about getting agents to produce things. The part that stuck was checking them, because almost nothing they produce has one right answer.</p>
+
+<h3>Grading the grader</h3>
+<p>The narration pipeline used a model as a judge: score a line out of ten against a house style, rewrite until it passes. The judge needed three runs before its scores meant anything.</p>
+<div class="scroll">
+<table class="t-map">
+  <thead><tr><th>Run</th><th>What went wrong</th><th>What changed</th></tr></thead>
+  <tbody>
+    <tr><td>1</td><td>It could not count. It called a 194-word line &ldquo;330+ words&rdquo;.</td><td>Word counts and banned words are measured in code and handed to the judge as facts.</td></tr>
+    <tr><td>2</td><td>It graded on taste. Three different rewrites all scored 7.</td><td>A scoring anchor: deduct only for a rule you can quote, and quote it. Three equal scores in a row stop the loop.</td></tr>
+    <tr><td>3</td><td>All three test cases settled at 8.</td><td>Kept.</td></tr>
+  </tbody>
+</table>
+</div>
+<p>One case scored 1, 8, 7, 8 on text that improved every round. <mark>A single score was noise. The trend was the signal.</mark> The next step, a small set of lines scored by a person so the judge has something to calibrate against, was never built.</p>
+
+<h3>The same question, ten times</h3>
+<p>One good answer from a model says little, so the Unity question from the evaluation above went to the cheapest tier ten times in all: five runs with the project skill, five without. Each answer was checked against the C# turn logic run over MCP.</p>
+<div class="scroll">
+<table class="t-map">
+  <thead><tr><th></th><th class="n">Credits per answer</th><th class="n">Said what Rex really says</th><th class="n">Tried to run the code</th><th class="n">Caught the false exit line</th></tr></thead>
+  <tbody>
+    <tr class="pick"><td>With the skill</td><td class="n">9&ndash;19, mean 12.8</td><td class="n">5 of 5</td><td class="n">3 of 5</td><td class="n">3 of 5</td></tr>
+    <tr><td>Without it</td><td class="n">7&ndash;11, mean 9.2</td><td class="n">0 of 5</td><td class="n">0 of 5</td><td class="n">0 of 5</td></tr>
+  </tbody>
+</table>
+</div>
+<ul>
+  <li><mark>The skill moved correctness from 0 of 5 to 5 of 5 for about 3.6 more credits an answer.</mark></li>
+  <li>Two runs ended with &ldquo;Verified by simulation: yes&rdquo; and never ran anything. A third ran the code, got no line back on two turns, and reported lines anyway. <mark>An answer saying it checked is not a check. The tool calls are.</mark></li>
+  <li>Verdicts on the exit line split, and one run argued it was true. The line says &ldquo;two consecutive approaches&rdquo;. The trigger fires on one, and in the browser game two steps from the start are enough to hear it after a single approach. A loose rule produces split verdicts, so the rule gets fixed before the judge does.</li>
+</ul>
+<p class="note">Five runs a side is a small sample, so read it as a direction rather than a rate. The log and scoring are in <a href="https://github.com/SritejCanchi/rex-machina/tree/main/unity/eval">unity/eval</a>. 80 credits.</p>
+
+<h3>Smaller things that held up</h3>
+<ul>
+  <li><strong>A passing check counts only if it could have failed.</strong> One QA check kept passing after a rule change made its scripted line impossible. It was measuring nothing. It now searches for a winning line instead of replaying one.</li>
+  <li><strong>Anything no test can reach goes unchecked.</strong> The move-grading judge only ran inside a browser. It became a flag so the QA agent could test it.</li>
+  <li><strong>Check the checker.</strong> When the game says a run is lost, the QA agent re-searches the position on its own with five times the budget. They agreed every time.</li>
+  <li><strong>Measure what the player meets.</strong> On hard, after a bad journey, 3 in 8 random boards could not be won before the fairness reroll. Nothing on screen would have said so.</li>
+  <li><strong>Record and replay.</strong> Every model call is recorded once, so tests that depend on a model run the same way every time and cost nothing.</li>
+  <li><strong>Write findings down the same way each time:</strong> where, what, how to reproduce it, and which design rule it breaks.</li>
+</ul>
+
+<h3>Not done yet</h3>
+<ul>
+  <li>One judge only. No second judge, no agreement numbers, no human-scored set.</li>
+  <li>Everything runs by hand. Nothing blocks a commit yet.</li>
+  <li>No player data. The chain stops at &ldquo;the board can be won and every line is true&rdquo;.</li>
+</ul>
 
 <h2 id="unreal">Unreal Engine 5.5 port</h2>
 <ul>
