@@ -1,6 +1,14 @@
-import io, html
+"""Regenerate the Scope section and the Task tracker on the case-study page.
 
-P = r"D:\Side Projects\AI Game Dev Course\rex-machina\site\index.html"
+    python tools/site_tracker.py
+
+Edit ROWS below (status: done, prog, todo) and re-run. The headline counts, the
+status bar and the per-category tallies are computed from ROWS, so they cannot
+drift from the table. Safe to re-run: it replaces the existing sections.
+"""
+import io, os
+
+P = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "site", "index.html")
 
 # (id, type, category, title, status, parent)
 ROWS = [
