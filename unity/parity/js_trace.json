@@ -1,0 +1,964 @@
+{
+ "run_right_then_down": [
+  {
+   "move": "right",
+   "counted": true,
+   "dog": [
+    1,
+    0
+   ],
+   "rex": [
+    4,
+    5
+   ],
+   "predicted": [
+    2,
+    0
+   ],
+   "charge": 94,
+   "band": "clinical",
+   "stamina": 16,
+   "line": null
+  },
+  {
+   "move": "right",
+   "counted": true,
+   "dog": [
+    2,
+    0
+   ],
+   "rex": [
+    3,
+    5
+   ],
+   "predicted": [
+    3,
+    0
+   ],
+   "charge": 88,
+   "band": "clinical",
+   "stamina": 15,
+   "line": null
+  },
+  {
+   "move": "right",
+   "counted": true,
+   "dog": [
+    3,
+    0
+   ],
+   "rex": [
+    3,
+    4
+   ],
+   "predicted": [
+    4,
+    0
+   ],
+   "charge": 82,
+   "band": "clinical",
+   "stamina": 14,
+   "line": null
+  },
+  {
+   "move": "right",
+   "counted": true,
+   "dog": [
+    4,
+    0
+   ],
+   "rex": [
+    4,
+    4
+   ],
+   "predicted": [
+    5,
+    0
+   ],
+   "charge": 76,
+   "band": "clinical",
+   "stamina": 13,
+   "line": "Movement repeated on cycle."
+  },
+  {
+   "move": "right",
+   "counted": true,
+   "dog": [
+    5,
+    0
+   ],
+   "rex": [
+    5,
+    4
+   ],
+   "predicted": [
+    6,
+    0
+   ],
+   "charge": 70,
+   "band": "clinical",
+   "stamina": 12,
+   "line": null
+  },
+  {
+   "move": "right",
+   "counted": true,
+   "dog": [
+    6,
+    0
+   ],
+   "rex": [
+    6,
+    4
+   ],
+   "predicted": [
+    7,
+    0
+   ],
+   "charge": 64,
+   "band": "clinical",
+   "stamina": 11,
+   "line": null
+  },
+  {
+   "move": "down",
+   "counted": true,
+   "dog": [
+    6,
+    1
+   ],
+   "rex": [
+    6,
+    3
+   ],
+   "predicted": [
+    7,
+    1
+   ],
+   "charge": 58,
+   "band": "confident",
+   "stamina": 10,
+   "line": null
+  },
+  {
+   "move": "down",
+   "counted": true,
+   "dog": [
+    6,
+    2
+   ],
+   "rex": [
+    6,
+    3
+   ],
+   "predicted": [
+    7,
+    2
+   ],
+   "charge": 59,
+   "band": "confident",
+   "stamina": 8,
+   "line": "You ended three of four moves behind cover."
+  },
+  {
+   "move": "down",
+   "counted": false,
+   "dog": [
+    6,
+    2
+   ],
+   "rex": [
+    6,
+    3
+   ],
+   "predicted": [
+    7,
+    2
+   ],
+   "charge": 59,
+   "band": "confident",
+   "stamina": 8,
+   "line": null
+  },
+  {
+   "move": "wait",
+   "counted": true,
+   "dog": [
+    6,
+    2
+   ],
+   "rex": [
+    6,
+    3
+   ],
+   "predicted": [
+    6,
+    3
+   ],
+   "charge": 60,
+   "band": "confident",
+   "stamina": 6,
+   "line": null
+  },
+  {
+   "move": "wait",
+   "counted": true,
+   "dog": [
+    6,
+    2
+   ],
+   "rex": [
+    6,
+    3
+   ],
+   "predicted": [
+    6,
+    3
+   ],
+   "charge": 61,
+   "band": "clinical",
+   "stamina": 4,
+   "line": "Two of the last four moves cancelled out."
+  },
+  {
+   "move": "left",
+   "counted": true,
+   "dog": [
+    5,
+    2
+   ],
+   "rex": [
+    5,
+    3
+   ],
+   "predicted": [
+    5,
+    3
+   ],
+   "charge": 55,
+   "band": "confident",
+   "stamina": 2,
+   "line": null
+  },
+  {
+   "move": "left",
+   "counted": true,
+   "dog": [
+    4,
+    2
+   ],
+   "rex": [
+    4,
+    3
+   ],
+   "predicted": [
+    3,
+    2
+   ],
+   "charge": 49,
+   "band": "confident",
+   "stamina": 0,
+   "line": null
+  }
+ ],
+ "zigzag_cycle": [
+  {
+   "move": "down",
+   "counted": true,
+   "dog": [
+    0,
+    1
+   ],
+   "rex": [
+    4,
+    5
+   ],
+   "predicted": [
+    0,
+    2
+   ],
+   "charge": 94,
+   "band": "clinical",
+   "stamina": 16,
+   "line": null
+  },
+  {
+   "move": "right",
+   "counted": true,
+   "dog": [
+    1,
+    1
+   ],
+   "rex": [
+    3,
+    5
+   ],
+   "predicted": [
+    1,
+    2
+   ],
+   "charge": 88,
+   "band": "clinical",
+   "stamina": 15,
+   "line": null
+  },
+  {
+   "move": "down",
+   "counted": true,
+   "dog": [
+    1,
+    2
+   ],
+   "rex": [
+    2,
+    5
+   ],
+   "predicted": [
+    1,
+    3
+   ],
+   "charge": 82,
+   "band": "clinical",
+   "stamina": 14,
+   "line": null
+  },
+  {
+   "move": "right",
+   "counted": true,
+   "dog": [
+    2,
+    2
+   ],
+   "rex": [
+    2,
+    4
+   ],
+   "predicted": [
+    2,
+    3
+   ],
+   "charge": 76,
+   "band": "clinical",
+   "stamina": 13,
+   "line": "Movement repeated on cycle."
+  },
+  {
+   "move": "down",
+   "counted": true,
+   "dog": [
+    2,
+    3
+   ],
+   "rex": [
+    2,
+    4
+   ],
+   "predicted": [
+    3,
+    3
+   ],
+   "charge": 77,
+   "band": "clinical",
+   "stamina": 11,
+   "line": null
+  },
+  {
+   "move": "right",
+   "counted": true,
+   "dog": [
+    3,
+    3
+   ],
+   "rex": [
+    3,
+    4
+   ],
+   "predicted": [
+    3,
+    4
+   ],
+   "charge": 71,
+   "band": "clinical",
+   "stamina": 9,
+   "line": null
+  },
+  {
+   "move": "down",
+   "counted": false,
+   "dog": [
+    3,
+    3
+   ],
+   "rex": [
+    3,
+    4
+   ],
+   "predicted": [
+    3,
+    4
+   ],
+   "charge": 71,
+   "band": "clinical",
+   "stamina": 9,
+   "line": null
+  },
+  {
+   "move": "right",
+   "counted": true,
+   "dog": [
+    4,
+    3
+   ],
+   "rex": [
+    4,
+    4
+   ],
+   "predicted": [
+    5,
+    3
+   ],
+   "charge": 65,
+   "band": "clinical",
+   "stamina": 7,
+   "line": null
+  },
+  {
+   "move": "down",
+   "counted": false,
+   "dog": [
+    4,
+    3
+   ],
+   "rex": [
+    4,
+    4
+   ],
+   "predicted": [
+    5,
+    3
+   ],
+   "charge": 65,
+   "band": "clinical",
+   "stamina": 7,
+   "line": null
+  },
+  {
+   "move": "right",
+   "counted": true,
+   "dog": [
+    5,
+    3
+   ],
+   "rex": [
+    5,
+    4
+   ],
+   "predicted": [
+    6,
+    3
+   ],
+   "charge": 59,
+   "band": "confident",
+   "stamina": 5,
+   "line": null
+  },
+  {
+   "move": "down",
+   "counted": false,
+   "dog": [
+    5,
+    3
+   ],
+   "rex": [
+    5,
+    4
+   ],
+   "predicted": [
+    6,
+    3
+   ],
+   "charge": 59,
+   "band": "confident",
+   "stamina": 5,
+   "line": null
+  },
+  {
+   "move": "right",
+   "counted": true,
+   "dog": [
+    6,
+    3
+   ],
+   "rex": [
+    6,
+    4
+   ],
+   "predicted": [
+    7,
+    3
+   ],
+   "charge": 53,
+   "band": "confident",
+   "stamina": 3,
+   "line": null
+  }
+ ],
+ "fence_bumps": [
+  {
+   "move": "left",
+   "counted": false,
+   "dog": [
+    0,
+    0
+   ],
+   "rex": [
+    5,
+    5
+   ],
+   "predicted": null,
+   "charge": 100,
+   "band": "clinical",
+   "stamina": 17,
+   "line": null
+  },
+  {
+   "move": "up",
+   "counted": false,
+   "dog": [
+    0,
+    0
+   ],
+   "rex": [
+    5,
+    5
+   ],
+   "predicted": null,
+   "charge": 100,
+   "band": "clinical",
+   "stamina": 17,
+   "line": null
+  },
+  {
+   "move": "right",
+   "counted": true,
+   "dog": [
+    1,
+    0
+   ],
+   "rex": [
+    4,
+    5
+   ],
+   "predicted": [
+    2,
+    0
+   ],
+   "charge": 94,
+   "band": "clinical",
+   "stamina": 16,
+   "line": null
+  },
+  {
+   "move": "right",
+   "counted": true,
+   "dog": [
+    2,
+    0
+   ],
+   "rex": [
+    3,
+    5
+   ],
+   "predicted": [
+    3,
+    0
+   ],
+   "charge": 88,
+   "band": "clinical",
+   "stamina": 15,
+   "line": null
+  },
+  {
+   "move": "right",
+   "counted": true,
+   "dog": [
+    3,
+    0
+   ],
+   "rex": [
+    3,
+    4
+   ],
+   "predicted": [
+    4,
+    0
+   ],
+   "charge": 82,
+   "band": "clinical",
+   "stamina": 14,
+   "line": null
+  },
+  {
+   "move": "right",
+   "counted": true,
+   "dog": [
+    4,
+    0
+   ],
+   "rex": [
+    4,
+    4
+   ],
+   "predicted": [
+    5,
+    0
+   ],
+   "charge": 76,
+   "band": "clinical",
+   "stamina": 13,
+   "line": "Movement repeated on cycle."
+  },
+  {
+   "move": "down",
+   "counted": true,
+   "dog": [
+    4,
+    1
+   ],
+   "rex": [
+    4,
+    3
+   ],
+   "predicted": [
+    5,
+    1
+   ],
+   "charge": 70,
+   "band": "clinical",
+   "stamina": 12,
+   "line": null
+  },
+  {
+   "move": "down",
+   "counted": true,
+   "dog": [
+    4,
+    2
+   ],
+   "rex": [
+    4,
+    3
+   ],
+   "predicted": [
+    5,
+    2
+   ],
+   "charge": 71,
+   "band": "clinical",
+   "stamina": 10,
+   "line": null
+  }
+ ],
+ "seeded_random": [
+  {
+   "move": "down",
+   "counted": true,
+   "dog": [
+    0,
+    1
+   ],
+   "rex": [
+    4,
+    5
+   ],
+   "predicted": [
+    0,
+    2
+   ],
+   "charge": 94,
+   "band": "clinical",
+   "stamina": 16,
+   "line": null
+  },
+  {
+   "move": "up",
+   "counted": true,
+   "dog": [
+    0,
+    0
+   ],
+   "rex": [
+    3,
+    5
+   ],
+   "predicted": [
+    0,
+    1
+   ],
+   "charge": 88,
+   "band": "clinical",
+   "stamina": 15,
+   "line": null
+  },
+  {
+   "move": "right",
+   "counted": true,
+   "dog": [
+    1,
+    0
+   ],
+   "rex": [
+    2,
+    5
+   ],
+   "predicted": [
+    1,
+    1
+   ],
+   "charge": 82,
+   "band": "clinical",
+   "stamina": 14,
+   "line": null
+  },
+  {
+   "move": "up",
+   "counted": false,
+   "dog": [
+    1,
+    0
+   ],
+   "rex": [
+    2,
+    5
+   ],
+   "predicted": [
+    1,
+    1
+   ],
+   "charge": 82,
+   "band": "clinical",
+   "stamina": 14,
+   "line": null
+  },
+  {
+   "move": "wait",
+   "counted": true,
+   "dog": [
+    1,
+    0
+   ],
+   "rex": [
+    1,
+    5
+   ],
+   "predicted": [
+    1,
+    1
+   ],
+   "charge": 76,
+   "band": "clinical",
+   "stamina": 13,
+   "line": null
+  },
+  {
+   "move": "up",
+   "counted": false,
+   "dog": [
+    1,
+    0
+   ],
+   "rex": [
+    1,
+    5
+   ],
+   "predicted": [
+    1,
+    1
+   ],
+   "charge": 76,
+   "band": "clinical",
+   "stamina": 13,
+   "line": null
+  },
+  {
+   "move": "wait",
+   "counted": true,
+   "dog": [
+    1,
+    0
+   ],
+   "rex": [
+    1,
+    4
+   ],
+   "predicted": [
+    1,
+    -1
+   ],
+   "charge": 70,
+   "band": "clinical",
+   "stamina": 12,
+   "line": "Two of the last four moves cancelled out."
+  },
+  {
+   "move": "right",
+   "counted": true,
+   "dog": [
+    2,
+    0
+   ],
+   "rex": [
+    2,
+    4
+   ],
+   "predicted": [
+    3,
+    0
+   ],
+   "charge": 64,
+   "band": "clinical",
+   "stamina": 11,
+   "line": null
+  },
+  {
+   "move": "up",
+   "counted": false,
+   "dog": [
+    2,
+    0
+   ],
+   "rex": [
+    2,
+    4
+   ],
+   "predicted": [
+    3,
+    0
+   ],
+   "charge": 64,
+   "band": "clinical",
+   "stamina": 11,
+   "line": null
+  },
+  {
+   "move": "up",
+   "counted": false,
+   "dog": [
+    2,
+    0
+   ],
+   "rex": [
+    2,
+    4
+   ],
+   "predicted": [
+    3,
+    0
+   ],
+   "charge": 64,
+   "band": "clinical",
+   "stamina": 11,
+   "line": null
+  },
+  {
+   "move": "right",
+   "counted": true,
+   "dog": [
+    3,
+    0
+   ],
+   "rex": [
+    3,
+    4
+   ],
+   "predicted": [
+    4,
+    0
+   ],
+   "charge": 58,
+   "band": "confident",
+   "stamina": 10,
+   "line": null
+  },
+  {
+   "move": "wait",
+   "counted": true,
+   "dog": [
+    3,
+    0
+   ],
+   "rex": [
+    3,
+    3
+   ],
+   "predicted": [
+    4,
+    0
+   ],
+   "charge": 52,
+   "band": "confident",
+   "stamina": 9,
+   "line": null
+  },
+  {
+   "move": "up",
+   "counted": false,
+   "dog": [
+    3,
+    0
+   ],
+   "rex": [
+    3,
+    3
+   ],
+   "predicted": [
+    4,
+    0
+   ],
+   "charge": 52,
+   "band": "confident",
+   "stamina": 9,
+   "line": null
+  },
+  {
+   "move": "down",
+   "counted": true,
+   "dog": [
+    3,
+    1
+   ],
+   "rex": [
+    3,
+    2
+   ],
+   "predicted": [
+    4,
+    1
+   ],
+   "charge": 46,
+   "band": "confident",
+   "stamina": 7,
+   "line": null
+  },
+  {
+   "move": "left",
+   "counted": true,
+   "dog": [
+    2,
+    1
+   ],
+   "rex": [
+    3,
+    1
+   ],
+   "predicted": [
+    3,
+    1
+   ],
+   "charge": 40,
+   "band": "confident",
+   "stamina": 5,
+   "line": null
+  }
+ ]
+}

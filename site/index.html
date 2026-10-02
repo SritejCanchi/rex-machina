@@ -55,6 +55,7 @@
   h2{font-size:25px;line-height:1.25;font-weight:700;margin:52px 0 14px;padding-top:22px;border-top:1px solid var(--line)}
   h3{font-size:18px;line-height:1.35;font-weight:700;margin:26px 0 6px}
   p{margin:0 0 14px}
+  h4{font-size:16px;margin:26px 0 8px}
   .note{font-size:14.5px;color:var(--muted)}
 
   table{width:100%;border-collapse:collapse;margin:12px 0 18px;font-size:15.5px;line-height:1.45}
@@ -69,7 +70,7 @@
   .pair img{margin:0 auto}
   code{font:13.5px ui-monospace,SFMono-Regular,Consolas,monospace;background:var(--soft);padding:1px 4px;border-radius:3px}
   td:first-child{white-space:nowrap}
-  .t-map td:first-child{white-space:normal}
+  .t-map td:first-child,.t-dec td:first-child{white-space:normal}
 
   pre{background:var(--soft);border:1px solid var(--line);border-radius:6px;padding:14px 16px;margin:12px 0 16px;
       overflow-x:auto;font:400 13.5px/1.6 var(--mono);color:#24292f}
@@ -102,13 +103,13 @@
 
 <div class="top"><div class="wide">
   <span>Sritej Canchi</span>
-  <span><a class="hide" href="#cost">Cost model</a><a class="hide" href="#lessons">Lessons</a><a class="hide" href="#next">Unity</a><a href="https://sritej.itch.io/rex-machina">Play</a><a href="https://github.com/SritejCanchi/rex-machina">Source</a></span>
+  <span><a class="hide" href="#cost">Cost model</a><a class="hide" href="#lessons">Lessons</a><a class="hide" href="#unity">Unity AI</a><a href="https://sritej.itch.io/rex-machina">Play</a><a href="https://github.com/SritejCanchi/rex-machina">Source</a></span>
 </div></div>
 
 <header class="col">
   <h1>Rex Machina</h1>
   <p class="sub">Agent-generated game content, a boss that is itself an agent, and what it takes to put AI inside an engine and its editor.</p>
-  <p class="by">Sritej Canchi · Capstone, Multi-Agent AI for Game Development (ELVTR, 2026) · Browser build, an Unreal Engine 5.5 port, and a Unity 6.6 port in progress</p>
+  <p class="by">Sritej Canchi · Capstone, Multi-Agent AI for Game Development (ELVTR, 2026) · Browser build, an Unreal Engine 5.5 port, and a Unity 6.6 port built with Unity AI</p>
   <div class="links">
     <a class="go" href="https://sritej.itch.io/rex-machina">Play in the browser (2 min)</a>
     <a href="https://github.com/SritejCanchi/rex-machina">Source on GitHub</a>
@@ -122,7 +123,7 @@
       <li><mark>$0.25 total model spend, $0 per play.</mark> Generation runs at authoring time, so the shipped game makes no model calls. Haiku 4.5 was chosen on a cost model, below.</li>
       <li>Verified against the running game, not the spec: <mark>an adversarial QA agent runs about 3,000 checks per build</mark> and found 3 real bugs.</li>
       <li><mark>Ported to Unreal 5.5</mark>: Blueprint graphs generated as text, linted, self-tested, and packaged for Windows.</li>
-      <li><mark>Next: Unity 6.6 with Unity AI.</mark> The same tables load unchanged, and the remaining art, voice and sound cost an estimated $6&ndash;11 in credits, once.</li>
+      <li><mark>Ported to Unity 6.6 with Unity AI</mark>, using Ask, Plan, Agent, generators, skills and MCP for 353 credits ($3.53). An independent replay caught the Agent's port disagreeing with the game, and it now matches 48 of 48 turns.</li>
     </ul>
   </div>
 </header>
@@ -281,6 +282,207 @@ browser build  ·  Unreal 5.5 build</pre>
   </tbody>
 </table>
 
+<h2 id="unity">Unity 6.6 and Unity AI, used on the capstone</h2>
+<p>The same data contract opens in <strong>Unity 6.6 (6000.6.2f1)</strong>, and the boss turn was ported to C# with Unity AI on a trial plan. Every surface was used on real Rex Machina work: Ask, Plan and Agent modes, the generators, project skills, the MCP server and Unity's Claude Code plugin. <mark>Total spend: 353 credits, about $3.53.</mark></p>
+
+<div class="summary">
+  <h2>What held up</h2>
+  <ul>
+    <li><mark>Plan mode worked through the 1,335-line <code>game.js</code> function by function, and every constant in its plan matched the source.</mark> It runs read-only by construction.</li>
+    <li><mark>Agent mode reported 7/7 tests passed, yet only 17 of 48 turns matched the shipped game.</mark> Its tests checked its own reading of the spec. After one bug report it fixed the port, and an independent replay now matches <mark>48 of 48</mark>.</li>
+    <li><mark>A 19-credit run on the cheapest tier, plus a project skill, matched the 38-credit top tier.</mark> Both simulated the turn instead of guessing, and both found a false line in the shipped game.</li>
+  </ul>
+</div>
+
+<figure class="wide">
+  <img src="assets/unity-editor.webp" width="1800" height="1013" loading="lazy"
+       alt="The Unity 6.6 editor. Left: a ten by ten yard arena built from the Rex Machina arena table. Right: the Unity AI Assistant panel answering a question about Nemesis Reads.">
+  <figcaption>The Unity project: the yard arena built from <code>DT_ArenaPhases</code>, the Assistant on the right.</figcaption>
+</figure>
+
+<h3>Every surface, on one task each</h3>
+<div class="scroll">
+<table class="t-map">
+  <thead><tr><th>Surface</th><th>Used for</th><th>Result</th><th class="n">Credits</th></tr></thead>
+  <tbody>
+    <tr><td>Ask</td><td>Which reads fire on six moves right</td><td>All tiers recalled the six rows exactly. Only some ran the game, see the evaluation.</td><td class="n">11&ndash;38</td></tr>
+    <tr><td>Plan</td><td>Scope the C# port of the boss turn</td><td>Five steps, three scripts, a test per rule, every constant correct</td><td class="n">76*</td></tr>
+    <tr><td>Agent</td><td>Execute the plan</td><td>458-line turn logic, a scene component, a 619-line test harness</td><td class="n">106</td></tr>
+    <tr><td>Agent</td><td>Fix the bug the parity replay found</td><td>Refused moves no longer count as turns, a new test for it</td><td class="n">73</td></tr>
+    <tr><td>Generators</td><td>One Rex sprite prompt on three models</td><td>Three sprites in under a minute each</td><td class="n">8</td></tr>
+    <tr><td>Skills</td><td>A project rule: reads must be true of the running game</td><td>The cheapest tier started simulating</td><td class="n">19</td></tr>
+    <tr><td>MCP server</td><td>An outside agent (Claude Code) driving the editor</td><td>Data import, scene build, the parity replay, captures</td><td class="n">0</td></tr>
+    <tr><td>Plugin</td><td>Unity's <code>2d-pixel-perfect</code> skill, run over MCP</td><td>Found four camera and import faults, fixed them</td><td class="n">0</td></tr>
+  </tbody>
+</table>
+</div>
+<p class="note">* Includes an Agent run cut short by a script recompile, see Improvements.</p>
+<figure class="wide">
+  <img src="assets/unity-assistant-modes.webp" width="1110" height="220" loading="lazy"
+       alt="Two Assistant menus: modes Agent, Plan and Ask; model tiers Unity Default, Unity Lite, Unity Ultra, Unity Experimental and Add agent.">
+  <figcaption>The two choices behind every Assistant run: mode (Agent, Plan, Ask) and model tier.</figcaption>
+</figure>
+
+<h3>Plan, then Agent, then an independent check</h3>
+<p><strong>Plan mode</strong> read <code>game.js</code> and the design doc function by function, through file reads and searches. Every number in its plan matches the source: window 4, frequency 20, charge 8/1/2, bands 60/30, periodicity lags 2 to 5, stamina 17. It can only run read-only editor code (<code>IReadonlyRunCommand</code>) and asks before each call. One miss: its boilerplate overview named three reference games and a 1920&times;1080 target that appear nowhere in the design doc.</p>
+<figure>
+    <img src="assets/unity-plan.webp" width="785" height="778" loading="lazy"
+         alt="The Assistant's Review Implementation Plan panel for the C# port of the Rex boss turn, with Discard, Run plan and Revise plan buttons.">
+    <figcaption>The finished plan, with Run plan to hand it to Agent mode.</figcaption>
+  </figure>
+  <figure>
+    <img src="assets/unity-plan-readonly.webp" width="770" height="410" loading="lazy"
+         alt="Code the Assistant asked to run in Plan mode: a C# CommandScript implementing IReadonlyRunCommand that lists files under Assets/RexMachina.">
+    <figcaption>Plan mode's code runs through a read-only interface.</figcaption>
+  </figure>
+
+<p><strong>Agent mode</strong> executed the plan with a visible task list. File creation, file edits and code execution each needed an approval, once per type per conversation, and edits came with an inline diff. It finished with <mark>&ldquo;7/7 checks PASSED&rdquo;</mark> after 157 actions.</p>
+<figure>
+  <img src="assets/unity-agent-diff.webp" width="785" height="618" loading="lazy"
+       alt="Agent mode showing a green diff of new C# code in NemesisTurnLogic.cs, a request to save the file, and approval controls: Just once, Deny, View, Allow.">
+  <figcaption>An Agent edit waiting for approval, with the diff inline.</figcaption>
+</figure>
+
+<p>The check that counted came from outside. The same four move sequences were replayed through the shipped <code>game.js</code> and through the new C# over MCP, and the two traces were compared turn by turn (<a href="https://github.com/SritejCanchi/rex-machina/tree/main/unity/parity">the replay scripts</a>).</p>
+<div class="scroll">
+<table>
+  <thead><tr><th>Parity replay</th><th class="n">Turns</th><th class="n">Match</th><th>First divergence</th></tr></thead>
+  <tbody>
+    <tr><td>Agent's port, as delivered</td><td class="n">48</td><td class="n">17</td><td>Every sequence, on a move the game refuses</td></tr>
+    <tr class="ship"><td>After one bug report</td><td class="n">48</td><td class="n">48</td><td>None</td></tr>
+  </tbody>
+</table>
+</div>
+<p>In <code>game.js</code> a step into the fence or onto Rex's tile is not a turn. The port counted it. <mark>One bump into the left fence made Rex say &ldquo;Target favored left nine of twenty recorded moves&rdquo;</mark> and predict a tile off the board, exactly the false read RM-001 exists to stop. The Agent's 7 tests never tried a refused move. Given the report, it fixed the port, added the missing test and passed 8/8, and the replay agreed.</p>
+<figure>
+  <img src="assets/unity-agent-fix.webp" width="785" height="380" loading="lazy"
+       alt="The Agent's verification table after the fix, including check 7, Refused Moves, marked PASS, and the line Final Result: 8 / 8 checks PASSED.">
+  <figcaption>After the fix: check 7, refused moves, now in the harness.</figcaption>
+</figure>
+
+<h3>Model evaluation</h3>
+<p>The same question went to every Assistant tier: which reads fire if the player moves right six turns in a row? It is a fair test because the honest answer depends on the running game, not on the table.</p>
+<div class="scroll">
+<table class="t-map">
+  <thead><tr><th>Model</th><th class="n">Credits</th><th>Rows from the table</th><th>What Rex actually says</th><th>Shipped-game defect found</th></tr></thead>
+  <tbody>
+    <tr><td>Unity Lite</td><td class="n">11</td><td>6/6 exact</td><td>Wrong: assumed the game swaps &ldquo;left&rdquo; for &ldquo;right&rdquo;</td><td>No</td></tr>
+    <tr><td>Unity Default</td><td class="n">22</td><td>6/6 exact</td><td>Wrong: the same assumption</td><td>No</td></tr>
+    <tr><td>Unity Ultra</td><td class="n">38</td><td>Simulated the turns</td><td>Correct, turn by turn</td><td>Yes, two</td></tr>
+    <tr class="pick"><td>Unity Lite + project skill</td><td class="n">19</td><td>Simulated the turns</td><td>Correct, checked against the code over MCP</td><td>Yes</td></tr>
+    <tr><td>Claude Code over MCP (outside agent)</td><td class="n">0</td><td>A different check: 48 turns replayed in both engines</td><td>Found the refused-move bug in the port</td><td>No</td></tr>
+  </tbody>
+</table>
+</div>
+<p><mark>The defect: Rex's exit-fixation lines claim &ldquo;Two consecutive approaches targeted the same exit tile&rdquo; and &ldquo;You ran the same exit twice&rdquo;, but the trigger fires on one approach within two tiles.</mark> A line that states something that did not happen. The adversarial QA agent built for the browser game missed it. Ultra also found that periodicity fires at 0.6 while the table says above 0.65.</p>
+<figure>
+    <img src="assets/unity-ultra.webp" width="785" height="815" loading="lazy"
+         alt="Unity Ultra's answer: a table of lines Rex actually says on turns 4 and 5, a table of the sealing_direction row that stays silent under RM-001, and notes that the code does not match the JSON trigger conditions for periodicity_called and exit_fixation. Cost 38 credits.">
+    <figcaption>Ultra, 38 credits.</figcaption>
+  </figure>
+  <figure>
+    <img src="assets/unity-lite-skill.webp" width="785" height="825" loading="lazy"
+         alt="Unity Lite's answer with the project skill: a turn-by-turn simulation, a summary table, a note on the exit_fixation trigger mismatch, and the closing line Verified by simulation: yes. Cost 19 credits.">
+    <figcaption>Lite with the project skill, 19 credits.</figcaption>
+  </figure>
+<p><mark>The same conclusion as the Haiku decision above: a small model with the right rule beats a large model without it.</mark> The project skill is 34 lines of instructions in <code>Assets</code>, and it turned the cheapest tier into one that runs the game before it answers.</p>
+
+<h4>Generators: one prompt, three image models</h4>
+<figure class="wide">
+  <img src="assets/unity-sprites.webp" width="980" height="474" loading="lazy"
+       alt="Three generated sprites of Rex the robot dog from the same prompt: Flux 2 Dev, a front-facing grey robot dog with one teal eye on light grey; GPT Image 1.5, a front-facing boxy robot on white; Nano Banana 2, a top-down grey robot on dark grey. Each also shown at 64 pixels.">
+  <figcaption>Prompt: top-down sprite of Rex, a boxy grey robot dog with one teal sensor eye, flat colors, plain background, readable at 64 px.</figcaption>
+</figure>
+<div class="scroll">
+<table class="t-map">
+  <thead><tr><th>Model</th><th class="n">Credits</th><th>Top-down</th><th>Reads as a dog at 64 px</th><th>Background</th></tr></thead>
+  <tbody>
+    <tr><td>Flux 2 (Dev)</td><td class="n">3</td><td>No, front view</td><td>Best</td><td>Light grey</td></tr>
+    <tr><td>GPT Image 1.5</td><td class="n">3</td><td>No, front view</td><td>Weak, reads as a cat</td><td>White, easiest to cut out</td></tr>
+    <tr><td>Nano Banana 2</td><td class="n">2</td><td>Yes, the only one</td><td>Weakest</td><td>Dark grey</td></tr>
+  </tbody>
+</table>
+</div>
+<p>None returned transparency, so every sprite still needs a Remove BG pass. Each generation is saved with a JSON sidecar that records the prompt and model, the same provenance the Rex Machina pipeline writes for its tables.</p>
+
+<h3>MCP, plugin, skills and gateway</h3>
+<ul>
+  <li><strong>MCP server.</strong> Claude Code drove the editor from outside: <code>RunCommand</code> imported the tables, built the arena and ran the parity replay, <code>GetConsoleLogs</code> confirmed clean compiles after the Agent's runs, <code>Capture2DScene</code> verified the board, <code>GetModels</code> listed the 43-model catalog. No credits.</li>
+  <li><strong>Plugin.</strong> Unity's official Claude Code plugin ships a <code>2d-pixel-perfect</code> skill. It was not installed in this session, so its skill files were read from Unity's public repository and applied over MCP, diagnosis first as the skill requires. It found no Pixel Perfect Camera, HDR and MSAA on, anisotropic filtering forced on, and compressed sprites, then set up a 640&times;360 reference at 32 PPU.</li>
+  <li><strong>Skills.</strong> A project skill is a <code>SKILL.md</code> under <code>Assets</code>. New skills start as Deny, and invalid ones are listed with the reason.</li>
+  <li><strong>AI Gateway.</strong> Claude Code can also run inside the Assistant window. It needs an <code>ANTHROPIC_API_KEY</code>, which was left unset.</li>
+</ul>
+<div class="pair">
+  <figure>
+    <img src="assets/unity-mcp-capture.webp" width="352" height="352" loading="lazy"
+         alt="A 352 pixel orthographic capture of the ten by ten arena, taken through the Unity MCP Capture2DScene tool.">
+    <figcaption>The arena, captured through MCP after the pixel-perfect setup.</figcaption>
+  </figure>
+  <figure>
+    <img src="assets/unity-skill-issue.webp" width="672" height="420" loading="lazy"
+         alt="The Manage Skills page listing rex-machina-reads under Skills with issues detected: required_editor_version '>=6000.0' is not a valid version constraint.">
+    <figcaption>The skill rejected for <code>&quot;&gt;=6000.0&quot;</code>, the format in Unity's own example.</figcaption>
+  </figure>
+</div>
+
+<h3>Strengths</h3>
+<ul>
+  <li><mark>Grounded in the project.</mark> Every tier quoted the right rows from the right files. No invented IDs.</li>
+  <li><mark>Plan mode is safe by construction</mark>: read-only code, with approvals on top.</li>
+  <li>Agent approvals are per action type, with inline diffs and checkpoints, so a run can be reviewed and undone.</li>
+  <li>Cost is visible before (5&ndash;15 cr on the Generate button) and after (credits under every answer).</li>
+  <li>Skills turn a team rule into behavior, cheaply. Generations keep provenance.</li>
+  <li>MCP opens the same editor to outside agents at no credit cost.</li>
+</ul>
+
+<h3>Yet to discover</h3>
+<ul>
+  <li>Agent mode on scene-heavy work, such as prefabs, animation and UI, rather than pure C#.</li>
+  <li>How credits scale over a long Agent session. One run of 157 actions cost 106.</li>
+  <li>Voice quality for Rex's 24 lines, and text-to-motion for the dog.</li>
+  <li>Claude Code inside the Assistant through the AI Gateway, against Claude Code over MCP.</li>
+  <li>Skills that declare custom <code>tools</code>, and skills shipped inside packages.</li>
+</ul>
+
+<h3>Improvements</h3>
+<ol>
+  <li><mark>Agent tests confirmed the Agent's own reading of the spec.</mark> 7/7 passed while 31 of 48 turns disagreed with the reference. A port should be tested against the code it ports, for example a replay step built into Plan mode.</li>
+  <li>Lite and Default answered a runtime question without running anything. Offer &ldquo;verify by simulation&rdquo; for gameplay questions. The skill shows it costs little.</li>
+  <li>A script recompile cancels a running Agent task and can drop the relay. The log showed a finished tool result discarded and not re-sent (<code>muse-editor#2705</code>).</li>
+  <li>An Agent run raised a blocking &ldquo;save scene&rdquo; dialog mid-task.</li>
+  <li>Plan mode's boilerplate overview invented facts. Its reasoning repeated one step about eight times.</li>
+  <li>The skills documentation example fails the skills validator.</li>
+  <li>Approvals reset with every conversation. A project-level policy would save the clicks.</li>
+  <li>No generator returned transparency, so every sprite needs a second, paid pass. A one-click compare across models would also help.</li>
+  <li>A new project spent 8 minutes resolving packages. MCP cannot trigger menu items and drops during every recompile.</li>
+</ol>
+
+<h3>Credits</h3>
+<figure class="wide">
+  <img src="assets/unity-ai-menu.webp" width="1230" height="480" loading="lazy"
+       alt="The Unity AI toolbar menu showing the credit balance, In Beta, and a Generate New submenu with 3D Object, Animation, Material, Sound, Sprite, Texture and Cubemap.">
+  <figcaption>The AI menu at the start, 984 of 1,000 credits, and the seven generator types. It read 631 at the end.</figcaption>
+</figure>
+<p class="note">Trial: 1,000 credits for 14 days. Personal plan: $10 a month for 1,000 credits, so one credit is about $0.01. Balances were read from the editor before and after each run.</p>
+<div class="scroll">
+<table class="t-map">
+  <thead><tr><th>Run</th><th class="n">Credits</th><th class="n">At $0.01</th></tr></thead>
+  <tbody>
+    <tr><td>Ask, Default</td><td class="n">22</td><td class="n">$0.22</td></tr>
+    <tr><td>Plan, plus an interrupted Agent start</td><td class="n">76</td><td class="n">$0.76</td></tr>
+    <tr><td>Agent, plan steps 2 to 5</td><td class="n">106</td><td class="n">$1.06</td></tr>
+    <tr><td>Agent, refused-move fix</td><td class="n">73</td><td class="n">$0.73</td></tr>
+    <tr><td>Ask, Lite</td><td class="n">11</td><td class="n">$0.11</td></tr>
+    <tr><td>Ask, Ultra</td><td class="n">38</td><td class="n">$0.38</td></tr>
+    <tr><td>Three sprites</td><td class="n">8</td><td class="n">$0.08</td></tr>
+    <tr><td>Ask, Lite with the project skill</td><td class="n">19</td><td class="n">$0.19</td></tr>
+    <tr class="pick"><td>Total</td><td class="n">353</td><td class="n">$3.53</td></tr>
+    <tr class="ship"><td>Per play, shipped build</td><td class="n">0</td><td class="n">$0</td></tr>
+  </tbody>
+</table>
+</div>
+<p>Ultra cost 38 credits, well under the 150 to 1,500+ Unity publishes for it, because the question was small. <mark>The boss-turn port took 255 credits, about $2.55, and its cost ends at authoring time.</mark> The shipped game still spends nothing per play.</p>
+
 <h2 id="unreal">Unreal Engine 5.5 port</h2>
 <ul>
   <li>The same five DataTables drive the fight.</li>
@@ -294,90 +496,6 @@ browser build  ·  Unreal 5.5 build</pre>
   <figcaption>The packaged Windows build, three rounds in. The teal X is the robot's predicted tile.</figcaption>
 </figure>
 
-<h2 id="next">What's next: Unity 6.6 and Unity AI</h2>
-<p>The same data contract now opens in <strong>Unity 6.6 (6000.6.2f1) with Unity AI</strong>, on the trial plan. <mark>The five tables loaded without a single edit.</mark> A <a href="https://github.com/SritejCanchi/rex-machina/tree/main/unity">33-line editor importer</a> turns <code>DT_NemesisReads.json</code> into a ScriptableObject (24 rows), and the yard arena is built from <code>DT_ArenaPhases</code>, with exits and cover where the table puts them.</p>
-<figure class="wide">
-  <img src="assets/unity-editor.webp" width="1800" height="1013" loading="lazy"
-       alt="The Unity 6.6 editor. Left: a ten by ten yard arena built from the Rex Machina arena table. Right: the Unity AI Assistant panel in Ask mode, showing a table of six Nemesis Read rows with their trigger conditions and lines, and a cost of 22 credits under the answer.">
-  <figcaption>The Unity project. Left: the yard arena built from <code>DT_ArenaPhases</code>. Right: the Unity AI Assistant in Ask mode, answering from the project's own files. The answer cost 22 credits.</figcaption>
-</figure>
-
-<h3>One question to the Assistant, checked against the data</h3>
-<p>The question: which reads fire if the player moves right six turns in a row? The Assistant opened the JSON and the design doc, then returned six rows. <mark>All six IDs, triggers and lines match the table exactly.</mark></p>
-<figure>
-  <img src="assets/unity-assistant-answer.webp" width="766" height="920" loading="lazy"
-       alt="Close-up of the Assistant's answer: a trigger analysis, a table of three sealing_direction rows and a table of three periodicity_called rows, each with ReadID, TriggerCondition and Line, and the label 22 cr under the answer.">
-  <figcaption>The answer, close up. The italic note under the first table is the wrong runtime assumption.</figcaption>
-</figure>
-<p>It also noticed the stored lines say &ldquo;left&rdquo; while the move was right, then assumed the game swaps in the observed direction at runtime. It does not. The shipped game holds that line back, a fix the QA agent forced (RM-001). <mark>Grounded in the files, guessing about the running game:</mark> lesson 3 again, and the gap an in-editor agent closes by reading play-mode state, not only source.</p>
-
-<h3>The Unity AI features that map to the remaining work</h3>
-<figure class="wide">
-  <img src="assets/unity-ai-menu.webp" width="1230" height="480" loading="lazy"
-       alt="The Unity AI toolbar menu showing 984 of 1,000 credits, In Beta, and a Generate New submenu with 3D Object, Animation, Material, Sound, Sprite, Texture and Cubemap.">
-  <figcaption>The AI menu: trial balance and the seven generator types.</figcaption>
-</figure>
-<div class="pair">
-  <figure>
-    <img src="assets/unity-sprite-gen.webp" width="270" height="404" loading="lazy"
-         alt="The Sprite generator with the Flux 2 Dev model, a prompt describing Rex as a boxy grey robot dog with one teal sensor eye, and a Generate button labelled 5 to 15 credits.">
-    <figcaption><strong>Sprite</strong> for Rex, Flux 2 (Dev). The price shows on the button: 5&ndash;15 cr.</figcaption>
-  </figure>
-  <figure>
-    <img src="assets/unity-voice-gen.webp" width="282" height="372" loading="lazy"
-         alt="The Sound generator with the ElevenLabs Multilingual V2 voice model, the prompt 'Target favored left nine of twenty recorded moves.', voice Adam, and a Generate button labelled 5 to 15 credits.">
-    <figcaption><strong>Voice</strong> for a Nemesis Read, ElevenLabs Multilingual V2. 5&ndash;15 cr.</figcaption>
-  </figure>
-</div>
-<figure class="wide">
-  <img src="assets/unity-assistant-modes.webp" width="1110" height="220" loading="lazy"
-       alt="Two Assistant menus: modes Agent, Plan and Ask; model tiers Unity Default, Unity Lite, Unity Ultra, Unity Experimental and Add agent.">
-  <figcaption>Assistant modes (Agent, Plan, Ask) and model tiers (Default, Lite, Ultra, Experimental), plus a slot for an outside agent.</figcaption>
-</figure>
-<figure class="wide">
-  <img src="assets/unity-models.webp" width="1050" height="880" loading="lazy"
-       alt="The Select AI Model window listing image models including Flux 2 Dev and Pro, GPT Image 1 and 1.5, Game UI Essentials 2.0 and others, with filters for Characters, Icons and UI, Isometric and Props.">
-  <figcaption>The generator model picker. This project's catalog lists 43 models across image, sprite, texture, sound, voice, music, 3D, motion and video.</figcaption>
-</figure>
-
-<div class="scroll">
-<table class="t-map">
-  <thead><tr><th>Remaining work</th><th>Unity AI feature</th><th>Rex Machina source</th></tr></thead>
-  <tbody>
-    <tr><td>Rex speaks each read</td><td>Sound generator, ElevenLabs voice</td><td>24 lines in <code>DT_NemesisReads</code></td></tr>
-    <tr><td>Dog, Rex, kid, three arenas</td><td>Sprite and Texture generators</td><td>Light and props in <code>DT_ArenaPhases</code></td></tr>
-    <tr><td>Steps, fence, read stinger</td><td>Sound generator, ElevenLabs SFX</td><td>Seven sound families in the GDD</td></tr>
-    <tr><td>Boss logic in C#</td><td>Assistant, Plan then Agent mode</td><td><code>game.js</code>, checked by the QA agent's move sequences</td></tr>
-    <tr><td>Content pipeline run from the editor</td><td>Unity MCP server</td><td>The five pipelines, unchanged</td></tr>
-  </tbody>
-</table>
-</div>
-
-<h3>Cost in credits</h3>
-<p class="note">Trial: 1,000 credits for 14 days. Personal: $10 a month for 1,000 credits, so one credit is about $0.01. Per-action ranges are the ones the editor displayed, or Unity's published table where the editor showed none.</p>
-<div class="scroll">
-<table class="t-map">
-  <thead><tr><th>Item</th><th class="n hm">Count</th><th class="n hm">Credits each</th><th class="n">Credits</th><th class="n">At $0.01</th></tr></thead>
-  <tbody>
-    <tr><td>Assistant answer above, measured</td><td class="n hm">1</td><td class="n hm">22</td><td class="n">22</td><td class="n">$0.22</td></tr>
-    <tr><td>Rex voice, one per read</td><td class="n hm">24</td><td class="n hm">5&ndash;15</td><td class="n">120&ndash;360</td><td class="n">$1.20&ndash;3.60</td></tr>
-    <tr><td>Character and arena sprites</td><td class="n hm">6</td><td class="n hm">5&ndash;15</td><td class="n">30&ndash;90</td><td class="n">$0.30&ndash;0.90</td></tr>
-    <tr><td>Sound effects, 7 families &times; 5</td><td class="n hm">35</td><td class="n hm">1&ndash;5</td><td class="n">35&ndash;175</td><td class="n">$0.35&ndash;1.75</td></tr>
-    <tr><td>Assistant turns for the C# port, assumed</td><td class="n hm">20</td><td class="n hm">~22</td><td class="n">~440</td><td class="n">~$4.40</td></tr>
-    <tr class="pick"><td>Total, authoring time</td><td class="hm"></td><td class="hm"></td><td class="n">647&ndash;1,087</td><td class="n">$6.47&ndash;10.87</td></tr>
-    <tr class="ship"><td>Per play, shipped build</td><td class="hm"></td><td class="hm"></td><td class="n">0</td><td class="n">$0</td></tr>
-  </tbody>
-</table>
-</div>
-<p><mark>The whole port fits in about one month of the Personal plan</mark>, and the rule from the cost section holds: generate at authoring time, ship static assets, spend nothing per play. The line to watch is Agent mode, which Unity prices at 4 to 1,500+ credits a message, so long agent runs, not assets, decide the bill.</p>
-
-<h3>Friction worth reporting</h3>
-<ul>
-  <li>A new project spent 8 minutes resolving packages before the editor opened.</li>
-  <li>MCP calls cannot trigger editor menu items (&ldquo;user interactions are not supported&rdquo;), so the importer had to be invoked by reflection.</li>
-  <li>The MCP link drops on every script recompile and returns once the domain reload finishes.</li>
-</ul>
-
 </main>
 
 <footer><div class="wide">
@@ -387,6 +505,7 @@ browser build  ·  Unreal 5.5 build</pre>
     <a href="https://github.com/SritejCanchi/rex-machina">Source</a>
     <a href="https://github.com/SritejCanchi/rex-machina/blob/main/docs/ASSIGNMENT-10-pipeline-audit.md">Cost audit</a>
     <a href="https://github.com/SritejCanchi/rex-machina/blob/main/qa/README.md">QA write-up</a>
+    <a href="https://github.com/SritejCanchi/rex-machina/tree/main/unity">Unity port</a>
     <a href="https://github.com/SritejCanchi/rex-machina/blob/main/docs/gdd_rex_machina.md">Design doc</a>
   </span>
 </div></footer>

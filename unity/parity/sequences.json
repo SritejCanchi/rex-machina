@@ -1,0 +1,59 @@
+{
+ "run_right_then_down": [
+  "right",
+  "right",
+  "right",
+  "right",
+  "right",
+  "right",
+  "down",
+  "down",
+  "down",
+  "wait",
+  "wait",
+  "left",
+  "left",
+  "left"
+ ],
+ "zigzag_cycle": [
+  "down",
+  "right",
+  "down",
+  "right",
+  "down",
+  "right",
+  "down",
+  "right",
+  "down",
+  "right",
+  "down",
+  "right"
+ ],
+ "fence_bumps": [
+  "left",
+  "up",
+  "right",
+  "right",
+  "right",
+  "right",
+  "down",
+  "down"
+ ],
+ "seeded_random": [
+  "down",
+  "up",
+  "right",
+  "up",
+  "wait",
+  "up",
+  "wait",
+  "right",
+  "up",
+  "up",
+  "right",
+  "wait",
+  "up",
+  "down",
+  "left"
+ ]
+}
