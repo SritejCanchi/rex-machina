@@ -51,6 +51,7 @@ ROWS = [
     ("RM-23", "Task", "QA",               "QA agent seeded so failures replay, and failing the run on any finding", "done", None),
     ("RM-24", "Bug",  "Content",          "Two table hashes depended on Windows line endings", "done", None),
     ("RM-25", "Bug",  "Release",          "The game page is 749 px wide on a 390 px phone", "todo", None),
+    ("RM-26", "Task", "Release",          "Deploy the game to Azure Static Web Apps from CI, with a preview URL for every pull request", "todo", None),
 ]
 
 LABEL = {"done": "Done", "prog": "In progress", "todo": "To do"}
@@ -108,6 +109,7 @@ section = f'''
   <li>Finishing the Unity port: player input, the HUD, and the six road encounters</li>
   <li>Fixing the two content-rule mismatches the Unity evaluation found in the shipped game</li>
   <li>Choosing Rex's sprite and voicing its 24 lines</li>
+  <li>Next: deploying the game to Azure Static Web Apps from CI, with a preview URL for every pull request</li>
 </ul>
 
 <h2 id="tracker">Task tracker</h2>
