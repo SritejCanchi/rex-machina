@@ -262,12 +262,12 @@
 
 <h2 id="tracker">Task tracker</h2>
 <div class="tracker-head">
-  <p class="headline"><mark>26 of 39 items done, 4 in progress, 9 to do.</mark> All ten course assignments and the browser release are complete. The open work is the two ports, three bugs, and switching on CI.</p>
-  <div class="bar" role="img" aria-label="26 done, 4 in progress, 9 to do">
-    <span class="b-done" style="width:66.7%"></span><span class="b-prog" style="width:10.3%"></span><span class="b-todo" style="width:23.1%"></span>
+  <p class="headline"><mark>27 of 39 items done, 3 in progress, 9 to do.</mark> All ten course assignments and the browser release are complete. The open work is the two ports and three bugs.</p>
+  <div class="bar" role="img" aria-label="27 done, 3 in progress, 9 to do">
+    <span class="b-done" style="width:69.2%"></span><span class="b-prog" style="width:7.7%"></span><span class="b-todo" style="width:23.1%"></span>
   </div>
-  <p class="legend"><span class="st st-done">Done 26</span> <span class="st st-prog">In progress 4</span> <span class="st st-todo">To do 9</span> <span class="sep">&middot;</span> Bugs: 8 logged, 3 open</p>
-  <ul class="cats"><li><strong>Design</strong> 1 of 1 done</li><li><strong>Content</strong> 7 of 9 done</li><li><strong>Gameplay</strong> 4 of 4 done</li><li><strong>QA</strong> 4 of 6 done</li><li><strong>Unreal port</strong> 3 of 5 done</li><li><strong>Unity port</strong> 6 of 11 done</li><li><strong>Release</strong> 1 of 3 done</li></ul>
+  <p class="legend"><span class="st st-done">Done 27</span> <span class="st st-prog">In progress 3</span> <span class="st st-todo">To do 9</span> <span class="sep">&middot;</span> Bugs: 8 logged, 3 open</p>
+  <ul class="cats"><li><strong>Design</strong> 1 of 1 done</li><li><strong>Content</strong> 7 of 9 done</li><li><strong>Gameplay</strong> 4 of 4 done</li><li><strong>QA</strong> 5 of 6 done</li><li><strong>Unreal port</strong> 3 of 5 done</li><li><strong>Unity port</strong> 6 of 11 done</li><li><strong>Release</strong> 1 of 3 done</li></ul>
 </div>
 <div class="scroll">
 <table class="t-map tracker">
@@ -288,7 +288,7 @@
     <tr><td class="id">RM-13</td><td>&ldquo;Same exit&rdquo; lines claim two approaches, the trigger fires on one</td><td><span class="ty bug">Bug</span></td><td>Content</td><td><span class="st st-todo">To do</span></td></tr>
     <tr><td class="id">RM-14</td><td>A trigger threshold is 0.6 in the code and 0.65 in the table</td><td><span class="ty bug">Bug</span></td><td>Content</td><td><span class="st st-todo">To do</span></td></tr>
     <tr><td class="id">RM-15</td><td>A human-scored set to calibrate the style judge</td><td><span class="ty">Task</span></td><td>QA</td><td><span class="st st-todo">To do</span></td></tr>
-    <tr><td class="id">RM-16</td><td>Run every check on each push: CI workflow written and validated, not yet live</td><td><span class="ty">Task</span></td><td>QA</td><td><span class="st st-prog">In progress</span></td></tr>
+    <tr><td class="id">RM-16</td><td>Run every check on each push and pull request (GitHub Actions)</td><td><span class="ty">Task</span></td><td>QA</td><td><span class="st st-done">Done</span></td></tr>
     <tr><td class="id">RM-17</td><td>Unreal 5.5 build driven by the same tables</td><td><span class="ty">Task</span></td><td>Unreal port</td><td><span class="st st-prog">In progress</span></td></tr>
     <tr class="sub"><td class="id">RM-17.1</td><td>18 Blueprint graphs generated as text, linted, self-tested</td><td><span class="ty">Sub-task</span></td><td>Unreal port</td><td><span class="st st-done">Done</span></td></tr>
     <tr class="sub"><td class="id">RM-17.2</td><td>Windows package built from a script</td><td><span class="ty">Sub-task</span></td><td>Unreal port</td><td><span class="st st-done">Done</span></td></tr>
@@ -713,7 +713,7 @@ browser build  ·  Unreal 5.5 build</pre>
 <h3>Not done yet</h3>
 <ul>
   <li>One judge only. No second judge, no agreement numbers, no human-scored set.</li>
-  <li>Unit, end-to-end and QA-agent checks run with one command. The CI workflow that runs them on every push is written and validated, and goes live with one GitHub permission. Nothing blocks a merge yet.</li>
+  <li>Unit, end-to-end, pipeline and QA-agent checks run on every push and pull request, about two minutes, no API key. A failed check does not block a merge yet.</li>
   <li>No player data. The chain stops at &ldquo;the board can be won and every line is true&rdquo;.</li>
 </ul>
 
