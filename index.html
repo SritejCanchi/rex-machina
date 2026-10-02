@@ -13,18 +13,44 @@
 <meta property="og:url" content="https://sritejcanchi.github.io/rex-machina/">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' fill='%231a1a1a'/%3E%3Crect x='3' y='3' width='4' height='4' fill='%23fff'/%3E%3Crect x='9' y='9' width='4' height='4' fill='%23fff'/%3E%3C/svg%3E">
+<script>
+  (function(){
+    var t=null; try{ t=localStorage.getItem("theme"); }catch(e){}
+    if(t!=="light" && t!=="dark"){ t=(window.matchMedia && matchMedia("(prefers-color-scheme: dark)").matches)?"dark":"light"; }
+    document.documentElement.setAttribute("data-theme", t);
+  })();
+</script>
 <style>
   :root{
-    --text:#1a1a1a; --muted:#5f6368; --line:#e2e4e7; --soft:#f6f8fa; --link:#0b57d0; --mark:#fff0a3;
+    --bg:#fff; --text:#1a1a1a; --sub:#333; --muted:#5f6368; --line:#e2e4e7; --soft:#f6f8fa; --link:#0b57d0;
+    --mark:#fff0a3; --marktext:inherit; --btnbd:#c9ccd1; --btnbg:#fff; --gobg:#1a1a1a; --gofg:#fff; --gohover:#000;
+    --pre:#24292f; --pc:#6e7781; --pk:#0550ae; --pg:#116329; --pr:#953800; --ok:#0a7d36;
+    --done-bg:#dcf3e3; --done-fg:#0a6b2f; --prog-bg:#fff1cc; --prog-fg:#7a5200; --todo-bg:#eceef1; --todo-fg:#4a4f55; --bug:#b42318;
     --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
     --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
   }
+  :root[data-theme="dark"]{
+    --bg:#0f1115; --text:#e6e8eb; --sub:#c9cdd2; --muted:#9aa1a9; --line:#2a2f36; --soft:#171a1f; --link:#8ab4f8;
+    --mark:#4d3f05; --marktext:#fff4cc; --btnbd:#3a4049; --btnbg:#171a1f; --gobg:#e6e8eb; --gofg:#0f1115; --gohover:#fff;
+    --pre:#d6dbe0; --pc:#8b949e; --pk:#79b8ff; --pg:#56d364; --pr:#ffa657; --ok:#56d364;
+    --done-bg:#12351f; --done-fg:#7ee2a0; --prog-bg:#3a2e08; --prog-fg:#f5cf66; --todo-bg:#23272e; --todo-fg:#b5bcc4; --bug:#ff8a80;
+    color-scheme:dark;
+  }
+  @media (prefers-color-scheme:dark){
+    :root:not([data-theme="light"]){
+    --bg:#0f1115; --text:#e6e8eb; --sub:#c9cdd2; --muted:#9aa1a9; --line:#2a2f36; --soft:#171a1f; --link:#8ab4f8;
+    --mark:#4d3f05; --marktext:#fff4cc; --btnbd:#3a4049; --btnbg:#171a1f; --gobg:#e6e8eb; --gofg:#0f1115; --gohover:#fff;
+    --pre:#d6dbe0; --pc:#8b949e; --pk:#79b8ff; --pg:#56d364; --pr:#ffa657; --ok:#56d364;
+    --done-bg:#12351f; --done-fg:#7ee2a0; --prog-bg:#3a2e08; --prog-fg:#f5cf66; --todo-bg:#23272e; --todo-fg:#b5bcc4; --bug:#ff8a80;
+    color-scheme:dark;
+    }
+  }
   *{box-sizing:border-box}
-  html{background:#fff}
-  body{margin:0;background:#fff;color:var(--text);font:400 17px/1.6 var(--sans);-webkit-text-size-adjust:100%}
+  html{background:var(--bg)}
+  body{margin:0;background:var(--bg);color:var(--text);font:400 17px/1.6 var(--sans);-webkit-text-size-adjust:100%}
   a{color:var(--link)}
   img{max-width:100%;height:auto;display:block}
-  mark{background:var(--mark);color:inherit;padding:0 2px}
+  mark{background:var(--mark);color:var(--marktext);padding:0 2px}
   .col{max-width:780px;margin:0 auto;padding:0 22px}
   .wide{max-width:980px;margin:0 auto;padding:0 22px}
 
@@ -32,16 +58,23 @@
   .top .wide{display:flex;justify-content:space-between;gap:16px;padding-top:12px;padding-bottom:12px}
   .top a{color:var(--text);text-decoration:none;margin-left:18px}
   .top a:hover{color:var(--link);text-decoration:underline}
+  .top .nav{display:flex;align-items:center}
+  .theme{margin-left:18px;width:30px;height:30px;display:inline-grid;place-items:center;border:1px solid var(--btnbd);
+         border-radius:50%;background:var(--btnbg);color:var(--text);cursor:pointer;padding:0}
+  .theme:hover{border-color:var(--link);color:var(--link)}
+  .theme svg{width:15px;height:15px}
+  .theme .sun{display:none}
+  :root[data-theme="dark"] .theme .sun{display:block} :root[data-theme="dark"] .theme .moon{display:none}
 
   header{padding:44px 0 6px}
   h1{font-size:40px;line-height:1.15;font-weight:700;letter-spacing:-.01em;margin:0 0 10px}
-  .sub{font-size:20px;line-height:1.45;color:#333;margin:0 0 14px}
+  .sub{font-size:20px;line-height:1.45;color:var(--sub);margin:0 0 14px}
   .by{font-size:14.5px;color:var(--muted);margin:0 0 18px}
   .links{display:flex;flex-wrap:wrap;gap:10px;margin:0 0 6px}
-  .links a{display:inline-block;padding:8px 14px;border:1px solid #c9ccd1;border-radius:4px;text-decoration:none;
-           color:var(--text);font-size:15px;font-weight:600;background:#fff}
-  .links a.go{background:#1a1a1a;border-color:#1a1a1a;color:#fff}
-  .links a:hover{border-color:var(--link);color:var(--link)} .links a.go:hover{background:#000;color:#fff}
+  .links a{display:inline-block;padding:8px 14px;border:1px solid var(--btnbd);border-radius:4px;text-decoration:none;
+           color:var(--text);font-size:15px;font-weight:600;background:var(--btnbg)}
+  .links a.go{background:var(--gobg);border-color:var(--gobg);color:var(--gofg)}
+  .links a:hover{border-color:var(--link);color:var(--link)} .links a.go:hover{background:var(--gohover);color:var(--gofg)}
 
   .summary{background:var(--soft);border:1px solid var(--line);border-radius:6px;padding:16px 20px 6px;margin:26px 0 8px}
   .summary h2{font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:0 0 8px;border:0;padding:0}
@@ -60,13 +93,38 @@
   .terms dt{font-weight:600}
   .terms dd{margin:0}
   .note{font-size:14.5px;color:var(--muted)}
+  .scope{display:grid;grid-template-columns:1fr 1fr;gap:6px 28px}
+  .scope h3{margin-top:14px}
+  .scope ul{padding-left:20px;margin:0}
+  .scope li{margin:0 0 6px}
+  .tracker-head{background:var(--soft);border:1px solid var(--line);border-radius:6px;padding:14px 18px 8px;margin:10px 0 12px}
+  .headline{margin:0 0 10px}
+  .bar{display:flex;height:10px;border-radius:5px;overflow:hidden;background:var(--todo-bg);margin:0 0 10px}
+  .bar span{display:block;height:100%}
+  .b-done{background:var(--done-fg)} .b-prog{background:var(--prog-fg)} .b-todo{background:var(--todo-bg)}
+  .legend{font-size:14px;color:var(--muted);margin:0 0 8px}
+  .legend .sep{margin:0 4px}
+  .cats{list-style:none;padding:0;margin:0 0 4px;display:flex;flex-wrap:wrap;gap:4px 16px;font-size:13.5px;color:var(--muted)}
+  .cats strong{color:var(--text);font-weight:600;margin-right:4px}
+  .st{display:inline-block;padding:1px 8px;border-radius:10px;font-size:12.5px;font-weight:600;white-space:nowrap}
+  .st-done{background:var(--done-bg);color:var(--done-fg)}
+  .st-prog{background:var(--prog-bg);color:var(--prog-fg)}
+  .st-todo{background:var(--todo-bg);color:var(--todo-fg)}
+  .tracker td{font-size:15px}
+  .tracker td.id{font-variant-numeric:tabular-nums;color:var(--muted);font-size:13.5px}
+  table.tracker td.id,table.tracker td:nth-child(4){white-space:nowrap}
+  .tracker tr.sub td:nth-child(2){padding-left:18px;position:relative}
+  .tracker tr.sub td:nth-child(2)::before{content:"\21B3";position:absolute;left:2px;color:var(--muted)}
+  .ty{font-size:13.5px;color:var(--muted);white-space:nowrap}
+  .ty.bug{color:var(--bug);font-weight:600}
+
 
   table{width:100%;border-collapse:collapse;margin:12px 0 18px;font-size:15.5px;line-height:1.45}
   th{text-align:left;font-weight:600;color:var(--muted);font-size:13.5px;padding:0 14px 8px 0;border-bottom:2px solid var(--line)}
   td{padding:9px 14px 9px 0;border-bottom:1px solid var(--line);vertical-align:top}
   td.n,th.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
   tr.pick td{font-weight:600}
-  tr.ship td{color:#0a7d36;font-weight:600}
+  tr.ship td{color:var(--ok);font-weight:600}
   .scroll{overflow-x:auto}
   .pair{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start}
   .pair figure{margin:18px 0 8px}
@@ -76,8 +134,8 @@
   .t-map td:first-child,.t-dec td:first-child{white-space:normal}
 
   pre{background:var(--soft);border:1px solid var(--line);border-radius:6px;padding:14px 16px;margin:12px 0 16px;
-      overflow-x:auto;font:400 13.5px/1.6 var(--mono);color:#24292f}
-  pre .c{color:#6e7781} pre .k{color:#0550ae;font-weight:600} pre .g{color:#116329} pre .r{color:#953800}
+      overflow-x:auto;font:400 13.5px/1.6 var(--mono);color:var(--pre)}
+  pre .c{color:var(--pc)} pre .k{color:var(--pk);font-weight:600} pre .g{color:var(--pg)} pre .r{color:var(--pr)}
 
   .lesson h3{margin:22px 0 4px}
   .lesson p{margin:0 0 6px}
@@ -97,6 +155,8 @@
     .terms{grid-template-columns:1fr;gap:2px}
     .terms dd{margin-bottom:8px}
     .pair{grid-template-columns:1fr}
+    .scope{grid-template-columns:1fr}
+    .tracker th:nth-child(4),.tracker td:nth-child(4){display:none}
     th,td{padding-right:10px}
     th.n{white-space:normal}
     pre{font-size:12px;padding:12px}
@@ -108,7 +168,7 @@
 
 <div class="top"><div class="wide">
   <span>Sritej Canchi</span>
-  <span><a class="hide" href="#cost">Cost model</a><a class="hide" href="#lessons">Lessons</a><a class="hide" href="#unity">Unity AI</a><a class="hide" href="#checks">Checks</a><a href="https://sritej.itch.io/rex-machina">Play</a><a href="https://github.com/SritejCanchi/rex-machina">Source</a></span>
+  <span class="nav"><a class="hide" href="#scope">Scope</a><a class="hide" href="#cost">Cost model</a><a class="hide" href="#lessons">Lessons</a><a class="hide" href="#unity">Unity AI</a><a class="hide" href="#checks">Checks</a><a href="https://sritej.itch.io/rex-machina">Play</a><a href="https://github.com/SritejCanchi/rex-machina">Source</a><button class="theme" id="theme" type="button" aria-label="Switch to dark theme" title="Switch theme"><svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg><svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></button></span>
 </div></div>
 
 <header class="col">
@@ -166,6 +226,91 @@
   <dt>The tables</dt><dd>The five data tables, 42 rows, that hold all game text. The browser, Unreal and Unity builds read the same files.</dd>
   <dt><code>game.js</code></dt><dd>The browser game's code. Every port is checked against it.</dd>
 </dl>
+
+<h2 id="scope">Scope</h2>
+<p><strong>Purpose.</strong> A capstone for a seven-week course on multi-agent AI for game development. The aim was to learn, on one small game built end to end, where agents earn a place in a game team's workflow, what they cost, and how to check them. The Unity work carries the same questions into AI built into an editor.</p>
+<div class="scope">
+  <div>
+    <h3>Covered</h3>
+    <ul>
+      <li>Agent pipelines that write all of the game's text, with a record of where each row came from</li>
+      <li>Rex's decision logic, and the rules that keep its lines true</li>
+      <li>An adversarial QA agent, and checks on the checkers</li>
+      <li>Model choice and cost, measured rather than estimated</li>
+      <li>Ports to Unreal 5.5 and Unity 6.6, both reading the same tables</li>
+      <li>Unity AI used on real tasks and evaluated</li>
+    </ul>
+  </div>
+  <div>
+    <h3>Not covered</h3>
+    <ul>
+      <li>Generated art or sound in a shipped build. The art is drawn in code or comes from free Kenney asset kits</li>
+      <li>Model calls during play</li>
+      <li>Playtests or player data at scale</li>
+      <li>Multiplayer, mobile or monetization</li>
+      <li>Automated builds and tests on every change</li>
+      <li>Production polish. The Unreal and Unity builds are prototypes</li>
+    </ul>
+  </div>
+</div>
+<h3>Current work</h3>
+<ul>
+  <li>Finishing the Unity port: player input, the HUD, and the six road encounters</li>
+  <li>Fixing the two content-rule mismatches the Unity evaluation found in the shipped game</li>
+  <li>Choosing Rex's sprite and voicing its 24 lines</li>
+</ul>
+
+<h2 id="tracker">Task tracker</h2>
+<div class="tracker-head">
+  <p class="headline"><mark>22 of 34 items done, 3 in progress, 9 to do.</mark> All ten course assignments and the browser release are complete. The open work is the two ports, two content bugs in the shipped game, and automation.</p>
+  <div class="bar" role="img" aria-label="22 done, 3 in progress, 9 to do">
+    <span class="b-done" style="width:64.7%"></span><span class="b-prog" style="width:8.8%"></span><span class="b-todo" style="width:26.5%"></span>
+  </div>
+  <p class="legend"><span class="st st-done">Done 22</span> <span class="st st-prog">In progress 3</span> <span class="st st-todo">To do 9</span> <span class="sep">&middot;</span> Bugs: 6 logged, 2 open</p>
+  <ul class="cats"><li><strong>Design</strong> 1 of 1 done</li><li><strong>Content</strong> 6 of 8 done</li><li><strong>Gameplay</strong> 4 of 4 done</li><li><strong>QA</strong> 1 of 3 done</li><li><strong>Unreal port</strong> 3 of 5 done</li><li><strong>Unity port</strong> 6 of 11 done</li><li><strong>Release</strong> 1 of 2 done</li></ul>
+</div>
+<div class="scroll">
+<table class="t-map tracker">
+  <thead><tr><th>ID</th><th>Item</th><th>Type</th><th>Category</th><th>Status</th></tr></thead>
+  <tbody>
+    <tr><td class="id">RM-1</td><td>Design document as an engineering contract, rebuilt after a stress test</td><td><span class="ty">Task</span></td><td>Design</td><td><span class="st st-done">Done</span></td></tr>
+    <tr><td class="id">RM-2</td><td>Retrieval over the design doc writes Rex's lines, the arenas and the encounters</td><td><span class="ty">Task</span></td><td>Content</td><td><span class="st st-done">Done</span></td></tr>
+    <tr><td class="id">RM-3</td><td>Retry lines: draft, rule check, rewrite, with a circuit breaker</td><td><span class="ty">Task</span></td><td>Content</td><td><span class="st st-done">Done</span></td></tr>
+    <tr><td class="id">RM-4</td><td>Narration scored by a style judge, calibrated over three runs</td><td><span class="ty">Task</span></td><td>Content</td><td><span class="st st-done">Done</span></td></tr>
+    <tr><td class="id">RM-5</td><td>Narrative engine: two agents sharing one JSON ledger</td><td><span class="ty">Task</span></td><td>Content</td><td><span class="st st-done">Done</span></td></tr>
+    <tr><td class="id">RM-6</td><td>End-to-end run: checksum sync, record and replay, cost audit</td><td><span class="ty">Task</span></td><td>Content</td><td><span class="st st-done">Done</span></td></tr>
+    <tr><td class="id">RM-7</td><td>Rex as a goal-oriented agent: perceive, predict, intercept, veto</td><td><span class="ty">Task</span></td><td>Gameplay</td><td><span class="st st-done">Done</span></td></tr>
+    <tr><td class="id">RM-8</td><td>Random boards proven winnable by search before play</td><td><span class="ty">Task</span></td><td>Gameplay</td><td><span class="st st-done">Done</span></td></tr>
+    <tr><td class="id">RM-9</td><td>Adversarial QA agent: 15 strategies, about 3,000 checks a run</td><td><span class="ty">Task</span></td><td>QA</td><td><span class="st st-done">Done</span></td></tr>
+    <tr><td class="id">RM-10</td><td>RM-001: Rex named a direction the player never favoured</td><td><span class="ty bug">Bug</span></td><td>Content</td><td><span class="st st-done">Done</span></td></tr>
+    <tr><td class="id">RM-11</td><td>RM-002: stamina could drop below zero</td><td><span class="ty bug">Bug</span></td><td>Gameplay</td><td><span class="st st-done">Done</span></td></tr>
+    <tr><td class="id">RM-12</td><td>RM-003: pressing into a wall gave no feedback</td><td><span class="ty bug">Bug</span></td><td>Gameplay</td><td><span class="st st-done">Done</span></td></tr>
+    <tr><td class="id">RM-13</td><td>&ldquo;Same exit&rdquo; lines claim two approaches, the trigger fires on one</td><td><span class="ty bug">Bug</span></td><td>Content</td><td><span class="st st-todo">To do</span></td></tr>
+    <tr><td class="id">RM-14</td><td>A trigger threshold is 0.6 in the code and 0.65 in the table</td><td><span class="ty bug">Bug</span></td><td>Content</td><td><span class="st st-todo">To do</span></td></tr>
+    <tr><td class="id">RM-15</td><td>A human-scored set to calibrate the style judge</td><td><span class="ty">Task</span></td><td>QA</td><td><span class="st st-todo">To do</span></td></tr>
+    <tr><td class="id">RM-16</td><td>Run the QA agent automatically on every change</td><td><span class="ty">Task</span></td><td>QA</td><td><span class="st st-todo">To do</span></td></tr>
+    <tr><td class="id">RM-17</td><td>Unreal 5.5 build driven by the same tables</td><td><span class="ty">Task</span></td><td>Unreal port</td><td><span class="st st-prog">In progress</span></td></tr>
+    <tr class="sub"><td class="id">RM-17.1</td><td>18 Blueprint graphs generated as text, linted, self-tested</td><td><span class="ty">Sub-task</span></td><td>Unreal port</td><td><span class="st st-done">Done</span></td></tr>
+    <tr class="sub"><td class="id">RM-17.2</td><td>Windows package built from a script</td><td><span class="ty">Sub-task</span></td><td>Unreal port</td><td><span class="st st-done">Done</span></td></tr>
+    <tr class="sub"><td class="id">RM-17.3</td><td>Seven sound families imported and verified</td><td><span class="ty">Sub-task</span></td><td>Unreal port</td><td><span class="st st-done">Done</span></td></tr>
+    <tr class="sub"><td class="id">RM-17.4</td><td>Wire the sounds into the graphs</td><td><span class="ty">Sub-task</span></td><td>Unreal port</td><td><span class="st st-todo">To do</span></td></tr>
+    <tr><td class="id">RM-18</td><td>Unity 6.6 build, made with Unity AI</td><td><span class="ty">Task</span></td><td>Unity port</td><td><span class="st st-prog">In progress</span></td></tr>
+    <tr class="sub"><td class="id">RM-18.1</td><td>Load the tables and build the first arena</td><td><span class="ty">Sub-task</span></td><td>Unity port</td><td><span class="st st-done">Done</span></td></tr>
+    <tr class="sub"><td class="id">RM-18.2</td><td>Port Rex's turn to C# with Plan, then Agent mode</td><td><span class="ty">Sub-task</span></td><td>Unity port</td><td><span class="st st-done">Done</span></td></tr>
+    <tr class="sub"><td class="id">RM-18.3</td><td>Parity replay against <code>game.js</code>: 48 of 48 turns</td><td><span class="ty">Sub-task</span></td><td>Unity port</td><td><span class="st st-done">Done</span></td></tr>
+    <tr class="sub"><td class="id">RM-18.4</td><td>The C# port counted refused moves as turns</td><td><span class="ty bug">Bug</span></td><td>Unity port</td><td><span class="st st-done">Done</span></td></tr>
+    <tr class="sub"><td class="id">RM-18.5</td><td>Pixel-perfect camera, using a Unity plugin skill</td><td><span class="ty">Sub-task</span></td><td>Unity port</td><td><span class="st st-done">Done</span></td></tr>
+    <tr class="sub"><td class="id">RM-18.6</td><td>Project skill and the ten-run repeat check</td><td><span class="ty">Sub-task</span></td><td>Unity port</td><td><span class="st st-done">Done</span></td></tr>
+    <tr class="sub"><td class="id">RM-18.7</td><td>Pick a Rex sprite from three generated, remove its background</td><td><span class="ty">Sub-task</span></td><td>Unity port</td><td><span class="st st-prog">In progress</span></td></tr>
+    <tr class="sub"><td class="id">RM-18.8</td><td>Voice Rex's 24 lines</td><td><span class="ty">Sub-task</span></td><td>Unity port</td><td><span class="st st-todo">To do</span></td></tr>
+    <tr class="sub"><td class="id">RM-18.9</td><td>Player input, HUD, win and lose</td><td><span class="ty">Sub-task</span></td><td>Unity port</td><td><span class="st st-todo">To do</span></td></tr>
+    <tr class="sub"><td class="id">RM-18.10</td><td>The six road encounters</td><td><span class="ty">Sub-task</span></td><td>Unity port</td><td><span class="st st-todo">To do</span></td></tr>
+    <tr><td class="id">RM-19</td><td>Browser build on itch.io</td><td><span class="ty">Task</span></td><td>Release</td><td><span class="st st-done">Done</span></td></tr>
+    <tr><td class="id">RM-20</td><td>Windows build on itch.io</td><td><span class="ty">Task</span></td><td>Release</td><td><span class="st st-todo">To do</span></td></tr>
+  </tbody>
+</table>
+</div>
+<p class="note">Sub-tasks sit under their parent task. Bugs RM-001 to RM-003 were found by the QA agent, RM-13 and RM-14 by the Unity AI evaluation, RM-18.4 by the parity replay.</p>
 
 <h2 id="cost">Model choice and cost</h2>
 <p>The design document planned live model calls during play, 43 per playthrough. The shipped build writes everything before release instead, so the &ldquo;live&rdquo; numbers below are the cost that choice avoided. All costs come from one formula, applied to token counts that were measured, not estimated.</p>
@@ -595,5 +740,17 @@ browser build  ·  Unreal 5.5 build</pre>
   </span>
 </div></footer>
 
+<script>
+  (function(){
+    var b=document.getElementById("theme"), r=document.documentElement;
+    function label(){ var d=r.getAttribute("data-theme")==="dark"; b.setAttribute("aria-label", d?"Switch to light theme":"Switch to dark theme"); }
+    label();
+    b.addEventListener("click", function(){
+      var t=r.getAttribute("data-theme")==="dark"?"light":"dark";
+      r.setAttribute("data-theme", t); label();
+      try{ localStorage.setItem("theme", t); }catch(e){}
+    });
+  })();
+</script>
 </body>
 </html>
