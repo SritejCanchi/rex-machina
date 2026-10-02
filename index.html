@@ -202,27 +202,31 @@ Opus 5.5, 4× the price
 
 <div class="lesson">
   <h3>1. Ground generation in the project</h3>
-  <p>Retrieval ran over the game's own design document, split into 39 chunks, and every generated row records where it came from. <mark>The project in front of an editor is the best knowledge base a generator will ever get.</mark></p>
+  <p>The content pipeline retrieved from the game's own design document, and every generated row records its source. In Unity, every Assistant tier cited the right rows from the project's files, with no invented IDs. The only invented facts came from Plan mode's boilerplate overview, the one part with no source to read. <mark>The project in front of an editor is the best knowledge base a generator will ever get.</mark></p>
 </div>
 <div class="lesson">
   <h3>2. Emit what the engine already reads</h3>
-  <p>The agents wrote DataTables, not prose. Every output is diffable, checksummed and testable, and the same 42 rows drive two engines with no hand edits. <mark>Engine-native output turns a model's answer into a reviewable asset.</mark></p>
+  <p>The agents wrote DataTables, not prose. The same 42 rows drive the browser and Unreal builds, and loaded into Unity as a ScriptableObject without a single edit. <mark>Engine-native output turns a model's answer into a reviewable asset.</mark></p>
 </div>
 <div class="lesson">
   <h3>3. Validate against the running game, not the document</h3>
-  <p>One boss line passed retrieval grounding, a rule evaluator and a style evaluator, and still told a player who had run right nine times that it “favored left.” An agent that played the build caught it in seconds. <mark>A check that reads a document cannot see game state. Only a check that runs the game can.</mark> The fix holds a line back unless it is true, because silence beats a confident lie.</p>
+  <p>Unity AI's Lite and Default tiers answered a gameplay question from the data table and guessed wrong about what Rex says. Ultra ran the turn logic and got it right, and found a line in the shipped game that claims something that never happened. The browser build learned the same lesson first: a boss line passed three evaluators and still told a right-running player it &ldquo;favored left.&rdquo; <mark>A check that reads a document cannot see game state. Only a check that runs the game can.</mark></p>
 </div>
 <div class="lesson">
-  <h3>4. Compiling is not working</h3>
-  <p>The Unreal port uses 18 Blueprint graphs generated as text. Four mistakes compiled clean and returned constants. A linter caught ten dropped wires before paste, and a self-test level that prints each function's values caught the rest. <mark>An agent that writes code or graphs needs an oracle that runs the result.</mark></p>
+  <h3>4. Passing its own tests is not working</h3>
+  <p>Unity AI's Agent mode ported the boss turn to C# and reported 7/7 tests passed. Replayed against the shipped game, 31 of 48 turns disagreed, because its tests checked its own reading of the spec. One bug report later it matched 48 of 48. <mark>An agent that writes code needs an oracle it did not write: the reference implementation, run side by side.</mark></p>
 </div>
 <div class="lesson">
-  <h3>5. An agent cannot drive what it cannot see</h3>
-  <p>Unreal has no Python API for building Blueprint graphs, so every graph went in through the clipboard. Editor windows screenshot as black frames, the headless Python runner logs to a file instead of the console, and a script path with a space is silently cut short. Each one made a failure look like success. <mark>In-editor agents need structured editor state and first-class actions, not pixels and paste.</mark></p>
+  <h3>5. A rule in context beats a bigger model</h3>
+  <p>A 34-line project skill in <code>Assets</code> told the Assistant to simulate before answering. With it, the cheapest tier (19 credits) matched the top tier (38 credits), down to the same false line in the shipped game. Haiku was picked for the content pipeline on the same logic. <mark>Encode the team's rules once, and the small model does the job.</mark></p>
 </div>
 <div class="lesson">
-  <h3>6. Separate authoring cost from runtime cost</h3>
-  <p>Pre-generating content made every play free. <mark>Generate at authoring time, where it is cheap and reviewable. Spend at runtime only where it earns its cost.</mark></p>
+  <h3>6. The agent has to survive the editor</h3>
+  <p>A script recompile cancelled a running Agent task, dropped a finished tool result and disconnected the Assistant. The Unity MCP link drops on every recompile, and one Agent run raised a blocking &ldquo;save scene&rdquo; dialog. Writing code is what triggers the recompile, so the agent's most common action breaks its own session. <mark>In-editor agents need state that outlives a domain reload, and first-class editor actions instead of dialogs.</mark></p>
+</div>
+<div class="lesson">
+  <h3>7. Separate authoring cost from runtime cost</h3>
+  <p>Pre-generating content made every play free, and the Unity boss-turn port cost 255 credits once. <mark>Generate at authoring time, where it is cheap and reviewable. Spend at runtime only where it earns its cost.</mark></p>
 </div>
 
 <h2 id="pipeline">Pipeline</h2>
@@ -486,7 +490,8 @@ browser build  ·  Unreal 5.5 build</pre>
 <h2 id="unreal">Unreal Engine 5.5 port</h2>
 <ul>
   <li>The same five DataTables drive the fight.</li>
-  <li><mark>18 Blueprint graphs generated as text</mark> by a Python generator, linted before paste, verified by a self-test level.</li>
+  <li><mark>18 Blueprint graphs generated as text</mark> by a Python generator, linted before paste, verified by a self-test level. Four graphs compiled clean and still returned constants, and only the self-test caught them.</li>
+  <li>Unreal has no Python API for building Blueprint graphs, so every graph went in through the clipboard. Editor windows screenshot as black frames, and the headless Python runner logs to a file instead of the console.</li>
   <li>Packaged for Windows from a script: 27 minutes, 265 MB zipped. Three key presses advance exactly three rounds.</li>
   <li>Audio imported and verified, seven cue families matched to the sound beds the pipeline wrote. Not yet wired into the graphs.</li>
 </ul>
