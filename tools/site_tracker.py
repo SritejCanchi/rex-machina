@@ -27,7 +27,7 @@ ROWS = [
     ("RM-13", "Bug",  "Content",          "&ldquo;Same exit&rdquo; lines claim two approaches, the trigger fires on one", "todo", None),
     ("RM-14", "Bug",  "Content",          "A trigger threshold is 0.6 in the code and 0.65 in the table", "todo", None),
     ("RM-15", "Task", "QA",               "A human-scored set to calibrate the style judge", "todo", None),
-    ("RM-16", "Task", "QA",               "Run the QA agent automatically on every change", "todo", None),
+    ("RM-16", "Task", "QA",               "Run every check on each push: CI workflow written and validated, not yet live", "prog", None),
     ("RM-17", "Task", "Unreal port",      "Unreal 5.5 build driven by the same tables", "prog", None),
     ("RM-17.1", "Sub-task", "Unreal port", "18 Blueprint graphs generated as text, linted, self-tested", "done", "RM-17"),
     ("RM-17.2", "Sub-task", "Unreal port", "Windows package built from a script", "done", "RM-17"),
@@ -46,6 +46,11 @@ ROWS = [
     ("RM-18.10","Sub-task", "Unity port", "The six road encounters", "todo", "RM-18"),
     ("RM-19", "Task", "Release",          "Browser build on itch.io", "done", None),
     ("RM-20", "Task", "Release",          "Windows build on itch.io", "todo", None),
+    ("RM-21", "Task", "QA",               "Unit tests for Rex's logic and the tables: 27 cases", "done", None),
+    ("RM-22", "Task", "QA",               "End-to-end test: the computer plays the whole game in Chromium", "done", None),
+    ("RM-23", "Task", "QA",               "QA agent seeded so failures replay, and failing the run on any finding", "done", None),
+    ("RM-24", "Bug",  "Content",          "Two table hashes depended on Windows line endings", "done", None),
+    ("RM-25", "Bug",  "Release",          "The game page is 749 px wide on a 390 px phone", "todo", None),
 ]
 
 LABEL = {"done": "Done", "prog": "In progress", "todo": "To do"}
@@ -93,7 +98,7 @@ section = f'''
       <li>Model calls during play</li>
       <li>Playtests or player data at scale</li>
       <li>Multiplayer, mobile or monetization</li>
-      <li>Automated builds and tests on every change</li>
+      <li>Automated builds, and blocking a merge when a check fails</li>
       <li>Production polish. The Unreal and Unity builds are prototypes</li>
     </ul>
   </div>
@@ -107,7 +112,7 @@ section = f'''
 
 <h2 id="tracker">Task tracker</h2>
 <div class="tracker-head">
-  <p class="headline"><mark>{cnt["done"]} of {n} items done, {cnt["prog"]} in progress, {cnt["todo"]} to do.</mark> All ten course assignments and the browser release are complete. The open work is the two ports, two content bugs in the shipped game, and automation.</p>
+  <p class="headline"><mark>{cnt["done"]} of {n} items done, {cnt["prog"]} in progress, {cnt["todo"]} to do.</mark> All ten course assignments and the browser release are complete. The open work is the two ports, three bugs, and switching on CI.</p>
   <div class="bar" role="img" aria-label="{cnt['done']} done, {cnt['prog']} in progress, {cnt['todo']} to do">
     <span class="b-done" style="width:{pct('done')}%"></span><span class="b-prog" style="width:{pct('prog')}%"></span><span class="b-todo" style="width:{pct('todo')}%"></span>
   </div>
@@ -122,7 +127,7 @@ section = f'''
   </tbody>
 </table>
 </div>
-<p class="note">Sub-tasks sit under their parent task. Bugs RM-001 to RM-003 were found by the QA agent, RM-13 and RM-14 by the Unity AI evaluation, RM-18.4 by the parity replay.</p>
+<p class="note">Sub-tasks sit under their parent task. Bugs RM-001 to RM-003 were found by the QA agent, RM-13 and RM-14 by the Unity AI evaluation, RM-18.4 by the parity replay, RM-24 by the data test and RM-25 by the end-to-end test.</p>
 
 '''
 
