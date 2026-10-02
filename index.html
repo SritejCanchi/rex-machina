@@ -64,7 +64,12 @@
   tr.pick td{font-weight:600}
   tr.ship td{color:#0a7d36;font-weight:600}
   .scroll{overflow-x:auto}
+  .pair{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start}
+  .pair figure{margin:18px 0 8px}
+  .pair img{margin:0 auto}
+  code{font:13.5px ui-monospace,SFMono-Regular,Consolas,monospace;background:var(--soft);padding:1px 4px;border-radius:3px}
   td:first-child{white-space:nowrap}
+  .t-map td:first-child{white-space:normal}
 
   pre{background:var(--soft);border:1px solid var(--line);border-radius:6px;padding:14px 16px;margin:12px 0 16px;
       overflow-x:auto;font:400 13.5px/1.6 var(--mono);color:#24292f}
@@ -85,6 +90,7 @@
     table{font-size:14.5px}
     .t-dec td:nth-child(2),.t-dec th:nth-child(2){display:none}
     .hm{display:none}
+    .pair{grid-template-columns:1fr}
     th,td{padding-right:10px}
     th.n{white-space:normal}
     pre{font-size:12px;padding:12px}
@@ -96,13 +102,13 @@
 
 <div class="top"><div class="wide">
   <span>Sritej Canchi</span>
-  <span><a class="hide" href="#cost">Cost model</a><a class="hide" href="#lessons">Lessons</a><a href="https://sritej.itch.io/rex-machina">Play</a><a href="https://github.com/SritejCanchi/rex-machina">Source</a></span>
+  <span><a class="hide" href="#cost">Cost model</a><a class="hide" href="#lessons">Lessons</a><a class="hide" href="#next">Unity</a><a href="https://sritej.itch.io/rex-machina">Play</a><a href="https://github.com/SritejCanchi/rex-machina">Source</a></span>
 </div></div>
 
 <header class="col">
   <h1>Rex Machina</h1>
   <p class="sub">Agent-generated game content, a boss that is itself an agent, and what it takes to put AI inside an engine and its editor.</p>
-  <p class="by">Sritej Canchi · Capstone, Multi-Agent AI for Game Development (ELVTR, 2026) · Browser build plus an Unreal Engine 5.5 port</p>
+  <p class="by">Sritej Canchi · Capstone, Multi-Agent AI for Game Development (ELVTR, 2026) · Browser build, an Unreal Engine 5.5 port, and a Unity 6.6 port in progress</p>
   <div class="links">
     <a class="go" href="https://sritej.itch.io/rex-machina">Play in the browser (2 min)</a>
     <a href="https://github.com/SritejCanchi/rex-machina">Source on GitHub</a>
@@ -116,6 +122,7 @@
       <li><mark>$0.25 total model spend, $0 per play.</mark> Generation runs at authoring time, so the shipped game makes no model calls. Haiku 4.5 was chosen on a cost model, below.</li>
       <li>Verified against the running game, not the spec: <mark>an adversarial QA agent runs about 3,000 checks per build</mark> and found 3 real bugs.</li>
       <li><mark>Ported to Unreal 5.5</mark>: Blueprint graphs generated as text, linted, self-tested, and packaged for Windows.</li>
+      <li><mark>Next: Unity 6.6 with Unity AI.</mark> The same tables load unchanged, and the remaining art, voice and sound cost an estimated $6&ndash;11 in credits, once.</li>
     </ul>
   </div>
 </header>
@@ -286,6 +293,90 @@ browser build  ·  Unreal 5.5 build</pre>
        alt="The Unreal build: a lit train-yard arena with a checkerboard floor, the dog beside a teal X marking the robot's predicted tile, the robot and the kid further up, and a HUD showing charge, stamina and round.">
   <figcaption>The packaged Windows build, three rounds in. The teal X is the robot's predicted tile.</figcaption>
 </figure>
+
+<h2 id="next">What's next: Unity 6.6 and Unity AI</h2>
+<p>The same data contract now opens in <strong>Unity 6.6 (6000.6.2f1) with Unity AI</strong>, on the trial plan. <mark>The five tables loaded without a single edit.</mark> A <a href="https://github.com/SritejCanchi/rex-machina/tree/main/unity">33-line editor importer</a> turns <code>DT_NemesisReads.json</code> into a ScriptableObject (24 rows), and the yard arena is built from <code>DT_ArenaPhases</code>, with exits and cover where the table puts them.</p>
+<figure class="wide">
+  <img src="assets/unity-editor.webp" width="1800" height="1013" loading="lazy"
+       alt="The Unity 6.6 editor. Left: a ten by ten yard arena built from the Rex Machina arena table. Right: the Unity AI Assistant panel in Ask mode, showing a table of six Nemesis Read rows with their trigger conditions and lines, and a cost of 22 credits under the answer.">
+  <figcaption>The Unity project. Left: the yard arena built from <code>DT_ArenaPhases</code>. Right: the Unity AI Assistant in Ask mode, answering from the project's own files. The answer cost 22 credits.</figcaption>
+</figure>
+
+<h3>One question to the Assistant, checked against the data</h3>
+<p>The question: which reads fire if the player moves right six turns in a row? The Assistant opened the JSON and the design doc, then returned six rows. <mark>All six IDs, triggers and lines match the table exactly.</mark></p>
+<figure>
+  <img src="assets/unity-assistant-answer.webp" width="766" height="920" loading="lazy"
+       alt="Close-up of the Assistant's answer: a trigger analysis, a table of three sealing_direction rows and a table of three periodicity_called rows, each with ReadID, TriggerCondition and Line, and the label 22 cr under the answer.">
+  <figcaption>The answer, close up. The italic note under the first table is the wrong runtime assumption.</figcaption>
+</figure>
+<p>It also noticed the stored lines say &ldquo;left&rdquo; while the move was right, then assumed the game swaps in the observed direction at runtime. It does not. The shipped game holds that line back, a fix the QA agent forced (RM-001). <mark>Grounded in the files, guessing about the running game:</mark> lesson 3 again, and the gap an in-editor agent closes by reading play-mode state, not only source.</p>
+
+<h3>The Unity AI features that map to the remaining work</h3>
+<figure class="wide">
+  <img src="assets/unity-ai-menu.webp" width="1230" height="480" loading="lazy"
+       alt="The Unity AI toolbar menu showing 984 of 1,000 credits, In Beta, and a Generate New submenu with 3D Object, Animation, Material, Sound, Sprite, Texture and Cubemap.">
+  <figcaption>The AI menu: trial balance and the seven generator types.</figcaption>
+</figure>
+<div class="pair">
+  <figure>
+    <img src="assets/unity-sprite-gen.webp" width="270" height="404" loading="lazy"
+         alt="The Sprite generator with the Flux 2 Dev model, a prompt describing Rex as a boxy grey robot dog with one teal sensor eye, and a Generate button labelled 5 to 15 credits.">
+    <figcaption><strong>Sprite</strong> for Rex, Flux 2 (Dev). The price shows on the button: 5&ndash;15 cr.</figcaption>
+  </figure>
+  <figure>
+    <img src="assets/unity-voice-gen.webp" width="282" height="372" loading="lazy"
+         alt="The Sound generator with the ElevenLabs Multilingual V2 voice model, the prompt 'Target favored left nine of twenty recorded moves.', voice Adam, and a Generate button labelled 5 to 15 credits.">
+    <figcaption><strong>Voice</strong> for a Nemesis Read, ElevenLabs Multilingual V2. 5&ndash;15 cr.</figcaption>
+  </figure>
+</div>
+<figure class="wide">
+  <img src="assets/unity-assistant-modes.webp" width="1110" height="220" loading="lazy"
+       alt="Two Assistant menus: modes Agent, Plan and Ask; model tiers Unity Default, Unity Lite, Unity Ultra, Unity Experimental and Add agent.">
+  <figcaption>Assistant modes (Agent, Plan, Ask) and model tiers (Default, Lite, Ultra, Experimental), plus a slot for an outside agent.</figcaption>
+</figure>
+<figure class="wide">
+  <img src="assets/unity-models.webp" width="1050" height="880" loading="lazy"
+       alt="The Select AI Model window listing image models including Flux 2 Dev and Pro, GPT Image 1 and 1.5, Game UI Essentials 2.0 and others, with filters for Characters, Icons and UI, Isometric and Props.">
+  <figcaption>The generator model picker. This project's catalog lists 43 models across image, sprite, texture, sound, voice, music, 3D, motion and video.</figcaption>
+</figure>
+
+<div class="scroll">
+<table class="t-map">
+  <thead><tr><th>Remaining work</th><th>Unity AI feature</th><th>Rex Machina source</th></tr></thead>
+  <tbody>
+    <tr><td>Rex speaks each read</td><td>Sound generator, ElevenLabs voice</td><td>24 lines in <code>DT_NemesisReads</code></td></tr>
+    <tr><td>Dog, Rex, kid, three arenas</td><td>Sprite and Texture generators</td><td>Light and props in <code>DT_ArenaPhases</code></td></tr>
+    <tr><td>Steps, fence, read stinger</td><td>Sound generator, ElevenLabs SFX</td><td>Seven sound families in the GDD</td></tr>
+    <tr><td>Boss logic in C#</td><td>Assistant, Plan then Agent mode</td><td><code>game.js</code>, checked by the QA agent's move sequences</td></tr>
+    <tr><td>Content pipeline run from the editor</td><td>Unity MCP server</td><td>The five pipelines, unchanged</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h3>Cost in credits</h3>
+<p class="note">Trial: 1,000 credits for 14 days. Personal: $10 a month for 1,000 credits, so one credit is about $0.01. Per-action ranges are the ones the editor displayed, or Unity's published table where the editor showed none.</p>
+<div class="scroll">
+<table class="t-map">
+  <thead><tr><th>Item</th><th class="n hm">Count</th><th class="n hm">Credits each</th><th class="n">Credits</th><th class="n">At $0.01</th></tr></thead>
+  <tbody>
+    <tr><td>Assistant answer above, measured</td><td class="n hm">1</td><td class="n hm">22</td><td class="n">22</td><td class="n">$0.22</td></tr>
+    <tr><td>Rex voice, one per read</td><td class="n hm">24</td><td class="n hm">5&ndash;15</td><td class="n">120&ndash;360</td><td class="n">$1.20&ndash;3.60</td></tr>
+    <tr><td>Character and arena sprites</td><td class="n hm">6</td><td class="n hm">5&ndash;15</td><td class="n">30&ndash;90</td><td class="n">$0.30&ndash;0.90</td></tr>
+    <tr><td>Sound effects, 7 families &times; 5</td><td class="n hm">35</td><td class="n hm">1&ndash;5</td><td class="n">35&ndash;175</td><td class="n">$0.35&ndash;1.75</td></tr>
+    <tr><td>Assistant turns for the C# port, assumed</td><td class="n hm">20</td><td class="n hm">~22</td><td class="n">~440</td><td class="n">~$4.40</td></tr>
+    <tr class="pick"><td>Total, authoring time</td><td class="hm"></td><td class="hm"></td><td class="n">647&ndash;1,087</td><td class="n">$6.47&ndash;10.87</td></tr>
+    <tr class="ship"><td>Per play, shipped build</td><td class="hm"></td><td class="hm"></td><td class="n">0</td><td class="n">$0</td></tr>
+  </tbody>
+</table>
+</div>
+<p><mark>The whole port fits in about one month of the Personal plan</mark>, and the rule from the cost section holds: generate at authoring time, ship static assets, spend nothing per play. The line to watch is Agent mode, which Unity prices at 4 to 1,500+ credits a message, so long agent runs, not assets, decide the bill.</p>
+
+<h3>Friction worth reporting</h3>
+<ul>
+  <li>A new project spent 8 minutes resolving packages before the editor opened.</li>
+  <li>MCP calls cannot trigger editor menu items (&ldquo;user interactions are not supported&rdquo;), so the importer had to be invoked by reflection.</li>
+  <li>The MCP link drops on every script recompile and returns once the domain reload finishes.</li>
+</ul>
 
 </main>
 
