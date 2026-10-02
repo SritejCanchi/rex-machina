@@ -1,0 +1,440 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Rex Machina · Sritej Canchi</title>
+<meta name="description" content="A game whose content was written by agent pipelines and whose boss is an agent you have to outthink. What I built, the decisions behind it, and what it taught me about AI inside an engine.">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Rex Machina · Sritej Canchi">
+<meta property="og:description" content="Agent pipelines that write a game's content, a boss that cuts you off instead of chasing you, and what it taught me about AI inside an engine.">
+<meta property="og:image" content="https://sritejcanchi.github.io/rex-machina/assets/og.png">
+<meta property="og:url" content="https://sritejcanchi.github.io/rex-machina/">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23b5541b'/%3E%3Ctext x='16' y='23' font-family='Georgia,serif' font-size='20' font-weight='700' fill='%23f6f3ec' text-anchor='middle'%3ER%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#f6f3ec; --paper2:#efebe2; --ink:#1b1916; --muted:#6a645a; --rule:#e0dacd;
+    --accent:#b5541b; --teal:#0f7f74; --code:#15130f; --codeink:#e9e3d6; --codedim:#8d867a;
+    --serif:"Newsreader",Georgia,"Times New Roman",serif;
+    --mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{ --paper:#12110f; --paper2:#1a1815; --ink:#ece7dd; --muted:#a29b8f; --rule:#2d2a25;
+           --accent:#e2884d; --teal:#4fc2b5; --code:#0b0a08; }
+  }
+  *{box-sizing:border-box}
+  html{background:var(--paper);-webkit-text-size-adjust:100%}
+  body{margin:0;color:var(--ink);background:var(--paper);font:400 19px/1.62 var(--serif);
+       font-optical-sizing:auto;text-rendering:optimizeLegibility}
+  a{color:inherit;text-decoration-color:var(--accent);text-decoration-thickness:1.5px;text-underline-offset:3px}
+  a:hover{color:var(--accent)}
+  img{max-width:100%;height:auto;display:block}
+
+  .bar{position:sticky;top:0;z-index:5;background:color-mix(in srgb,var(--paper) 88%,transparent);
+       backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-bottom:1px solid var(--rule)}
+  .bar .in{max-width:1040px;margin:0 auto;padding:12px 24px;display:flex;justify-content:space-between;align-items:center;gap:16px}
+  .bar .who{font:500 13px var(--mono);letter-spacing:.04em}
+  .bar nav{display:flex;gap:18px;font:400 13px var(--mono)}
+  .bar nav a{text-decoration:none;color:var(--muted)}
+  .bar nav a:hover{color:var(--accent)}
+
+  .wrap{max-width:720px;margin:0 auto;padding:0 24px}
+  .wide{max-width:1040px;margin:0 auto;padding:0 24px}
+
+  header.hero{padding:72px 24px 32px}
+  .eyebrow{font:500 12px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:0 0 18px}
+  h1{font:500 clamp(48px,8vw,84px)/1 var(--serif);letter-spacing:-.02em;margin:0 0 22px}
+  .dek{font-size:clamp(21px,2.4vw,25px);line-height:1.45;color:var(--ink);margin:0 0 30px;max-width:640px}
+  .cta{display:flex;flex-wrap:wrap;gap:12px}
+  .btn{display:inline-flex;align-items:center;gap:10px;padding:12px 18px;border:1px solid var(--ink);border-radius:999px;
+       font:500 14px var(--mono);text-decoration:none;transition:background .15s,color .15s}
+  .btn.primary{background:var(--ink);color:var(--paper)}
+  .btn.primary:hover{background:var(--accent);border-color:var(--accent);color:#fff}
+  .btn:hover{color:var(--accent)}
+  .btn small{font-size:12px;opacity:.7}
+
+  figure{margin:40px auto}
+  figure img{border-radius:8px;border:1px solid var(--rule);box-shadow:0 20px 50px -24px rgba(0,0,0,.35)}
+  figcaption{font-size:15.5px;line-height:1.5;color:var(--muted);margin:14px auto 0;max-width:720px;padding:0 24px}
+  figcaption b{color:var(--ink);font-weight:500}
+
+  .stats{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--rule);border-left:1px solid var(--rule);margin:8px 0 0}
+  .stat{padding:22px 22px 24px;border-right:1px solid var(--rule);border-bottom:1px solid var(--rule)}
+  .stat .n{font:500 44px/1 var(--serif);letter-spacing:-.02em;margin-bottom:10px}
+  .stat .n em{font-style:normal;color:var(--accent)}
+  .stat p{margin:0;font-size:15.5px;line-height:1.45;color:var(--muted)}
+
+  section.wrap{padding:72px 24px 8px}   /* .wrap alone would zero the vertical padding */
+  .label{font:500 12px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin:0 0 12px}
+  h2{font:500 clamp(30px,4vw,40px)/1.15 var(--serif);letter-spacing:-.01em;margin:0 0 22px}
+  h3{font:600 21px/1.3 var(--serif);margin:0 0 8px}
+  p{margin:0 0 18px}
+  .lead{font-size:21px;line-height:1.55}
+  strong{font-weight:600}
+  code{font:400 .84em var(--mono);background:var(--paper2);padding:1px 5px;border-radius:4px}
+
+  /* the pipeline diagram */
+  .flow{display:grid;grid-template-columns:1fr auto 1.5fr auto 1fr;align-items:center;gap:14px;margin:30px 0 10px}
+  .node{border:1px solid var(--rule);background:var(--paper2);border-radius:8px;padding:14px 16px;font-size:15.5px;line-height:1.4}
+  .node .k{display:block;font:500 11px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:5px}
+  .node.src{border-color:var(--ink)}
+  .node.out{border-color:var(--accent)}
+  .stack{display:grid;gap:10px}
+  .arrow{font:400 22px var(--mono);color:var(--muted);text-align:center}
+  .arrow::before{content:"\2192"}
+
+  pre.term{background:var(--code);color:var(--codeink);border-radius:8px;padding:18px 20px;overflow-x:auto;
+           font:400 13px/1.65 var(--mono);margin:26px 0 8px}
+  pre.term .d{color:var(--codedim)} pre.term .ok{color:#7fcf9a} pre.term .esc{color:#f0a35e} pre.term .h{color:#fff}
+
+  /* course map */
+  .tbl{width:100%;border-collapse:collapse;font-size:16px;line-height:1.45;margin:22px 0}
+  .tbl th{font:500 11px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);text-align:left;padding:0 12px 10px 0;border-bottom:1px solid var(--ink)}
+  .tbl td{padding:13px 14px 13px 0;border-bottom:1px solid var(--rule);vertical-align:top}
+  .tbl td:first-child{font:500 13px var(--mono);color:var(--muted);white-space:nowrap;width:46px}
+  .tbl td:last-child{color:var(--muted);font-style:italic}
+
+  /* lessons */
+  .lessons{counter-reset:l;display:grid;gap:34px;margin-top:30px}
+  .lesson{display:grid;grid-template-columns:54px 1fr;gap:0 10px}
+  .lesson::before{counter-increment:l;content:counter(l,decimal-leading-zero);font:500 13px var(--mono);color:var(--accent);padding-top:6px}
+  .lesson p{margin:0 0 10px}
+  .lesson .so{font-size:16.5px;color:var(--muted);border-left:2px solid var(--accent);padding-left:14px;margin-top:6px}
+
+  /* decisions */
+  .decs{display:grid;gap:0;margin-top:26px;border-top:1px solid var(--rule)}
+  .dec{padding:24px 0;border-bottom:1px solid var(--rule)}
+  .dec dl{display:grid;grid-template-columns:110px 1fr;gap:6px 18px;margin:10px 0 0;font-size:16.5px;line-height:1.5}
+  .dec dt{font:500 11px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);padding-top:4px}
+  .dec dd{margin:0}
+
+  .callout{background:var(--paper2);border:1px solid var(--rule);border-radius:8px;padding:20px 22px;margin:26px 0;font-size:17px}
+  .callout .k{font:500 11px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--teal);margin-bottom:8px;display:block}
+  .mini{width:100%;border-collapse:collapse;font:400 14px var(--mono);margin:8px 0 2px}
+  .mini th,.mini td{text-align:left;padding:6px 10px 6px 0;border-bottom:1px solid var(--rule)}
+  .mini th{color:var(--muted);font-weight:500}
+  .mini td.hi{color:var(--teal);font-weight:500}
+
+  ul.next{padding-left:20px;margin:16px 0}
+  ul.next li{margin-bottom:10px}
+
+  footer{border-top:1px solid var(--rule);margin-top:72px;padding:32px 0 56px;font:400 14px var(--mono);color:var(--muted)}
+  footer .in{max-width:1040px;margin:0 auto;padding:0 24px;display:flex;flex-wrap:wrap;justify-content:space-between;gap:16px}
+  footer nav{display:flex;flex-wrap:wrap;gap:18px}
+
+  @media (max-width:820px){
+    .stats{grid-template-columns:repeat(2,1fr)}
+    .flow{grid-template-columns:1fr}
+    .arrow::before{content:"\2193"}
+    .bar nav a.opt{display:none}
+  }
+  @media (max-width:560px){
+    body{font-size:18px}
+    .stats{grid-template-columns:1fr}
+    .lesson{grid-template-columns:1fr}
+    .lesson::before{padding:0 0 4px}
+    .dec dl{grid-template-columns:1fr;gap:2px}
+    .dec dt{padding-top:10px}
+    .tbl td:first-child{display:none}
+    .tbl th:first-child{display:none}
+  }
+</style>
+</head>
+<body>
+
+<div class="bar"><div class="in">
+  <span class="who">Sritej Canchi</span>
+  <nav>
+    <a class="opt" href="#pipeline">Pipeline</a>
+    <a class="opt" href="#lessons">Lessons</a>
+    <a class="opt" href="#decisions">Decisions</a>
+    <a href="https://sritej.itch.io/rex-machina">Play</a>
+    <a href="https://github.com/SritejCanchi/rex-machina">Code</a>
+  </nav>
+</div></div>
+
+<header class="hero wrap">
+  <p class="eyebrow">Capstone · Multi-Agent AI for Game Development · ELVTR · 2026</p>
+  <h1>Rex Machina</h1>
+  <p class="dek">A game whose content was written by agent pipelines, and whose boss is an agent
+  you have to outthink. This is what I built, the decisions behind it, and what it taught me about
+  AI that has to work inside an engine and its editor.</p>
+  <div class="cta">
+    <a class="btn primary" href="https://sritej.itch.io/rex-machina">Play in the browser <small>2 min, no install</small></a>
+    <a class="btn" href="https://github.com/SritejCanchi/rex-machina">Source on GitHub</a>
+  </div>
+</header>
+
+<figure class="wide">
+  <img src="assets/fight.webp" width="1292" height="934"
+       alt="The boss fight on a ten by ten board. The dog has a robot's predicted tile marked beside it, the robot below it says 'Movement repeated on cycle', and a ledger on the right grades each move.">
+  <figcaption><b>The boss fight.</b> The robot has marked the tile it expects the dog to step on next and
+  is moving to cut it off, not to chase. It says what it measured. The ledger on the right grades every move
+  with a search over the robot's own decision model.</figcaption>
+</figure>
+
+<div class="wide">
+  <div class="stats">
+    <div class="stat"><div class="n">42</div><p>rows of game content across 5 engine DataTables, every one written by an agent pipeline</p></div>
+    <div class="stat"><div class="n"><em>$0.25</em></div><p>total model spend for the whole content build, 150 recorded calls on Claude Haiku 4.5</p></div>
+    <div class="stat"><div class="n">$0</div><p>per playthrough, because generated content ships as static data</p></div>
+    <div class="stat"><div class="n">~3,000</div><p>checks per run by an adversarial QA agent, which found 3 real bugs that are now fixed</p></div>
+    <div class="stat"><div class="n">360<span style="color:var(--muted)">/360</span></div><p>fights won by the in-game planner across every difficulty and journey outcome</p></div>
+    <div class="stat"><div class="n">2</div><p>engines: shipped in the browser, and Act 3 rebuilt in Unreal 5.5 Blueprints and packaged for Windows</p></div>
+  </div>
+</div>
+
+<section class="wrap" id="game">
+  <p class="label">01 · The game</p>
+  <h2>A dog walks home. A robot learns her.</h2>
+  <p class="lead">A shelter dog walks nine days home to the family that gave her away, and finds a robot dog in her place.</p>
+  <p>Acts 1 and 2 are six chase encounters. Something hunts you, it always telegraphs before it commits,
+  and you have to read the tell and break on the right turn. How well you run the journey sets your
+  stamina for Act 3, the fight.</p>
+  <p>The fight is built around one rule from the course: <strong>one agent, one wow</strong>. Most enemies chase you.
+  This one cuts you off. It predicts your next tile from your last few moves, walks to that tile, and says
+  what it measured: <em>“Two of the last four moves cancelled out.”</em> Repeat a trick and it stops working.
+  Wait long enough and the robot forgets, and the trick works again. Every line it speaks names something
+  it actually measured, or it stays silent.</p>
+</section>
+
+<figure class="wide">
+  <img src="assets/encounter.webp" width="1400" height="914" loading="lazy"
+       alt="An Act 1 encounter. A green strip shows the pursuer flaring orange on its tell turn, with the tell and break turns marked, and buttons to hold still or break.">
+  <figcaption><b>Act 1.</b> The pursuer flares on its tell. The strip marks the tell turn and the break
+  turn before you press anything. The first version did not, and a playtester lost five runs in a row
+  to the same misunderstanding.</figcaption>
+</figure>
+
+<section class="wrap" id="pipeline">
+  <p class="label">02 · How the content gets made</p>
+  <h2>I wrote the design doc. Agents wrote everything downstream of it.</h2>
+  <p>Five pipelines, each a small group of agents with one job, each writing rows into an engine-native
+  DataTable. The game code contains no content at all.</p>
+
+  <div class="flow" role="img" aria-label="Pipeline: the hand-written design document feeds three agent pipelines, whose DataTables are synced with checksums into the browser and Unreal builds.">
+    <div class="node src"><span class="k">Written by hand</span>The design document</div>
+    <div class="arrow"></div>
+    <div class="stack">
+      <div class="node"><span class="k">Retrieval over the design doc</span>24 boss lines, 3 arenas, 6 encounters</div>
+      <div class="node"><span class="k">Generate, evaluate, refine</span>6 retry lines, with a circuit breaker</div>
+      <div class="node"><span class="k">Style-guide agent</span>Journey narration, scored and rewritten</div>
+    </div>
+    <div class="arrow"></div>
+    <div class="node out"><span class="k">Synced, sha256 both ends</span>5 DataTables, 42 rows, read by the browser and Unreal builds</div>
+  </div>
+
+  <p>A sync script copies each table into the build, hashes both ends and refuses to finish on a
+  mismatch, so the bytes an agent wrote are the bytes the game loads. The build prints that count
+  under the play area.</p>
+
+<pre class="term"><span class="h">THE RETRY READ   provider=replay   6 cases</span>
+  <span class="ok">OK </span> retry_yard_clinical        attempts 2  fired R2_PRIOR_REF,R3_BUDGET
+       <span class="d">Yard loss noted. Rightward bias confirmed. Gait degradation measured.</span>
+  <span class="esc">ESC</span> retry_fence_gap_confident  attempts 3  fired R2,R3,R4_INVENTED_NUMBER
+       <span class="d">Last run ended at the fence gap. Repeated left.</span>
+  <span class="ok">OK </span> retry_train_yard_strained  attempts 2  fired R2_PRIOR_REF
+       <span class="d">Train yard. Right-up bias. Gait deteriorating. Predictable vector. Finish this.</span>
+  <span class="d">  ...</span>
+
+6 of 6 first drafts broke a rule. 1 escalated to the breaker.</pre>
+  <p style="font-size:15.5px;color:var(--muted)">Real output from the retry-line pipeline, replayed from recorded model turns with no API key.
+  Every first draft broke at least one of five rules taken from the design doc. One never converged, and
+  the circuit breaker stopped it instead of shipping it.</p>
+
+  <h3 style="margin-top:40px">Ten assignments, one game</h3>
+  <table class="tbl">
+    <thead><tr><th>#</th><th>What I built</th><th>What I kept</th></tr></thead>
+    <tbody>
+      <tr><td>1–2</td><td>A design doc written as an engineering contract, then rebuilt after a stress test said the AI was decoration</td><td>Put the AI where the player feels it</td></tr>
+      <tr><td>3</td><td>An agent crew that writes a narration fallback table</td><td>The game ships even if the API is down</td></tr>
+      <tr><td>4</td><td>Retrieval over my own design doc, 33 rows each carrying its provenance</td><td>Ground generation in the project's own sources</td></tr>
+      <tr><td>5</td><td>The boss: a goal-oriented agent with perception, prediction, intercept and a veto</td><td>Behaviour reads as intelligent when it is legible</td></tr>
+      <tr><td>6</td><td>Generate, evaluate, refine, with a circuit breaker</td><td>A rule a program can check beats a model's opinion</td></tr>
+      <tr><td>7</td><td>A style-guide agent that scores out of ten and says why</td><td>Refine from the reason, not the score</td></tr>
+      <tr><td>8</td><td>A narrative engine: two agents sharing one JSON ledger and nothing else</td><td>A narrow contract between agents</td></tr>
+      <tr><td>9</td><td>An adversarial QA agent that plays the build and tries to break it</td><td>Attack the running game, not the document</td></tr>
+      <tr><td>10</td><td>The full pipeline end to end, with a cost audit</td><td>Record and replay made cost control and reproducibility one change</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section class="wrap" id="lessons">
+  <p class="label">03 · Lessons</p>
+  <h2>What this taught me about AI inside an engine</h2>
+  <p>The parts of this project that taught me the most are the parts an in-editor assistant or an
+  asset generator has to get right.</p>
+
+  <div class="lessons">
+    <div class="lesson"><div>
+      <h3>Ground generation in the project, not the internet</h3>
+      <p>The retrieval index for the content pipeline was my design document, byte for byte, split into
+      39 chunks. Every generated row records how it got there. Because the source of truth was the
+      document itself, a story change meant a re-run, not a rewrite.</p>
+      <p class="so">A generator inside an editor has the same advantage: the project in front of it is the best
+      knowledge base it will ever get.</p>
+    </div></div>
+
+    <div class="lesson"><div>
+      <h3>Land output as something the engine already reads</h3>
+      <p>The agents wrote DataTables, not prose for a person to transcribe. That made every output
+      diffable, checksummable and testable, and it let the same 42 rows drive two engines with no
+      hand edits in between.</p>
+      <p class="so">Engine-native output is what turns a generator's result into an asset a team can review.</p>
+    </div></div>
+
+    <div class="lesson"><div>
+      <h3>Validate against the running game, not the document</h3>
+      <p>One boss line, <em>“Target favored left nine of twenty recorded moves,”</em> was grounded by retrieval,
+      passed a rule-based evaluator and passed a style evaluator. It was still wrong. The trigger fired for
+      any dominant direction, so the robot told a dog that had run right nine times that it favoured left.
+      Three checks read the line against a document. An agent that played the build found it in seconds.</p>
+      <p class="so">The fix holds a line back unless it is true of the current game state. Silence beats a
+      confident lie, and only a check that runs the game can tell the two apart.</p>
+    </div></div>
+
+    <div class="lesson"><div>
+      <h3>Compiling is not working</h3>
+      <p>For the Unreal build I generated Blueprint graphs as text from Python, 18 of them, and pasted
+      them into the editor. Four of the mistakes I hit along the way compiled clean and produced a
+      function that returned a constant. A linter I wrote caught ten dropped wires in one graph before
+      it was ever pasted, and a self-test level that prints each function's values caught the rest.</p>
+      <p class="so">An agent that writes code or graphs needs an oracle that runs the result. “It compiled”
+      cannot be that oracle.</p>
+    </div></div>
+
+    <div class="lesson"><div>
+      <h3>An agent cannot drive what it cannot see</h3>
+      <p>Unreal exposes no Python API for building Blueprint graphs, so every graph went in through the
+      clipboard. On my machine the editor's windows screenshot as black frames, the command-line Python
+      runner writes its log to a file instead of the console, and a script path with a space in it is
+      silently cut short. Each of those turned a working step into a failure that looked like success.</p>
+      <p class="so">A native in-editor agent should not work this way. It needs structured, queryable
+      editor state and first-class actions, not pixels and paste.</p>
+    </div></div>
+
+    <div class="lesson"><div>
+      <h3>Separate authoring cost from runtime cost</h3>
+      <p>Recording every model turn and replaying it made the whole content build reproducible with no
+      API key and made test runs free. Total spend for the capstone was $0.25. The number that would
+      matter at scale is runtime: the boss calling a model once per round is budgeted at about $0.036 a
+      playthrough, or $360 a month at 10,000 plays.</p>
+      <p class="so">Generation at authoring time is cheap and reviewable. Generation at runtime has to earn its cost.</p>
+    </div></div>
+  </div>
+</section>
+
+<section class="wrap" id="decisions">
+  <p class="label">04 · Decisions</p>
+  <h2>What I chose, and what it cost</h2>
+  <div class="decs">
+    <article class="dec">
+      <h3>Put the AI in the boss, not beside the game</h3>
+      <dl>
+        <dt>Instead of</dt><dd>Two modes, play the dog or play the robot.</dd>
+        <dt>Because</dt><dd>A stress test of the first design found the player watching the AI rather than playing against it.</dd>
+        <dt>Cost</dt><dd>One larger, riskier fight carries the whole idea.</dd>
+      </dl>
+    </article>
+    <article class="dec">
+      <h3>Ship generated content as static data</h3>
+      <dl>
+        <dt>Instead of</dt><dd>Calling a model while the game runs.</dd>
+        <dt>Because</dt><dd>It costs nothing per play, keeps working if the API is down, and every line is tested before a player sees it.</dd>
+        <dt>Cost</dt><dd>The boss cannot improvise a line nobody generated.</dd>
+      </dl>
+    </article>
+    <article class="dec">
+      <h3>The browser build is the game. Unreal proves it ports.</h3>
+      <dl>
+        <dt>Instead of</dt><dd>Unreal only.</dd>
+        <dt>Because</dt><dd>A reviewer playing seventy-odd projects will not install one. A link that runs in two minutes gets played.</dd>
+        <dt>Cost</dt><dd>Two builds of one fight to keep in step, which both reading the same tables makes manageable.</dd>
+      </dl>
+    </article>
+    <article class="dec">
+      <h3>Key recorded model turns on the whole prompt</h3>
+      <dl>
+        <dt>Because</dt><dd>A replay is provably the answer to that exact prompt.</dd>
+        <dt>Cost</dt><dd>Editing one sentence of the style guide invalidated every recording, and I paid for three full runs to reword prose.</dd>
+        <dt>Next time</dt><dd>Key on the structured inputs and keep the full prompt as an audit field.</dd>
+      </dl>
+    </article>
+    <article class="dec">
+      <h3>Prove fairness with search</h3>
+      <dl>
+        <dt>What</dt><dd>Random boards are rerolled until the game's own search proves a win exists.</dd>
+        <dt>Measured</dt><dd>
+          <table class="mini">
+            <tr><th>Hard, after a bad journey</th><th>Winnable</th></tr>
+            <tr><td>Raw random board</td><td>25 / 40</td></tr>
+            <tr><td>With the fairness roll</td><td class="hi">40 / 40</td></tr>
+          </table>
+        </dd>
+        <dt>Cost</dt><dd>A few milliseconds of search before each fight.</dd>
+      </dl>
+    </article>
+    <article class="dec">
+      <h3>Search for test lines, never script them</h3>
+      <dl>
+        <dt>What</dt><dd>A QA check replayed a scripted “optimal line.” After a rule change made that line impossible, the check kept reporting a pass while measuring nothing.</dd>
+        <dt>Now</dt><dd>It asks the planner for a line. The question I ask of a passing suite is when each check last had the chance to fail.</dd>
+      </dl>
+    </article>
+  </div>
+
+  <div class="callout">
+    <span class="k">Attacking my own work</span>
+    The QA agent runs fifteen strategies and about 3,000 checks: it re-attempts the exploits the design
+    doc claims are closed, most of them at every difficulty, fuzzes 300 random fights, and re-searches positions
+    the game has written off with its own larger search to see whether the game is lying. It found three
+    real bugs, a read that lied, a stamina counter that went negative, and a refused move that froze the
+    screen with no feedback. All three are fixed.
+  </div>
+</section>
+
+<section class="wrap" id="unreal">
+  <p class="label">05 · The Unreal build</p>
+  <h2>Act 3 in Unreal Engine 5.5</h2>
+  <p>The fight rebuilt in Blueprints and driven by the same five tables. The graphs were generated as
+  text by a Python generator, linted before pasting, and checked by a self-test level. It is packaged
+  for Windows from a script. Three key presses advance exactly three rounds, the charge falls as the
+  robot pursues, and the robot's predicted tile sits in teal ahead of the dog.</p>
+</section>
+
+<figure class="wide">
+  <img src="assets/unreal.webp" width="1296" height="728" loading="lazy"
+       alt="The Unreal build: a lit train-yard arena with a checkerboard floor, the dog at the bottom beside a teal X marking the robot's predicted tile, the robot and the kid further up, and a HUD showing charge, stamina and round.">
+  <figcaption><b>The packaged Windows build</b>, three rounds in. Audio is imported and verified, seven
+  cue families matched to the sound beds the content pipeline wrote. Wiring them into the graphs is next.</figcaption>
+</figure>
+
+<section class="wrap" id="next">
+  <p class="label">06 · Next</p>
+  <h2>If I kept going</h2>
+  <ul class="next">
+    <li>One CI workflow: replay every pipeline, sync, run the tests and the adversary, publish if green. Each step is already a single command that fails loudly.</li>
+    <li>Move the boss's reads to runtime generation behind a cost budget, with the shipped tables as the fallback.</li>
+    <li>Key recordings on structured inputs, so editing a prompt does not force a paid re-run.</li>
+    <li>Wire the audio and the journey into the Unreal build.</li>
+  </ul>
+</section>
+
+<footer><div class="in">
+  <span>Sritej Canchi · 2026</span>
+  <nav>
+    <a href="https://sritej.itch.io/rex-machina">Play</a>
+    <a href="https://github.com/SritejCanchi/rex-machina">Source</a>
+    <a href="https://github.com/SritejCanchi/rex-machina/blob/main/docs/gdd_rex_machina.md">Design doc</a>
+    <a href="https://github.com/SritejCanchi/rex-machina/blob/main/qa/README.md">QA write-up</a>
+    <a href="https://github.com/SritejCanchi/rex-machina/blob/main/docs/ASSIGNMENT-10-pipeline-audit.md">Cost audit</a>
+    <a href="https://github.com/SritejCanchi">GitHub</a>
+  </nav>
+</div></footer>
+
+</body>
+</html>
