@@ -33,9 +33,12 @@ thought of.
 | Ledger truth | Turns on the move-grading judge and checks the grades against the position: no danger while a line survives, no excellent onto the tile the robot guessed. |
 | Independent oracle | Re-searches positions the game has written off, using its own breadth-first search and a budget five times larger, and compares verdicts. |
 
-A run is about 3,000 checks. The count moves a little between runs because
-the board placer uses real randomness. `RM_SPAWNS`, `RM_PLANS` and
-`RM_ORACLE` in the environment change the sample sizes.
+A run is about 3,000 checks. Runs are seeded: the agent swaps `Math.random`
+for a seeded generator in its own process, so the same seed samples the same
+random boards and any failure can be replayed exactly. `RM_SEED` picks the seed
+(default 20261002, recorded in the report). `RM_SPAWNS`, `RM_PLANS` and
+`RM_ORACLE` change the sample sizes. Any finding exits with code 1, so CI fails
+on it.
 
 ## What it found
 

@@ -28,7 +28,7 @@
   "rows": 6,
   "from": "A6 Retry Read",
   "contains": "6 lines the boss speaks when you respawn",
-  "sha256": "911b309df12c2d0de9b4e86f1461f49af5b16d34d674f641517c9153fc256aa2",
+  "sha256": "baa3fafc1352e18ffe2d047f0b5aef3ff86bcdc701b9a77421068c5c310f70ac",
   "identical": true
  },
  {
@@ -36,7 +36,7 @@
   "rows": 3,
   "from": "A7 Copy Desk",
   "contains": "3 journey beats, style-checked",
-  "sha256": "2444e47c22abe8a07cb9177a5af836278a083df4e7c417698aeec84699aa7167",
+  "sha256": "16475787cebcf3a34f3fc9f923371a7945b8546ff462d2ebd64b9632b4467409",
   "identical": true
  }
 ]

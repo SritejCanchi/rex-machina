@@ -2,3 +2,6 @@ __pycache__/
 *.pyc
 .DS_Store
 live_run_output*.txt
+node_modules/
+test-results/
+playwright-report/

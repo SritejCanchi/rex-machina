@@ -10,6 +10,21 @@
 // Writes qa/report.json.
 const fs = require("fs"), path = require("path");
 const ROOT = path.join(__dirname, "..");
+
+// Seeded randomness. game.js places random boards with Math.random, so two runs
+// used to sample different boards and a failure could not be replayed. Swapping
+// Math.random here, in the harness only, makes every run reproducible without
+// touching the shipped game. RM_SEED picks the seed and the report records it.
+const SEED = Number(process.env.RM_SEED || 20261002) >>> 0;
+let seedState = SEED;
+Math.random = () => {                         // mulberry32
+  seedState = (seedState + 0x6D2B79F5) >>> 0;
+  let t = seedState;
+  t = Math.imul(t ^ (t >>> 15), t | 1);
+  t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+  return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+};
+
 const G = require(path.join(ROOT, "game.js"));
 G.setSinks(() => ({ innerHTML:"", children:[], appendChild(){}, removeChild(){},
                     get firstChild(){ return null; } }));
@@ -602,7 +617,7 @@ const pick = a => a[Math.floor(rnd() * a.length)];
 
 const out = {
   game: "Rex Machina", target: "game.js, the capstone build served at index.html",
-  agent: "qa/adversary.js", run_at: new Date().toISOString(),
+  agent: "qa/adversary.js", run_at: new Date().toISOString(), seed: SEED,
   strategy: ["GDD 3 exploit 4 approach ratchet", "GDD 3 exploit 2 the leash",
              "GDD 3 exploit 5 window aliasing", "GDD 3 exploit 3 no fail state",
              "read line versus measured observable", "randomised invariant fuzz",
@@ -614,8 +629,10 @@ const out = {
   checks_run: checks, findings_count: findings.length, findings, measurements
 };
 fs.writeFileSync(path.join(__dirname, "report.json"), JSON.stringify(out, null, 1));
-console.log("%d checks, %d findings\n", checks, findings.length);
+console.log("%d checks, %d findings (seed %d)\n", checks, findings.length, SEED);
 for (const f of findings)
   console.log("  [" + f.severity.toUpperCase() + "] " + f.error_type +
               "\n      " + f.location + "\n      " + f.summary + "\n");
 console.log("wrote qa/report.json");
+// A finding fails the run, so CI cannot read a report full of defects as a pass.
+process.exit(findings.length ? 1 : 0);

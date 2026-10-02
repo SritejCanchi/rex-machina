@@ -2,7 +2,8 @@
  "game": "Rex Machina",
  "target": "game.js, the capstone build served at index.html",
  "agent": "qa/adversary.js",
- "run_at": "2026-09-10T22:43:19.905Z",
+ "run_at": "2026-10-02T20:16:01.270Z",
+ "seed": 7,
  "strategy": [
   "GDD 3 exploit 4 approach ratchet",
   "GDD 3 exploit 2 the leash",
@@ -20,7 +21,7 @@
   "ledger grades versus the search",
   "independent oracle over the game's own search"
  ],
- "checks_run": 3096,
+ "checks_run": 3060,
  "findings_count": 0,
  "findings": [],
  "measurements": {
@@ -30,7 +31,7 @@
     {
      "difficulty": "easy",
      "failed_encounters": 0,
-     "raw_spawn_winnable": "40/40",
+     "raw_spawn_winnable": "39/40",
      "after_fairness_roll": "40/40"
     },
     {
@@ -42,19 +43,19 @@
     {
      "difficulty": "moderate",
      "failed_encounters": 0,
-     "raw_spawn_winnable": "35/40",
+     "raw_spawn_winnable": "38/40",
      "after_fairness_roll": "40/40"
     },
     {
      "difficulty": "moderate",
      "failed_encounters": 3,
-     "raw_spawn_winnable": "32/40",
+     "raw_spawn_winnable": "22/40",
      "after_fairness_roll": "40/40"
     },
     {
      "difficulty": "hard",
      "failed_encounters": 0,
-     "raw_spawn_winnable": "30/40",
+     "raw_spawn_winnable": "28/40",
      "after_fairness_roll": "40/40"
     },
     {

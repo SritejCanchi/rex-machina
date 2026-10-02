@@ -7,6 +7,10 @@ file, records a sha256 of the source and the destination, and refuses to
 finish if any pair differs.
 
     python tools/sync_datatables.py --pipelines "..\\Deliverables"
+    python tools/sync_datatables.py --verify      check data/ against MANIFEST only
+
+Hashes are taken over the text with line endings normalised to LF, so the same
+table hashes the same on a Windows checkout (CRLF) and a Linux CI runner (LF).
 """
 import argparse
 import hashlib
@@ -34,16 +38,38 @@ SOURCES = [
 
 def sha(path):
     with open(path, "rb") as fh:
-        return hashlib.sha256(fh.read()).hexdigest()
+        return hashlib.sha256(fh.read().replace(b"\r\n", b"\n")).hexdigest()
+
+
+def verify(dest_dir):
+    """Every table in MANIFEST is present, unmodified, and has the rows it claims."""
+    manifest = json.load(open(os.path.join(dest_dir, "MANIFEST.json"), encoding="utf-8"))
+    failed = 0
+    for entry in manifest:
+        path = os.path.join(dest_dir, entry["file"])
+        if not os.path.exists(path):
+            print("  MISSING  %s" % entry["file"])
+            failed += 1
+            continue
+        rows = len(json.load(open(path, encoding="utf-8")))
+        ok = sha(path) == entry["sha256"] and rows == entry["rows"]
+        failed += 0 if ok else 1
+        print("  %s %-24s %2d rows" % ("ok      " if ok else "CHANGED ", entry["file"], rows))
+    print("\n%d tables, %d problems." % (len(manifest), failed))
+    return 1 if failed else 0
 
 
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--pipelines", default=os.path.join(HERE, "..", "Deliverables"),
                     help="folder holding the assignment output folders")
+    ap.add_argument("--verify", action="store_true",
+                    help="only check data/ against MANIFEST.json, copy nothing")
     args = ap.parse_args()
 
     dest_dir = os.path.join(HERE, "data")
+    if args.verify:
+        return verify(dest_dir)
     os.makedirs(dest_dir, exist_ok=True)
     manifest, failed = [], 0
 

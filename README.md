@@ -90,7 +90,20 @@ speaks came from a generated table.
 `qa/adversary.js` is the Assignment 9 agent. It re-attempts five of the six
 exploits GDD §3 says were closed, fuzzes 300 randomised fights, and probes each
 encounter for winnability. It found three bugs in this build, all now fixed and
-documented in `qa/README.md`.
+documented in `qa/README.md`. Runs are seeded (`RM_SEED`) and any finding exits 1.
+
+| Level | Command | What it covers |
+|---|---|---|
+| Data | `python tools/sync_datatables.py --verify` | Every table matches its manifest hash and row count |
+| Unit | `node --test tests/unit/` | Rex's observables, prediction, veto, charge, reads and RM-001, refused moves, stamina floor, table shape. Open bug RM-13 is a `todo` test |
+| Integration | `node tests/sim.js` | The real game with the real tables, played headless |
+| Adversarial | `node qa/adversary.js` | About 3,000 checks against the running build |
+| End to end | `npm run test:e2e` | The real page in Chromium: the computer plays all six encounters and wins the fight, arrow keys, no browser errors. Timers are fast-forwarded and boards seeded |
+| Pipelines | `python pipelines/<name>/tests/test_*.py` | Each content pipeline, replaying recorded model turns, no key |
+
+`npm test` runs data, unit, simulation and the QA agent. `.github/workflows/ci.yml`
+runs everything on each push and pull request, and only the jobs the change can
+affect. No job needs an API key.
 
 ## Layout
 
