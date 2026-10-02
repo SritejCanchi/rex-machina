@@ -114,7 +114,7 @@ section = f'''
 
 <h2 id="tracker">Task tracker</h2>
 <div class="tracker-head">
-  <p class="headline"><mark>{cnt["done"]} of {n} items done, {cnt["prog"]} in progress, {cnt["todo"]} to do.</mark> All ten course assignments and the browser release are complete. The open work is the two ports and three bugs.</p>
+  <p class="headline"><mark>{cnt["done"]} of {n} items done, {cnt["prog"]} in progress, {cnt["todo"]} to do.</mark> All ten course assignments and the browser release are complete. The open work is the two ports, three bugs and the Azure deployment.</p>
   <div class="bar" role="img" aria-label="{cnt['done']} done, {cnt['prog']} in progress, {cnt['todo']} to do">
     <span class="b-done" style="width:{pct('done')}%"></span><span class="b-prog" style="width:{pct('prog')}%"></span><span class="b-todo" style="width:{pct('todo')}%"></span>
   </div>
