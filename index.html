@@ -56,6 +56,9 @@
   h3{font-size:18px;line-height:1.35;font-weight:700;margin:26px 0 6px}
   p{margin:0 0 14px}
   h4{font-size:16px;margin:26px 0 8px}
+  .terms{display:grid;grid-template-columns:max-content 1fr;gap:8px 18px;margin:8px 0 0;font-size:15.5px}
+  .terms dt{font-weight:600}
+  .terms dd{margin:0}
   .note{font-size:14.5px;color:var(--muted)}
 
   table{width:100%;border-collapse:collapse;margin:12px 0 18px;font-size:15.5px;line-height:1.45}
@@ -91,6 +94,8 @@
     table{font-size:14.5px}
     .t-dec td:nth-child(2),.t-dec th:nth-child(2){display:none}
     .hm{display:none}
+    .terms{grid-template-columns:1fr;gap:2px}
+    .terms dd{margin-bottom:8px}
     .pair{grid-template-columns:1fr}
     th,td{padding-right:10px}
     th.n{white-space:normal}
@@ -131,17 +136,39 @@
 <figure class="wide">
   <img src="assets/fight.webp" width="1292" height="934"
        alt="The boss fight on a ten by ten board. The robot has marked the tile it predicts the dog will step on, says 'Movement repeated on cycle', and a ledger on the right grades each move.">
-  <figcaption>The boss fight. The robot marks the tile it predicts the player will take next and moves to cut it off. The ledger grades every move with a search over the robot's own decision model.</figcaption>
+  <figcaption>The boss fight. Rex, the robot, marks the tile it predicts the dog will take next and moves to cut it off. The ledger grades every move with a search over the robot's own decision model.</figcaption>
 </figure>
 
 <main class="col">
 
 <h2 id="game">The game</h2>
-<p>A shelter dog walks nine days home to the family that gave her away, and finds a robot dog in her place. Six chase encounters lead to one boss fight. The design rule from the course: <strong>one agent, one wow</strong>.</p>
-<p>The robot reads the player's last few moves, walks to the tile it predicts, and names what it measured, for example <em>“Two of the last four moves cancelled out.”</em> <mark>Repeat a trick and it stops working. Wait long enough and it forgets.</mark></p>
+<p><strong>Rex Machina</strong> is a short browser game, about two minutes to play. A shelter dog walks nine days home to the family that gave her away, and finds a robot dog called <strong>Rex</strong> in her place.</p>
+<ul>
+  <li><strong>The road home.</strong> Six short encounters, one screen each. Something hunts the dog and always shows a tell before it strikes. Hold still through the tell, then break for it. Get caught and you reach the fight weaker.</li>
+  <li><strong>The fight.</strong> A turn-based chase on a 10&times;10 board. Each turn the dog moves one tile or waits, then Rex moves. Reach the kid before the 15 rounds or your stamina run out.</li>
+  <li><strong>Rex does not chase.</strong> It reads your last few moves, guesses the tile you will step on next, marks it, and moves to cut you off. Then it says what it measured, for example <em>&ldquo;Two of the last four moves cancelled out.&rdquo;</em> <mark>Repeat a trick and it stops working. Wait long enough and it forgets.</mark></li>
+</ul>
+<p>The course asked for one AI feature strong enough to carry a whole game, its rule being <strong>one agent, one wow</strong>. Here that feature is Rex.</p>
+
+<h3>Where the AI is</h3>
+<ul>
+  <li><strong>Before shipping.</strong> Five agent pipelines, one per course assignment, wrote every piece of game text from the design document: Rex's 24 lines, 6 retry lines, 3 arenas, 6 encounters and the narration. That is 42 rows in five data tables, and every build reads them.</li>
+  <li><strong>During play.</strong> Rex is a goal-oriented agent written as code: perceive, predict, intercept, and veto any move that would lose ground. It picks which pre-written line to say from what it measured. <mark>No model is called while you play.</mark></li>
+  <li><strong>Testing.</strong> An adversarial QA agent plays the build and tries to break it.</li>
+</ul>
+
+<h3>Terms used below</h3>
+<dl class="terms">
+  <dt>Read</dt><dd>One line Rex says about how you have moved, such as &ldquo;Movement repeated on cycle.&rdquo; Each read has a trigger, the pattern Rex must see first. Rex's battery sets the tone: clinical when full, then confident, then strained.</dd>
+  <dt>RM-001</dt><dd>The rule that Rex never says a false read. A line that names a direction is held back unless it is the direction you actually favoured. Named after the QA finding that forced it.</dd>
+  <dt>Refused move</dt><dd>A step into the fence or onto Rex's tile. The game refuses it, and it does not count as a turn.</dd>
+  <dt>Retry lines</dt><dd>What Rex says when you come back after losing.</dd>
+  <dt>The tables</dt><dd>The five data tables, 42 rows, that hold all game text. The browser, Unreal and Unity builds read the same files.</dd>
+  <dt><code>game.js</code></dt><dd>The browser game's code. Every port is checked against it.</dd>
+</dl>
 
 <h2 id="cost">Model choice and cost</h2>
-<p>All costs come from one formula, applied to token counts that were measured, not estimated.</p>
+<p>The design document planned live model calls during play, 43 per playthrough. The shipped build writes everything before release instead, so the &ldquo;live&rdquo; numbers below are the cost that choice avoided. All costs come from one formula, applied to token counts that were measured, not estimated.</p>
 <pre><span class="k">cost</span> = tokens_in  × price_in
      + tokens_out × price_out
 <span class="c">  prices per million tokens</span>
@@ -287,7 +314,7 @@ browser build  ·  Unreal 5.5 build</pre>
 </table>
 
 <h2 id="unity">Unity 6.6 and Unity AI, used on the capstone</h2>
-<p>The same data contract opens in <strong>Unity 6.6 (6000.6.2f1)</strong>, and the boss turn was ported to C# with Unity AI on a trial plan. Every surface was used on real Rex Machina work: Ask, Plan and Agent modes, the generators, project skills, the MCP server and Unity's Claude Code plugin. <mark>Total spend: 433 credits, about $4.33.</mark></p>
+<p>The same five tables load in <strong>Unity 6.6 (6000.6.2f1)</strong> unchanged, and Rex's turn logic was ported from the browser game's JavaScript to C# with Unity AI, on a trial plan. Every surface was used on real Rex Machina work: Ask, Plan and Agent modes, the generators, project skills, the MCP server and Unity's Claude Code plugin. <mark>Total spend: 433 credits, about $4.33.</mark></p>
 
 <div class="summary">
   <h2>What held up</h2>
@@ -301,7 +328,7 @@ browser build  ·  Unreal 5.5 build</pre>
 <figure class="wide">
   <img src="assets/unity-editor.webp" width="1800" height="1013" loading="lazy"
        alt="The Unity 6.6 editor. Left: a ten by ten yard arena built from the Rex Machina arena table. Right: the Unity AI Assistant panel answering a question about Nemesis Reads.">
-  <figcaption>The Unity project: the yard arena built from <code>DT_ArenaPhases</code>, the Assistant on the right.</figcaption>
+  <figcaption>The Unity project: the first arena, built from the arena table, and the Assistant on the right.</figcaption>
 </figure>
 
 <h3>Every surface, on one task each</h3>
@@ -309,7 +336,7 @@ browser build  ·  Unreal 5.5 build</pre>
 <table class="t-map">
   <thead><tr><th>Surface</th><th>Used for</th><th>Result</th><th class="n">Credits</th></tr></thead>
   <tbody>
-    <tr><td>Ask</td><td>Which reads fire on six moves right</td><td>All tiers recalled the six rows exactly. Only some ran the game, see the evaluation.</td><td class="n">11&ndash;38</td></tr>
+    <tr><td>Ask</td><td>What Rex says after six moves right</td><td>All tiers recalled the six rows exactly. Only some ran the game, see the evaluation.</td><td class="n">11&ndash;38</td></tr>
     <tr><td>Plan</td><td>Scope the C# port of the boss turn</td><td>Five steps, three scripts, a test per rule, every constant correct</td><td class="n">76*</td></tr>
     <tr><td>Agent</td><td>Execute the plan</td><td>458-line turn logic, a scene component, a 619-line test harness</td><td class="n">106</td></tr>
     <tr><td>Agent</td><td>Fix the bug the parity replay found</td><td>Refused moves no longer count as turns, a new test for it</td><td class="n">73</td></tr>
@@ -365,7 +392,7 @@ browser build  ·  Unreal 5.5 build</pre>
 </figure>
 
 <h3>Model evaluation</h3>
-<p>The same question went to every Assistant tier: which reads fire if the player moves right six turns in a row? It is a fair test because the honest answer depends on the running game, not on the table.</p>
+<p>The same question went to every Assistant tier: if the player moves right six turns in a row, what does Rex say? The table alone points to a line about favouring &ldquo;left&rdquo;, which RM-001 holds back. So the honest answer needs the game's rules running, not just the table.</p>
 <div class="scroll">
 <table class="t-map">
   <thead><tr><th>Model</th><th class="n">Credits</th><th>Rows from the table</th><th>What Rex actually says</th><th>Shipped-game defect found</th></tr></thead>
@@ -378,7 +405,7 @@ browser build  ·  Unreal 5.5 build</pre>
   </tbody>
 </table>
 </div>
-<p><mark>The defect: Rex's exit-fixation lines claim &ldquo;Two consecutive approaches targeted the same exit tile&rdquo; and &ldquo;You ran the same exit twice&rdquo;, but the trigger fires on one approach within two tiles.</mark> A line that states something that did not happen. The adversarial QA agent built for the browser game missed it. Ultra also found that periodicity fires at 0.6 while the table says above 0.65.</p>
+<p><mark>The defect: Rex's &ldquo;same exit&rdquo; lines claim &ldquo;Two consecutive approaches targeted the same exit tile&rdquo; and &ldquo;You ran the same exit twice&rdquo;, but the trigger fires on one approach within two tiles.</mark> A line that states something that did not happen. The adversarial QA agent built for the browser game missed it. Ultra also found a trigger threshold that differs between the code (0.6) and the table (0.65).</p>
 <figure>
     <img src="assets/unity-ultra.webp" width="785" height="815" loading="lazy"
          alt="Unity Ultra's answer: a table of lines Rex actually says on turns 4 and 5, a table of the sealing_direction row that stays silent under RM-001, and notes that the code does not match the JSON trigger conditions for periodicity_called and exit_fixation. Cost 38 credits.">
@@ -509,7 +536,7 @@ browser build  ·  Unreal 5.5 build</pre>
 <p>One good answer from a model says little, so the Unity question from the evaluation above went to the cheapest tier ten times in all: five runs with the project skill, five without. Each answer was checked against the C# turn logic run over MCP.</p>
 <div class="scroll">
 <table class="t-map">
-  <thead><tr><th></th><th class="n">Credits per answer</th><th class="n">Said what Rex really says</th><th class="n">Tried to run the code</th><th class="n">Caught the false exit line</th></tr></thead>
+  <thead><tr><th></th><th class="n">Credits per answer</th><th class="n">Said what Rex really says</th><th class="n">Tried to run the code</th><th class="n">Caught the false &ldquo;same exit&rdquo; line</th></tr></thead>
   <tbody>
     <tr class="pick"><td>With the skill</td><td class="n">9&ndash;19, mean 12.8</td><td class="n">5 of 5</td><td class="n">3 of 5</td><td class="n">3 of 5</td></tr>
     <tr><td>Without it</td><td class="n">7&ndash;11, mean 9.2</td><td class="n">0 of 5</td><td class="n">0 of 5</td><td class="n">0 of 5</td></tr>
@@ -519,14 +546,14 @@ browser build  ·  Unreal 5.5 build</pre>
 <ul>
   <li><mark>The skill moved correctness from 0 of 5 to 5 of 5 for about 3.6 more credits an answer.</mark></li>
   <li>Two runs ended with &ldquo;Verified by simulation: yes&rdquo; and never ran anything. A third ran the code, got no line back on two turns, and reported lines anyway. <mark>An answer saying it checked is not a check. The tool calls are.</mark></li>
-  <li>Verdicts on the exit line split, and one run argued it was true. The line says &ldquo;two consecutive approaches&rdquo;. The trigger fires on one, and in the browser game two steps from the start are enough to hear it after a single approach. A loose rule produces split verdicts, so the rule gets fixed before the judge does.</li>
+  <li>Verdicts on the &ldquo;same exit&rdquo; line split, and one run argued it was true. The line says &ldquo;two consecutive approaches&rdquo;. The trigger fires on one, and in the browser game two steps from the start are enough to hear it after a single approach. A loose rule produces split verdicts, so the rule gets fixed before the judge does.</li>
 </ul>
 <p class="note">Five runs a side is a small sample, so read it as a direction rather than a rate. The log and scoring are in <a href="https://github.com/SritejCanchi/rex-machina/tree/main/unity/eval">unity/eval</a>. 80 credits.</p>
 
 <h3>Smaller things that held up</h3>
 <ul>
   <li><strong>A passing check counts only if it could have failed.</strong> One QA check kept passing after a rule change made its scripted line impossible. It was measuring nothing. It now searches for a winning line instead of replaying one.</li>
-  <li><strong>Anything no test can reach goes unchecked.</strong> The move-grading judge only ran inside a browser. It became a flag so the QA agent could test it.</li>
+  <li><strong>Anything no test can reach goes unchecked.</strong> The panel that grades each player move only ran inside a browser. It became a flag so the QA agent could test it.</li>
   <li><strong>Check the checker.</strong> When the game says a run is lost, the QA agent re-searches the position on its own with five times the budget. They agreed every time.</li>
   <li><strong>Measure what the player meets.</strong> On hard, after a bad journey, 3 in 8 random boards could not be won before the fairness reroll. Nothing on screen would have said so.</li>
   <li><strong>Record and replay.</strong> Every model call is recorded once, so tests that depend on a model run the same way every time and cost nothing.</li>
