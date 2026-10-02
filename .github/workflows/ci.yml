@@ -1,0 +1,121 @@
+# Every push and pull request runs only the checks its changes can affect.
+# No job needs an API key: model-backed tests replay recorded turns.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      game: ${{ steps.filter.outputs.game }}
+      pipelines: ${{ steps.filter.outputs.pipelines }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            game:
+              - 'game.js'
+              - 'index.html'
+              - 'data/**'
+              - 'tests/**'
+              - 'qa/**'
+              - 'tools/sync_datatables.py'
+              - 'package*.json'
+              - 'playwright.config.js'
+              - '.github/workflows/ci.yml'
+            pipelines:
+              - 'pipelines/**'
+              - '.github/workflows/ci.yml'
+
+  unit:
+    name: Unit and data
+    needs: changes
+    if: needs.changes.outputs.game == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Tables match their manifest
+        run: python3 tools/sync_datatables.py --verify
+      - name: Unit tests
+        run: node --test tests/unit/
+      - name: Headless fight simulation
+        run: node tests/sim.js
+
+  qa-agent:
+    name: Adversarial QA agent
+    needs: unit
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Run the agent (seeded, fails on any finding)
+        run: node qa/adversary.js
+      - name: Keep the report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: qa-report
+          path: qa/report.json
+
+  e2e:
+    name: End to end (Playwright)
+    needs: unit
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npx playwright test
+      - name: Keep the report on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+
+  pipelines:
+    name: Pipeline tests (replay, no key)
+    needs: changes
+    if: needs.changes.outputs.pipelines == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        suite:
+          - pipelines/a5-architect-goal-agent/tests/test_architect.py
+          - pipelines/a6-retry-read-ger/tests/test_ger.py
+          - pipelines/a7-copy-desk-style/tests/test_styleguide.py
+          - pipelines/a8-nine-days-narrative/tests/test_dm.py
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python ${{ matrix.suite }}
